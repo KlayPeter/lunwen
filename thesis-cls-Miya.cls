@@ -186,6 +186,9 @@ footskip=7.9mm,%
 \newcommand\englishtitleA[1]{\def\Miya@Value@englishtitleA{#1}} 
 \def\Miya@Value@englishtitleB{}
 \newcommand\englishtitleB[1]{\def\Miya@Value@englishtitleB{#1}} 
+\def\Miya@Value@englishtitleC{}
+\newcommand\englishtitleC[1]{\def\Miya@Value@englishtitleC{#1}} 
+
 \def\Miya@Value@englishmajor{}
 \newcommand\englishmajor[1]{\def\Miya@Value@englishmajor{#1}} 
 \def\Miya@Value@kongA{}
@@ -318,6 +321,8 @@ footskip=7.9mm,%
 		\\[-2mm]  \cline{2-2}
 		英文题目 ： & \hspace{2em}\Miya@Value@englishtitleA \\[-2mm]  \cline{2-2}
 & \hspace{2em}\MiyaNormalFont{\Miya@Value@englishtitleB}
+		\\[-2mm]  \cline{2-2}
+& \hspace{2em}\MiyaNormalFont{\Miya@Value@englishtitleC}
 		\\[-2mm]  \cline{2-2}
 	\end{tabular}
 }

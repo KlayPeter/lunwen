@@ -156,7 +156,7 @@ io.to(roomId).emit('group-message', responseMessage)
 
 \textbf{逻辑架构说明：} AI 模块的核心突破点在于打破了“单向死板问答”的模式，将 \texttt{/api/chatroom-ai/ask-stream} 设计成了一个融合 RAG 向量检索与 Server-Sent Events (SSE) 双向广播的实时流式处理器。当用户在聊天室发送带有 \texttt{@AI} 的问题时，控制器不会简单把请求透明代理给 DeepSeek，而是会先接管上下文\cite{qaoverview2025,ragllmsurvey2024,ragsurveycn2025}。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_1.png}
 \caption{RAG智能流式问答核心处理流}
@@ -248,7 +248,7 @@ const groupMessageSchema = new mongoose.Schema({
 
 对于一个活跃的技术交流平台，除了被动等待用户输入指令外，后台系统还需要具备“宏观把控房间态势”的数据加工能力。项目中专门设计了 \texttt{getRoomInsights} 接口来实现对房间消息生命周期的全局审视。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_2.png}
 \caption{聊天室实时洞察与状态分析流}
@@ -452,7 +452,7 @@ POST /api/chatroom-ai/ask-stream
 
 为了验证接口文档与控制器实现保持一致，项目在联调阶段使用 Swagger 页面对主要 REST 接口进行逐项核对，包括用户认证、聊天室消息、收藏和 AI 相关请求。接口文档界面如图~\ref{fig:5-1}所示，它能够直接展示请求方法、路径、参数结构和调试入口，对后续接口联调和答辩演示都比较直观。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_3.png}
 \caption{Swagger 接口文档}
@@ -483,21 +483,21 @@ POST /api/chatroom-ai/ask-stream
 
 \textbf{操作流程：} 登录/注册模块的操作流程比较清楚。用户先进入登录页，根据自己的习惯选择密码登录、验证码登录或第三方登录；如果是本地登录，就输入表单并提交；后端验证通过以后返回 token 和用户资料；前端接着保存登录信息、初始化在线状态和 Socket 连接，最后跳转到聊天主界面。整个流程如图\ref{fig:5-4}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_4.png}
 \caption{登录页面展示}
 \label{fig:5-2}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_5.png}
 \caption{注册页面与表单交互展示}
 \label{fig:5-3}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_6.png}
 \caption{登录/注册操作流程图}
@@ -514,28 +514,28 @@ POST /api/chatroom-ai/ask-stream
 
 \textbf{操作流程：} 用户登录进入主界面后，前端先加载基础资料和列表数据；用户再根据当前需求切到聊天、联系人或聊天室；选择具体会话后，前端写入当前会话上下文并跳转详情页；详情页继续拉取消息记录并建立需要的 Socket 监听。这个过程如图\ref{fig:5-8}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_7.png}
 \caption{聊天主界面总览}
 \label{fig:5-5}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_8.png}
 \caption{通讯录列表界面展示}
 \label{fig:5-6}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_9.png}
 \caption{聊天室列表界面展示}
 \label{fig:5-7}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_10.png}
 \caption{聊天主界面操作流程图}
@@ -552,21 +552,21 @@ POST /api/chatroom-ai/ask-stream
 
 \textbf{操作流程：} AI 模块的操作流程可以概括为：用户打开 AI 面板或在聊天室中输入 \texttt{@AI}；前端提交问题并附带当前上下文；后端结合最近消息和历史检索结果生成回答；回答返回后前端按普通消息或流式消息渲染出来。流程如图\ref{fig:5-11}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_11.png}
 \caption{侧边栏 AI 助手界面}
 \label{fig:5-9}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_12.png}
 \caption{AI 根据历史记录检索后的回答展示}
 \label{fig:5-10}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_13.png}
 \caption{AI 对话操作流程图}
@@ -583,28 +583,28 @@ POST /api/chatroom-ai/ask-stream
 
 \textbf{操作流程：} 消息列表与会话管理的基本流程是：先加载会话摘要信息，再根据用户选择打开具体会话；进入会话后加载完整历史消息；如果用户执行搜索、收藏或删除等操作，再分别调用对应接口更新状态，并同步刷新列表。流程如图\ref{fig:5-15}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_14.png}
 \caption{会话列表与私聊界面展示}
 \label{fig:5-12}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_15.png}
 \caption{历史消息搜索界面展示}
 \label{fig:5-13}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_16.png}
 \caption{收藏页面展示}
 \label{fig:5-14}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_17.png}
 \caption{消息列表与会话管理操作流程图}
@@ -621,14 +621,14 @@ POST /api/chatroom-ai/ask-stream
 
 \textbf{操作流程：} 设置模块的操作流程比较顺：用户打开设置弹窗，修改头像、用户名或主题；前端调用对应接口并保存结果；保存成功后，同步刷新本地资料和相关组件；如果是头像这类会影响其他用户的内容，还会继续通过 Socket 广播更新。流程如图\ref{fig:5-17}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_18.png}
 \caption{设置与个人中心界面展示}
 \label{fig:5-16}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_19.png}
 \caption{设置与个人中心操作流程图}
@@ -668,7 +668,7 @@ tray.on('click', () => {
 
 桌面端在收到新消息后的未读提醒和任务栏反馈效果如图\ref{fig:5-18}所示。该图能够说明桌面端并不是简单复用网页界面，而是确实增加了桌面环境下的消息提醒机制。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_20.png}
 \caption{桌面端未读提醒展示}
@@ -691,7 +691,7 @@ ipcMain.on('new-message', (event, count) => {
 
 系统托盘的图标、菜单入口与后台驻留形态如图\ref{fig:5-19}所示。托盘机制使桌面端在关闭主窗口后仍能继续接收消息并保留快速唤起入口。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{img/图5_21.png}
 \caption{系统托盘展示}

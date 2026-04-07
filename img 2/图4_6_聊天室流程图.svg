@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="900" viewBox="0 0 650 900" style="background-color:#FFFFFF; font-family: Arial, sans-serif;">
+    <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" />
+        </marker>
+    </defs>
+
+    <!-- ======== Nodes ======== -->
+    <!-- 1. 开始 -->
+    <ellipse cx="325" cy="60" rx="60" ry="22" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="60" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">开始</text>
+
+    <!-- 2. 创建聊天室 -->
+    <rect x="245" y="130" width="160" height="40" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="150" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">创建聊天室</text>
+
+    <!-- 3. 表单填写 -->
+    <rect x="215" y="220" width="220" height="50" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="235" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="central">填写房间名称、技术方向</text>
+    <text x="325" y="255" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="central">加入方式与有效时长</text>
+
+    <!-- 4. 生成数据 -->
+    <rect x="215" y="320" width="220" height="50" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="335" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="central">服务端生成 RoomID</text>
+    <text x="325" y="355" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="central">初始化成员与系统消息</text>
+
+    <!-- 5. 加入判断 (Diamond) -->
+    <polygon points="325,420 405,450 325,480 245,450" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="450" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">加入方式判断</text>
+
+    <!-- 6. Left: 公开加入 -->
+    <rect x="90" y="530" width="120" height="40" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="150" y="550" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">公开加入</text>
+
+    <!-- 7. Center: 邀请码加入 -->
+    <rect x="265" y="530" width="120" height="40" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="550" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">邀请码加入</text>
+
+    <!-- 8. Right: 密码加入 -->
+    <rect x="440" y="530" width="120" height="40" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="500" y="550" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">密码加入</text>
+
+    <!-- 9. 同步状态 -->
+    <rect x="225" y="640" width="200" height="45" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="662.5" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">同步在线人数与成员状态</text>
+
+    <!-- 10. 到期清理 -->
+    <rect x="225" y="735" width="200" height="45" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="757.5" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">到期清理与自动失效</text>
+
+    <!-- 11. 结束 -->
+    <ellipse cx="325" cy="845" rx="60" ry="22" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="845" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">结束</text>
+
+
+    <!-- ======== Edges ======== -->
+    <path d="M 325 82 L 325 130" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 325 170 L 325 220" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <path d="M 325 270 L 325 320" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <path d="M 325 370 L 325 420" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- Diamond Left branch -->
+    <path d="M 245 450 L 150 450 L 150 530" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- Diamond Center branch -->
+    <path d="M 325 480 L 325 530" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- Diamond Right branch -->
+    <path d="M 405 450 L 500 450 L 500 530" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- Join from Left to 640 -->
+    <path d="M 150 570 L 150 605 L 325 605 L 325 640" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    
+    <!-- Join from Right to 640 -->
+    <path d="M 500 570 L 500 605 L 325 605 L 325 640" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- Join from Center, cover overlap nicely -->
+    <path d="M 325 570 L 325 640" stroke="#333333" stroke-width="2" fill="none" />
+
+    <!-- Next steps -->
+    <path d="M 325 685 L 325 735" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 325 780 L 325 823" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+</svg>

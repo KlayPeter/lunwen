@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="80" y="180" width="240" height="252" rx="14" class="box"/><rect x="80" y="180" width="240" height="54" rx="14" class="header"/><text x="200.0" y="213" text-anchor="middle" font-size="21" font-weight="700" class="label">Users</text><rect x="94" y="248" width="212" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="200.0" y="266.6">uID</tspan></text><rect x="94" y="282" width="212" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="200.0" y="300.6">uName</tspan></text><rect x="94" y="316" width="212" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="200.0" y="334.6">uEmail</tspan></text><rect x="94" y="350" width="212" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="200.0" y="368.6">Friends</tspan></text><rect x="94" y="384" width="212" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="200.0" y="402.6">provider</tspan></text><rect x="440" y="150" width="250" height="252" rx="14" class="box"/><rect x="440" y="150" width="250" height="54" rx="14" class="header"/><text x="565.0" y="183" text-anchor="middle" font-size="21" font-weight="700" class="label">Room</text><rect x="454" y="218" width="222" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="565.0" y="236.6">RoomID</tspan></text><rect x="454" y="252" width="222" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="565.0" y="270.6">RoomName</tspan></text><rect x="454" y="286" width="222" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="565.0" y="304.6">type</tspan></text><rect x="454" y="320" width="222" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="565.0" y="338.6">joinType</tspan></text><rect x="454" y="354" width="222" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="565.0" y="372.6">Members</tspan></text><rect x="780" y="150" width="260" height="252" rx="14" class="box"/><rect x="780" y="150" width="260" height="54" rx="14" class="header"/><text x="910.0" y="183" text-anchor="middle" font-size="21" font-weight="700" class="label">Messages</text><rect x="794" y="218" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="910.0" y="236.6">from</tspan></text><rect x="794" y="252" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="910.0" y="270.6">to</tspan></text><rect x="794" y="286" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="910.0" y="304.6">content</tspan></text><rect x="794" y="320" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="910.0" y="338.6">messageType</tspan></text><rect x="794" y="354" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="910.0" y="372.6">isRead</tspan></text><rect x="1130" y="150" width="280" height="252" rx="14" class="box"/><rect x="1130" y="150" width="280" height="54" rx="14" class="header"/><text x="1270.0" y="183" text-anchor="middle" font-size="21" font-weight="700" class="label">GroupMessage</text><rect x="1144" y="218" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1270.0" y="236.6">roomId</tspan></text><rect x="1144" y="252" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1270.0" y="270.6">fromName</tspan></text><rect x="1144" y="286" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1270.0" y="304.6">content</tspan></text><rect x="1144" y="320" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1270.0" y="338.6">questionStatus</tspan></text><rect x="1144" y="354" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1270.0" y="372.6">reactions</tspan></text><rect x="1480" y="180" width="220" height="252" rx="14" class="box"/><rect x="1480" y="180" width="220" height="54" rx="14" class="header"/><text x="1590.0" y="213" text-anchor="middle" font-size="21" font-weight="700" class="label">Favorite</text><rect x="1494" y="248" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1590.0" y="266.6">userId</tspan></text><rect x="1494" y="282" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1590.0" y="300.6">messageId</tspan></text><rect x="1494" y="316" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1590.0" y="334.6">chatId</tspan></text><rect x="1494" y="350" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1590.0" y="368.6">tags</tspan></text><rect x="1494" y="384" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1590.0" y="402.6">note</tspan></text><rect x="260" y="620" width="260" height="218" rx="14" class="box"/><rect x="260" y="620" width="260" height="54" rx="14" class="header"/><text x="390.0" y="653" text-anchor="middle" font-size="21" font-weight="700" class="label">AIConversation</text><rect x="274" y="688" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="390.0" y="706.6">userId</tspan></text><rect x="274" y="722" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="390.0" y="740.6">role</tspan></text><rect x="274" y="756" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="390.0" y="774.6">messages</tspan></text><rect x="274" y="790" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="390.0" y="808.6">updatedAt</tspan></text><rect x="880" y="620" width="260" height="218" rx="14" class="box"/><rect x="880" y="620" width="260" height="54" rx="14" class="header"/><text x="1010.0" y="653" text-anchor="middle" font-size="21" font-weight="700" class="label">Summary</text><rect x="894" y="688" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1010.0" y="706.6">userId</tspan></text><rect x="894" y="722" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1010.0" y="740.6">chatType</tspan></text><rect x="894" y="756" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1010.0" y="774.6">targetId</tspan></text><rect x="894" y="790" width="232" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1010.0" y="808.6">summary</tspan></text><line x1="320" y1="250" x2="440" y2="250" class="line"/><text x="380" y="230" text-anchor="middle" font-size="16" font-weight="600" class="label">1 : N
+创建 / 加入</text><line x1="320" y1="310" x2="260" y2="620" class="line"/><text x="250" y="470" text-anchor="middle" font-size="16" font-weight="600" class="label">1 : N
+发起 AI 对话</text><line x1="520" y1="620" x2="880" y2="620" class="line"/><text x="700" y="600" text-anchor="middle" font-size="16" font-weight="600" class="label">1 : N
+生成总结</text><line x1="690" y1="250" x2="780" y2="250" class="line"/><text x="735" y="230" text-anchor="middle" font-size="16" font-weight="600" class="label">1 : N
+私聊消息</text><line x1="690" y1="310" x2="1130" y2="310" class="line"/><text x="910" y="290" text-anchor="middle" font-size="16" font-weight="600" class="label">1 : N
+群聊 / 聊天室消息</text><line x1="1410" y1="250" x2="1480" y2="250" class="line"/><text x="1445" y="230" text-anchor="middle" font-size="16" font-weight="600" class="label">1 : N
+收藏快照</text><line x1="1260" y1="390" x2="1560" y2="390" class="line"/><text x="1410" y="375" text-anchor="middle" font-size="16" font-weight="600" class="label">消息来源回溯</text><line x1="320" y1="350" x2="1480" y2="350" class="line"/><text x="920" y="338" text-anchor="middle" font-size="15" font-weight="600" class="label">Users 与 Favorite 通过 userId 关联</text>
+</svg>

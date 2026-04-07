@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="420" viewBox="0 0 1100 420" style="background-color:#FFFFFF; font-family: Arial, sans-serif;">
+    
+    <!-- Central Node -->
+    <rect x="450" y="40" width="200" height="50" rx="8" fill="#F9F9F9" stroke="#333333" stroke-width="2" />
+    <text x="550" y="65" font-size="16" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">智能聊天室系统</text>
+
+    <!-- Routing Lines (Top-down Tree) -->
+    <path d="M 550 90 L 550 130 M 110 130 L 990 130 M 110 130 L 110 160 M 330 130 L 330 160 M 550 130 L 550 160 M 770 130 L 770 160 M 990 130 L 990 160" stroke="#333333" stroke-width="2" fill="none" />
+
+    <!-- ====== Module 1 ====== -->
+    <g id="mod1" transform="translate(20, 160)">
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="#FFFFFF" stroke="none" />
+        <path d="M 0 8 Q 0 0 8 0 L 172 0 Q 180 0 180 8 L 180 40 L 0 40 Z" fill="#F0F0F0" />
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="none" stroke="#333333" stroke-width="2" />
+        <path d="M 0 40 L 180 40" stroke="#333333" stroke-width="2" />
+        
+        <text x="90" y="20" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">用户管理模块</text>
+        
+        <circle cx="25" cy="70" r="3" fill="#333333" />
+        <text x="40" y="70" font-size="13" fill="#333333" dominant-baseline="middle">本地注册登录</text>
+        
+        <circle cx="25" cy="110" r="3" fill="#333333" />
+        <text x="40" y="110" font-size="13" fill="#333333" dominant-baseline="middle">验证码认证</text>
+        
+        <circle cx="25" cy="150" r="3" fill="#333333" />
+        <text x="40" y="150" font-size="13" fill="#333333" dominant-baseline="middle">OAuth 接入</text>
+        
+        <circle cx="25" cy="190" r="3" fill="#333333" />
+        <text x="40" y="190" font-size="13" fill="#333333" dominant-baseline="middle">会话与权限</text>
+    </g>
+
+    <!-- ====== Module 2 ====== -->
+    <g id="mod2" transform="translate(240, 160)">
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="#FFFFFF" stroke="none" />
+        <path d="M 0 8 Q 0 0 8 0 L 172 0 Q 180 0 180 8 L 180 40 L 0 40 Z" fill="#F0F0F0" />
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="none" stroke="#333333" stroke-width="2" />
+        <path d="M 0 40 L 180 40" stroke="#333333" stroke-width="2" />
+        
+        <text x="90" y="20" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">即时通讯模块</text>
+        
+        <circle cx="25" cy="70" r="3" fill="#333333" />
+        <text x="40" y="70" font-size="13" fill="#333333" dominant-baseline="middle">私聊消息</text>
+        
+        <circle cx="25" cy="110" r="3" fill="#333333" />
+        <text x="40" y="110" font-size="13" fill="#333333" dominant-baseline="middle">群聊消息</text>
+        
+        <circle cx="25" cy="150" r="3" fill="#333333" />
+        <text x="40" y="150" font-size="13" fill="#333333" dominant-baseline="middle">多类型消息</text>
+        
+        <circle cx="25" cy="190" r="3" fill="#333333" />
+        <text x="40" y="190" font-size="13" fill="#333333" dominant-baseline="middle">在线与未读同步</text>
+    </g>
+
+    <!-- ====== Module 3 ====== -->
+    <g id="mod3" transform="translate(460, 160)">
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="#FFFFFF" stroke="none" />
+        <path d="M 0 8 Q 0 0 8 0 L 172 0 Q 180 0 180 8 L 180 40 L 0 40 Z" fill="#F0F0F0" />
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="none" stroke="#333333" stroke-width="2" />
+        <path d="M 0 40 L 180 40" stroke="#333333" stroke-width="2" />
+        
+        <text x="90" y="20" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">聊天室模块</text>
+        
+        <circle cx="25" cy="70" r="3" fill="#333333" />
+        <text x="40" y="70" font-size="13" fill="#333333" dominant-baseline="middle">创建与加入</text>
+        
+        <circle cx="25" cy="110" r="3" fill="#333333" />
+        <text x="40" y="110" font-size="13" fill="#333333" dominant-baseline="middle">在线统计</text>
+        
+        <circle cx="25" cy="150" r="3" fill="#333333" />
+        <text x="40" y="150" font-size="13" fill="#333333" dominant-baseline="middle">问题标记</text>
+        
+        <circle cx="25" cy="190" r="3" fill="#333333" />
+        <text x="40" y="190" font-size="13" fill="#333333" dominant-baseline="middle">过期清理</text>
+    </g>
+
+    <!-- ====== Module 4 ====== -->
+    <g id="mod4" transform="translate(680, 160)">
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="#FFFFFF" stroke="none" />
+        <path d="M 0 8 Q 0 0 8 0 L 172 0 Q 180 0 180 8 L 180 40 L 0 40 Z" fill="#F0F0F0" />
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="none" stroke="#333333" stroke-width="2" />
+        <path d="M 0 40 L 180 40" stroke="#333333" stroke-width="2" />
+        
+        <text x="90" y="20" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">AI助手模块</text>
+        
+        <circle cx="25" cy="70" r="3" fill="#333333" />
+        <text x="40" y="70" font-size="13" fill="#333333" dominant-baseline="middle">独立 AI 对话</text>
+        
+        <circle cx="25" cy="110" r="3" fill="#333333" />
+        <text x="40" y="110" font-size="13" fill="#333333" dominant-baseline="middle">聊天室 AI 问答</text>
+        
+        <circle cx="25" cy="150" r="3" fill="#333333" />
+        <text x="40" y="150" font-size="13" fill="#333333" dominant-baseline="middle">RAG 检索</text>
+        
+        <circle cx="25" cy="190" r="3" fill="#333333" />
+        <text x="40" y="190" font-size="13" fill="#333333" dominant-baseline="middle">AI 总结</text>
+    </g>
+
+    <!-- ====== Module 5 ====== -->
+    <g id="mod5" transform="translate(900, 160)">
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="#FFFFFF" stroke="none" />
+        <path d="M 0 8 Q 0 0 8 0 L 172 0 Q 180 0 180 8 L 180 40 L 0 40 Z" fill="#F0F0F0" />
+        <rect x="0" y="0" width="180" height="220" rx="8" fill="none" stroke="#333333" stroke-width="2" />
+        <path d="M 0 40 L 180 40" stroke="#333333" stroke-width="2" />
+        
+        <text x="90" y="20" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">收藏模块</text>
+        
+        <circle cx="25" cy="70" r="3" fill="#333333" />
+        <text x="40" y="70" font-size="13" fill="#333333" dominant-baseline="middle">收藏快照</text>
+        
+        <circle cx="25" cy="110" r="3" fill="#333333" />
+        <text x="40" y="110" font-size="13" fill="#333333" dominant-baseline="middle">标签备注</text>
+        
+        <circle cx="25" cy="150" r="3" fill="#333333" />
+        <text x="40" y="150" font-size="13" fill="#333333" dominant-baseline="middle">来源回溯</text>
+        
+        <circle cx="25" cy="190" r="3" fill="#333333" />
+        <text x="40" y="190" font-size="13" fill="#333333" dominant-baseline="middle">筛选与搜索</text>
+    </g>
+
+</svg>

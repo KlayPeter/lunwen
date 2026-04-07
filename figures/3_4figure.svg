@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#000000"/>
+</marker>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g stroke="#000000" fill="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" font-family="Microsoft YaHei, SimSun, Arial, sans-serif">
+<circle cx="110" cy="360" r="20"/>
+<line x1="110" y1="380" x2="110" y2="464"/>
+<line x1="76" y1="394" x2="144" y2="394"/>
+<line x1="110" y1="464" x2="80" y2="514"/>
+<line x1="110" y1="464" x2="140" y2="514"/>
+<text x="110" y="559.0" fill="#000000" stroke="none" font-size="26" font-weight="bold" text-anchor="middle"><tspan x="110" dy="0">技术交流人群</tspan></text>
+<rect x="300" y="90" width="1230" height="870" rx="10" ry="10"/>
+<text x="324" y="120.0" fill="#000000" stroke="none" font-size="24" font-weight="bold" text-anchor="start"><tspan x="324" dy="0">智能聊天室系统</tspan></text>
+<ellipse cx="620" cy="220" rx="170" ry="56"/>
+<text x="620" y="220.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="620" dy="0">发起技术问题求助</tspan></text>
+<ellipse cx="980" cy="220" rx="170" ry="56"/>
+<text x="980" y="220.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="980" dy="0">发送代码 / 日志 / 文件</tspan></text>
+<ellipse cx="1330" cy="220" rx="150" ry="56"/>
+<text x="1330" y="220.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="1330" dy="0">调用AI辅助分析</tspan></text>
+<ellipse cx="620" cy="470" rx="170" ry="56"/>
+<text x="620" y="470.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="620" dy="0">创建专题聊天室</tspan></text>
+<ellipse cx="980" cy="470" rx="170" ry="56"/>
+<text x="980" y="470.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="980" dy="0">组织多人集中讨论</tspan></text>
+<ellipse cx="620" cy="720" rx="170" ry="56"/>
+<text x="620" y="720.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="620" dy="0">收藏关键结论</tspan></text>
+<ellipse cx="980" cy="720" rx="210" ry="56"/>
+<text x="980" y="720.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="980" dy="0">搜索历史消息 / 回看总结</tspan></text>
+<line x1="170" y1="220" x2="450" y2="220" marker-end="url(#arrow)"/>
+<line x1="170" y1="470" x2="450" y2="470" marker-end="url(#arrow)"/>
+<line x1="170" y1="720" x2="450" y2="720" marker-end="url(#arrow)"/>
+<line x1="170" y1="785" x2="770" y2="785" marker-end="url(#arrow)"/>
+<line x1="170" y1="650" x2="770" y2="650" marker-end="url(#arrow)"/>
+<line x1="790" y1="220" x2="810" y2="220" marker-end="url(#arrow)"/>
+<line x1="1150" y1="220" x2="1180" y2="220" marker-end="url(#arrow)"/>
+<line x1="790" y1="470" x2="810" y2="470" marker-end="url(#arrow)"/>
+<polyline points="620,276 620,330 980,330 980,414" fill="none" marker-end="url(#arrow)"/>
+<polyline points="980,526 980,600 620,600 620,664" fill="none" marker-end="url(#arrow)"/>
+<polyline points="620,276 620,340 1330,340 1330,164" fill="none" marker-end="url(#arrow)" stroke-dasharray="10 8"/>
+<text x="910" y="320.0" fill="#000000" stroke="none" font-size="18" font-weight="normal" text-anchor="middle"><tspan x="910" dy="0">&lt;&lt;include&gt;&gt;</tspan></text>
+<polyline points="620,526 620,570 980,570 980,664" fill="none" marker-end="url(#arrow)" stroke-dasharray="10 8"/>
+<text x="905" y="560.0" fill="#000000" stroke="none" font-size="18" font-weight="normal" text-anchor="middle"><tspan x="905" dy="0">&lt;&lt;include&gt;&gt;</tspan></text>
+</g>
+</svg>

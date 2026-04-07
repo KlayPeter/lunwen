@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="940" viewBox="0 0 1700 940">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="90" y="390" width="150" height="60" rx="14" class="header"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="165.0" y="427.0">创建聊天室</tspan></text><rect x="300" y="360" width="220" height="120" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="410.0" y="400.0">填写房间名称</tspan><tspan x="410.0" y="427.0">技术方向</tspan><tspan x="410.0" y="454.0">加入方式与有效时长</tspan></text><rect x="590" y="360" width="220" height="120" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="700.0" y="413.5">生成 RoomID</tspan><tspan x="700.0" y="440.5">初始化成员与系统消息</tspan></text><polygon points="910,360.0 995.0,420 910,480.0 825.0,420" class="decision"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="910" y="426.65">加入方式</tspan></text><rect x="1110" y="210" width="220" height="80" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1220.0" y="243.5">公开加入</tspan><tspan x="1220.0" y="270.5">自动进入房间</tspan></text><rect x="1110" y="390" width="220" height="80" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1220.0" y="410.0">邀请码加入</tspan><tspan x="1220.0" y="437.0">校验 inviteC</tspan><tspan x="1220.0" y="464.0">ode</tspan></text><rect x="1110" y="570" width="220" height="80" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1220.0" y="590.0">密码加入</tspan><tspan x="1220.0" y="617.0">校验 passwor</tspan><tspan x="1220.0" y="644.0">d</tspan></text><rect x="1410" y="390" width="190" height="80" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1505.0" y="423.5">广播消息</tspan><tspan x="1505.0" y="450.5">同步成员状态</tspan></text><rect x="1410" y="630" width="190" height="80" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1505.0" y="663.5">到期清理</tspan><tspan x="1505.0" y="690.5">自动失效</tspan></text><line x1="240" y1="420" x2="300" y2="420" class="line" marker-end="url(#arrow)"/><line x1="520" y1="420" x2="590" y2="420" class="line" marker-end="url(#arrow)"/><line x1="810" y1="420" x2="825" y2="420" class="line" marker-end="url(#arrow)"/><text x="1010" y="250" text-anchor="middle" font-size="16" font-weight="700" class="label">公开</text><text x="1018" y="420" text-anchor="middle" font-size="16" font-weight="700" class="label">邀请码</text><text x="1010" y="600" text-anchor="middle" font-size="16" font-weight="700" class="label">密码</text><polyline points="995,420 1060,420 1060,250 1110,250" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="995,420 1110,430" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="995,420 1060,420 1060,610 1110,610" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="1330,250 1370,250 1370,430 1410,430" fill="none" class="line" marker-end="url(#arrow)"/><line x1="1330" y1="430" x2="1410" y2="430" class="line" marker-end="url(#arrow)"/><polyline points="1330,610 1370,610 1370,430 1410,430" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="1505,470 1505,630" fill="none" class="line" marker-end="url(#arrow)"/>
+</svg>

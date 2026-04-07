@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="540" viewBox="0 0 800 540" style="background-color:#FFFFFF; font-family: Arial, sans-serif;">
+    <rect x="250" y="40" width="300" height="480" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="260" y="65" font-size="16" font-weight="bold" fill="#333333" text-anchor="start">智能聊天室系统</text>
+
+    <!-- Connectors: Left Actor to Use Cases -->
+    <line x1="130" y1="280" x2="300" y2="110" stroke="#333333" stroke-width="1.5" />
+    <line x1="130" y1="280" x2="300" y2="170" stroke="#333333" stroke-width="1.5" />
+    <line x1="130" y1="280" x2="300" y2="230" stroke="#333333" stroke-width="1.5" />
+    <line x1="130" y1="280" x2="300" y2="290" stroke="#333333" stroke-width="1.5" />
+    <line x1="130" y1="280" x2="300" y2="350" stroke="#333333" stroke-width="1.5" />
+    <line x1="130" y1="280" x2="300" y2="410" stroke="#333333" stroke-width="1.5" />
+    <line x1="130" y1="280" x2="300" y2="470" stroke="#333333" stroke-width="1.5" />
+
+    <!-- Connectors: Right Actor to AI Use Cases -->
+    <line x1="670" y1="190" x2="500" y2="110" stroke="#333333" stroke-width="1.5" />
+    <line x1="670" y1="190" x2="500" y2="170" stroke="#333333" stroke-width="1.5" />
+    <line x1="670" y1="190" x2="500" y2="230" stroke="#333333" stroke-width="1.5" />
+    <line x1="670" y1="190" x2="500" y2="290" stroke="#333333" stroke-width="1.5" />
+
+    <!-- Left Actor: 个人开发者 -->
+    <g id="actor-left">
+        <circle cx="100" cy="250" r="16" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <line x1="100" y1="266" x2="100" y2="310" stroke="#333333" stroke-width="2" />
+        <line x1="70" y1="280" x2="130" y2="280" stroke="#333333" stroke-width="2" />
+        <line x1="100" y1="310" x2="80" y2="340" stroke="#333333" stroke-width="2" />
+        <line x1="100" y1="310" x2="120" y2="340" stroke="#333333" stroke-width="2" />
+        <text x="100" y="365" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle">个人开发者</text>
+    </g>
+
+    <!-- Right Actor: AI服务 -->
+    <g id="actor-right">
+        <circle cx="700" cy="160" r="16" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <line x1="700" y1="176" x2="700" y2="220" stroke="#333333" stroke-width="2" />
+        <line x1="670" y1="190" x2="730" y2="190" stroke="#333333" stroke-width="2" />
+        <line x1="700" y1="220" x2="680" y2="250" stroke="#333333" stroke-width="2" />
+        <line x1="700" y1="220" x2="720" y2="250" stroke="#333333" stroke-width="2" />
+        <text x="700" y="275" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle">AI服务</text>
+    </g>
+
+    <!-- Use Cases -->
+    <ellipse cx="400" cy="110" rx="100" ry="24" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="110" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">咨询代码问题</text>
+
+    <ellipse cx="400" cy="170" rx="100" ry="24" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="170" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">开启RAG问答</text>
+
+    <ellipse cx="400" cy="230" rx="100" ry="24" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="230" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">解释选中文本</text>
+
+    <ellipse cx="400" cy="290" rx="100" ry="24" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="290" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">请求代码分析</text>
+
+    <ellipse cx="400" cy="350" rx="100" ry="24" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="350" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">收藏关键消息</text>
+
+    <ellipse cx="400" cy="410" rx="100" ry="24" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="410" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">添加标签与备注</text>
+
+    <ellipse cx="400" cy="470" rx="100" ry="24" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="470" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">检索收藏记录</text>
+</svg>

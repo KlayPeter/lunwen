@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<circle cx="90" cy="290" r="20" class="actor-line"/><line x1="90" y1="310" x2="90" y2="372" class="actor-line"/><line x1="62" y1="330" x2="118" y2="330" class="actor-line"/><line x1="90" y1="372" x2="66" y2="408" class="actor-line"/><line x1="90" y1="372" x2="114" y2="408" class="actor-line"/><text text-anchor="middle" font-size="21" font-weight="700" class="label"><tspan x="90" y="452.35">技术交流用户</tspan></text><rect x="170" y="255" width="190" height="72" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="265.0" y="298.0">进入系统</tspan></text><rect x="410" y="255" width="220" height="72" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="520.0" y="298.0">选择群聊或专题聊天室</tspan></text><rect x="690" y="245" width="240" height="92" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="810.0" y="271.0">提交问题上下文</tspan><tspan x="810.0" y="298.0">文本 / 代码 / 日志</tspan><tspan x="810.0" y="325.0"> / 文件</tspan></text><rect x="980" y="245" width="240" height="92" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1100.0" y="284.5">协同讨论</tspan><tspan x="1100.0" y="311.5">引用回复 / 标记问题</tspan></text><polygon points="1320,230.0 1405.0,290 1320,350.0 1235.0,290" class="decision"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="1320" y="284.15">是否获得</tspan><tspan x="1320" y="309.15">可行方案</tspan></text><rect x="1240" y="520" width="220" height="82" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1350.0" y="568.0">收藏关键消息</tspan></text><rect x="960" y="520" width="220" height="82" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1070.0" y="568.0">生成阶段总结</tspan></text><rect x="680" y="520" width="220" height="82" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="790.0" y="568.0">搜索与再次复用</tspan></text><rect x="980" y="400" width="240" height="82" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1100.0" y="421.0">AI 补充分析</tspan><tspan x="1100.0" y="448.0">RAG 检索 / 代码分</tspan><tspan x="1100.0" y="475.0">析</tspan></text><line x1="110" y1="312" x2="170" y2="291" class="line" marker-end="url(#arrow)"/><line x1="360" y1="291" x2="410" y2="291" class="line" marker-end="url(#arrow)"/><line x1="630" y1="291" x2="690" y2="291" class="line" marker-end="url(#arrow)"/><line x1="930" y1="291" x2="980" y2="291" class="line" marker-end="url(#arrow)"/><line x1="1220" y1="291" x2="1235" y2="291" class="line" marker-end="url(#arrow)"/><polyline points="1320,350 1320,440 1220,440" fill="none" class="line" marker-end="url(#arrow)"/><text x="1270" y="432" text-anchor="middle" font-size="16" font-weight="700" class="label">否</text><text x="1370" y="270" text-anchor="middle" font-size="16" font-weight="700" class="label">是</text><polyline points="980,440 930,440 930,337 980,337" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="1350,350 1350,480 1350,520" fill="none" class="line" marker-end="url(#arrow)"/><line x1="1240" y1="561" x2="1180" y2="561" class="line" marker-end="url(#arrow)"/><line x1="960" y1="561" x2="900" y2="561" class="line" marker-end="url(#arrow)"/>
+</svg>

@@ -1,0 +1,469 @@
+\chapter{系统设计}
+
+\newcommand{\chapterfourplaceholder}[1]{%
+\begin{samepage}
+\begin{center}
+\fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering #1（此处插入）}}
+\end{center}
+\begin{center}
+#1（此处插入）
+\end{center}
+\end{samepage}
+}
+
+\section{系统总体设计}
+
+本系统面向技术交流群体构建在线交流与智能辅助一体化平台。设计重点不在于把通用聊天软件缩小一圈，而是要在保证实时通信能力的基础上，把聊天室组织、技术问答、消息检索和知识沉淀放进同一套框架里。结合前一章需求分析可以看到，系统既要支撑私聊、群聊和临时聊天室等多类沟通空间，也要承担 AI 问答、收藏、历史检索和总结生成等增强功能。因此，总体设计必须同时处理三个问题：前后端如何分工，实时消息链路与常规业务链路如何协同，消息数据、AI 数据和用户数据又怎样在同一套存储体系中保持清晰和可扩展。
+
+\subsection{系统架构设计}
+
+从整体架构看，Mini-Chat-Bar 采用前后端分离的设计方案，前端以 Vue 3 为核心框架，结合 Vite、Pinia 和 Vue Router 构建交互界面与状态管理体系；后端以 Node.js 作为运行环境，通过 Express 提供 RESTful API，通过 Socket.IO 提供实时通信服务。该架构的出发点在于将“页面渲染与交互控制”同“业务处理与数据访问”分离开来，使界面层可以围绕用户体验迭代，服务层则围绕消息处理、权限校验和 AI 集成独立演进\cite{vueguide2026,piniadocs2026,expressdocs2026,socketiodocs2026,mongodbdocs2026}。对于本项目这类交互频繁、状态变化快的系统而言，这种分层方式有利于降低耦合度，也更适合后续功能扩展。
+
+在前端层面，系统由登录页、主聊天页、聊天室页、收藏页和若干弹出式交互组件共同组成。主聊天区域采用桌面端三栏布局，左侧承担导航切换，中部负责会话列表或聊天室列表，右侧展示消息内容、摘要对话框、群详情或 AI 面板。移动端则通过底部导航与条件渲染切换页面区块。状态管理主要依赖 Pinia 维护当前聊天对象、用户登录态与界面上下文，HTTP 请求由 Axios 统一封装，实时事件则交由 Socket.IO Client 负责接入。界面逻辑、路由跳转与消息状态之间形成较稳定的协同关系，这为系统整体交互一致性提供了基础。
+
+在后端层面，Express 服务负责承担认证、用户信息、聊天室、收藏、上传、AI 代理与摘要生成等业务接口，Socket.IO 服务负责维护用户连接状态、房间广播和私聊推送。数据持久化采用 MongoDB 与 Mongoose 组合，私聊消息、群聊消息、聊天室信息、收藏记录和 AI 对话历史分别以独立集合进行管理。考虑到 AI 模块需要利用历史消息增强回答，系统在主业务存储之外引入向量检索能力，通过 MessageIndexer 异步将文本消息写入向量索引，并在问答时由 VectorSearchTool 执行优先向量检索、失败后降级到关键词搜索的两级检索策略。这样一来，系统在保留主业务稳定性的同时，也为 AI 模块提供了可插拔的知识增强通道。
+
+如图4-1所示，系统从前端展示层、后端业务层到数据存储层与 AI 服务层形成了完整的分层结构。该图能够反映 HTTP 接口、WebSocket 事件与数据存储之间的分工方式。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_1.png}
+\caption{系统架构图}
+\label{fig:4-1}
+\end{figure}
+
+\subsection{系统总体流程设计}
+
+系统总体流程围绕“用户进入系统并完成一次核心操作”展开，其运行主线可以概括为身份进入、空间选择、消息交互、智能辅助和结果沉淀五个阶段。用户进入系统后，需要先通过邮箱登录、验证码登录或第三方 OAuth 登录建立合法身份，服务端完成认证后生成 JWT 令牌，前端将令牌保存并在后续接口请求与实时连接中携带。完成身份建立后，用户进入主界面，根据当前任务选择私聊、群聊或技术聊天室。不同类型的交流空间在界面上表现不同，但底层流程遵循相同的控制逻辑，即先加载历史消息和基础资料，再通过实时链路持续接收新增内容。
+
+当用户发送消息时，系统会根据会话类型进入不同处理路径。私聊消息通过 Socket.IO 的用户映射关系直接推送给对方，同时写入私聊消息集合；群聊和聊天室消息则以房间广播方式分发给在线成员，并由后端在校验后写入 GroupMessage 集合。若消息属于文本类型且具有后续复用价值，MessageIndexer 会在后台将其加入待索引队列，供 AI 模块后续进行语义检索。对于聊天室场景，系统还需要同步更新在线人数、成员进出状态和房间活跃信息，保证用户始终处于清晰的协作上下文之中。
+
+在技术问题无法快速得到人工回应时，用户可以直接调用 AI 助手或在聊天室中发起智能问答请求。此时后端需要依据当前房间信息、历史消息和检索结果构造上下文，调用大语言模型生成回答，并以流式方式逐步返回给前端。问答结果既可作为即时反馈，也可被写入消息集合或 AIConversation 集合，用于后续持续会话。用户在讨论结束后还可以将关键消息加入收藏，或对指定会话生成总结，从而使整个流程不止停留在“对话已完成”，而是进一步形成“结论可回看、经验可复用”的闭环。
+
+如图4-2所示，用户从登录、进入交流空间、发送消息、触发 AI 辅助到保存结果构成了系统的总体运行过程。该图突出体现了实时通信链路与智能服务链路在一次完整操作中的先后关系。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_2.png}
+\caption{系统总体流程图}
+\label{fig:4-2}
+\end{figure}
+
+\subsection{系统功能结构设计}
+
+依据项目实现边界和业务职责划分，系统的核心功能结构可以概括为五个一级模块，即用户管理模块、即时通讯模块、聊天室模块、AI 助手智能问答模块和收藏模块。其中，用户管理模块为其他模块提供身份与权限基础；即时通讯模块承担私聊与群聊的实时交互任务；聊天室模块为专题化、阶段性的技术讨论提供空间承载；AI 助手模块在技术问答、聊天总结和历史检索等场景中发挥增强作用；收藏模块则将对话中的关键内容转化为可长期保存的个人知识记录。五个模块并列存在，但在运行时并不是彼此割裂的，它们以“用户身份”为统一入口，以“消息内容”为主要流转对象，以“实时通信 + 数据存储 + AI 分析”为核心协作机制。
+
+从工程实现角度看，这种功能结构的好处比较直接。核心模块之间的职责边界比较清楚，后续通过控制器、路由和模型继续拆分管理时会更顺手；同时，系统也可以在不改动主业务骨架的前提下继续加入新能力，例如补充新的消息类型、扩展新的 AI 角色或增加新的数据分析维度。对本科毕业设计而言，这样的结构既能保证当前项目完整成形，也给后续扩展留出了空间。
+
+如图4-3所示，系统核心功能模块之间的组织关系与职责分布已经得到明确划分。该图有助于说明用户请求如何在不同模块之间流转，并为后续详细模块设计提供结构基础。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_3.png}
+\caption{系统功能结构图}
+\label{fig:4-3}
+\end{figure}
+
+\section{功能模块设计}
+
+总体设计确定之后，还需要把各功能模块的职责边界、处理流程和数据交互方式继续往下落。这个项目既保留了即时通信系统的基本特征，又加入了聊天总结、向量检索和收藏快照等增强能力，如果模块设计只停留在概念描述上，后面的实现就会显得发空。本节围绕用户管理、即时通讯、聊天室、AI 助手与收藏五个模块展开分析。
+
+\subsection{用户管理模块}
+
+用户管理模块是系统的身份入口。它的设计重点，一是把不同登录方式统一起来，二是维持稳定会话，三是向其他模块提供可信的用户信息。项目中这一模块由 `/api/user` 与 `/auth` 两类路由共同支撑：前者主要处理邮箱注册、验证码登录、用户资料查询和好友关系维护，后者主要处理 Google 与 GitHub 的 OAuth 登录回调。之所以保留两条路径，是因为技术交流群体的使用习惯并不一致，有人更偏向本地账号，也有人希望直接复用现有平台身份。把两类入口统一到同一用户模型后，后续管理会简单很多。
+
+在核心流程方面，本地账号注册与登录由 UserController 负责实现。注册阶段需要完成邮箱格式校验、密码强度校验、验证码校验和用户名唯一性校验，密码经 bcrypt 哈希后写入 Users 集合；登录阶段则读取用户记录，验证密码或验证码后签发 JWT 令牌。第三方登录流程由 Passport.js 驱动，用户从前端进入 OAuth 授权页，平台回调到服务端后完成用户信息匹配与令牌生成，再将令牌重定向给前端。前端在路由守卫中检查令牌与用户标识是否存在，没有登录态的访问请求会被统一重定向到登录界面，从而保证受保护页面不会在匿名状态下被直接访问\cite{oauthcn2024,oauthbcp2025}。
+
+在数据交互方面，用户管理模块以 Users 集合作为核心数据源，保存用户标识、邮箱、头像、登录渠道与好友信息。JWT 令牌中的用户标识会贯穿 API 访问、收藏操作、聊天室进入和 AI 调用全过程；聊天室成员信息和消息发送者信息也都依赖该模块提供的用户基础资料。可以说，用户管理模块虽然不直接承担消息广播任务，但它决定了其他模块是否能够在合法、可识别的身份前提下继续工作。
+
+如图4-4所示，用户从注册、登录、令牌签发到访问受保护资源形成了一条完整的身份处理链路。该图能够清楚说明本地认证与第三方认证最终如何收敛到统一会话机制。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_4.png}
+\caption{用户模块流程图}
+\label{fig:4-4}
+\end{figure}
+
+\subsection{即时通讯模块}
+
+即时通讯模块是系统里运行最频繁、交互最密集的部分。它主要负责在私聊与群聊场景中提供低延迟、可追溯的消息交互能力。和一般表单式业务不同，聊天系统里的消息发送、消息接收、状态同步和历史保存几乎是同时发生的，因此本项目把这部分设计成“HTTP 持久化接口 + Socket.IO 实时通道”的双链路结构。常规消息保存、历史查询和搜索走 RESTful API，消息推送、输入状态、在线状态和房间广播则交给 WebSocket 事件处理。这种组织方式比较符合聊天应用的实际需要\cite{socketiodocs2026,imsecurity2024}。
+
+从核心流程看，私聊消息发送由前端触发 `private-message` 事件，后端在 `chat.js` 中根据用户 ID 与 socket 集合映射找到接收方的全部在线连接，并同步推送消息给接收方和发送方，从而兼顾消息送达与本地会话更新。群聊消息则由 `room.js` 中的 `group-message` 事件处理，发送时先根据房间标识调用 `io.to(roomId)` 广播给对应成员，再异步完成数据库写入与文本索引入队，避免消息推送被持久化过程阻塞。消息状态方面，系统还实现了已读通知、输入提示、群成员进出通知和在线人数更新，使前端能够持续感知当前会话的最新状态。
+
+在数据交互层面，即时通讯模块主要与 Messages 集合、GroupMessage 集合和 MessageIndexer 服务发生联系。私聊数据使用独立集合存储，有利于围绕 from 与 to 建立直接索引；群聊和聊天室消息则统一存入 GroupMessage 集合，并通过 roomId 进行区分。这种分离式存储虽然增加了模型数量，但显著降低了查询条件复杂度，也使后续的消息搜索、问题标记和最佳答案关联更容易实现。对于文本消息，系统在发送成功后会将其加入向量索引队列，为 AI 模块提供后续检索基础；这意味着即时通讯模块不仅承担“传递”职责，也为智能辅助提供了上游数据来源。
+
+如图4-5所示，即时通讯模块中消息从前端提交、服务端校验、实时推送到持久化存储形成了一条连续处理链路。该图反映了实时性优先与数据一致性兼顾的设计思路。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_5.png}
+\caption{即时通讯流程图}
+\label{fig:4-5}
+\end{figure}
+
+\subsection{聊天室模块}
+
+聊天室模块用于承载技术主题明确、时效性较强的讨论空间，是本项目区别于传统固定群聊的重要设计点。该模块不仅要处理房间创建与加入，还要处理成员同步、在线统计、加入约束和自动过期等特殊逻辑。与普通群聊相比，聊天室更强调“围绕问题快速聚合用户”，因此在模型设计上，Room 集合既保存一般群聊，也保存 type 为 `chatroom` 的临时技术房间；服务端再根据 joinType、duration 和 expiresAt 等字段控制其行为方式。这样的设计避免了为聊天室单独建立完全独立的数据结构，同时保留了房间类型差异所需的扩展字段。
+
+在核心流程方面，聊天室创建由 `/room/create` 接口触发，后端根据请求参数生成唯一 RoomID、初始化成员列表、计算有效时长，并在 GroupMessage 集合中写入系统提示消息。加入流程则根据房间设置分为公开加入、邀请码加入和密码加入三种路径。对于公开聊天室，用户访问详情页时即可自动完成成员写入；对于邀请码或密码保护房间，系统会先返回房间信息和加入限制，再在校验通过后写入成员数据并追加系统消息。为了让聊天室具备真实的协作氛围，后端通过 `roomUsers` 结构按房间维护在线用户集合，并在成员进入、离开或断开连接时同步在线人数给当前房间和聊天室列表页。
+
+在数据交互方面，聊天室模块主要依赖 Room 集合、GroupMessage 集合和 `roomUsers` 在线状态缓存。Room 集合保存房间元信息，GroupMessage 集合保存房间内的消息与系统事件，Socket.IO 房间机制则负责把在线成员与逻辑聊天室空间一一对应。除此之外，项目还通过 RoomCleanup 服务定期清理到期聊天室，使临时空间不会无限堆积。这说明聊天室模块并不是在群聊逻辑之上增加一个简单标签，而是围绕“房间生命周期”形成了一套较完整的实现链路。
+
+如图4-6所示，聊天室从创建、加入、广播消息到过期清理构成了其主要处理过程。该图强调了房间加入策略和房间生命周期管理在聊天室设计中的特殊性。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_6.png}
+\caption{聊天室流程图}
+\label{fig:4-6}
+\end{figure}
+
+\subsection{AI助手智能问答模块}
+
+AI 助手智能问答模块的目标，是在不打断正常聊天节奏的前提下，把技术问答、历史检索和阶段性总结能力嵌入系统。结合项目实现可以看到，这部分没有被设计成完全独立的外部工具，而是通过 `/api/agent` 与 `/api/chatroom-ai` 两类接口直接接入业务流程。原因也很明确：技术问题通常和当前会话上下文紧密相关，如果 AI 完全脱离消息数据运行，回答很容易停留在通用知识层面，难以真正服务于当前聊天室或当前用户的问题\cite{gpt4report2023,llmsurvey2023,qaoverview2025,agentoverview2024,llmplatform2024}。
+
+在核心处理流程上，用户发起问答请求后，服务端首先识别问题所属空间，并读取聊天室名称、技术方向与最近历史消息；若启用 RAG 检索，则由 VectorSearchTool 优先调用向量库搜索相关内容，在向量库不可用或检索为空时自动降级到关键词匹配。随后，控制器将历史讨论片段、用户问题和系统提示词拼接为完整上下文，调用 DeepSeek 大语言模型接口生成回答。对于聊天室内的 AI 问答，系统支持流式输出，模型返回的分块内容会被逐段转发给前端，同时在回答结束后以 AI 身份写入 GroupMessage 集合；对于独立 AI 面板，多轮消息则保存到 AIConversation 集合中，以保持角色与对话上下文的连续性。聊天总结功能在处理逻辑上与问答不同，它更强调对既有消息集合的聚合分析，结果会保存到 Summary 集合中，为后续回看提供结构化内容\cite{ragllmsurvey2024,ragsurveycn2025,graphrag2025cn,deepseekrag2026}。
+
+在数据交互层面，AI 模块连接了最丰富的数据源。其上游输入来自 Room、Messages 与 GroupMessage，下游输出进入 GroupMessage、AIConversation 和 Summary，同时还依赖 MessageIndexer 和向量存储服务维持消息索引。AI 模块对“数据复用能力”的要求最高，因为它既要读取已有消息历史，又会继续生成新的消息和总结记录，这种双向数据流使它成为系统设计中的关键增强模块。
+
+如图4-7所示，用户请求、服务端控制器、检索组件、模型接口与消息存储之间存在清晰的时序调用关系。该图能够说明 AI 问答为何既依赖历史消息检索，又需要与实时聊天链路保持一致。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_7.png}
+\caption{AI助手智能问答模块时序图}
+\label{fig:4-7}
+\end{figure}
+
+\subsection{收藏模块}
+
+收藏模块承担知识沉淀的职责。它的价值在于把原本很容易被刷过去的聊天内容转成可以长期复用的消息快照。和普通“星标消息”不同，本项目中的收藏不是只记住一条引用关系，而是把消息的关键内容、消息类型、发送者信息和附加文件信息一起保存下来。这样处理并不复杂，但很必要。技术交流里真正有价值的内容往往不是一句纯文本，更多时候是代码片段、报错截图或文件资料。如果只保留消息 ID 而不保存内容快照，原消息一旦删除，或者上下文发生变化，收藏记录的参考价值就会明显下降。
+
+在核心流程方面，当前端触发收藏操作后，系统首先根据用户 ID 与消息 ID 判断是否已存在收藏记录；若尚未收藏，则根据消息类型到私聊消息集合或群聊消息集合中读取原始内容，构造包含 messageType、chatId、content、codeInfo、fileInfo 和 sender 信息的收藏对象，再写入 Favorite 集合。获取收藏列表时，系统支持按消息类型、内容类型和关键字组合筛选，并在返回结果前补充来源名称，例如私聊对象名、群名或聊天室名，使前端在展示列表时能够区分收藏来源。用户还可以进一步修改收藏标签与备注，或者在不再需要时执行取消收藏操作。
+
+在数据交互方面，收藏模块直接连接 Favorite、Messages、GroupMessage、Room 和 Users 五类数据。写入时依赖消息集合读取原始快照，查询时依赖 Room 与 Users 还原来源名称，统计时则以 Favorite 集合为基础完成聚合分析。收藏模块虽然体量不如即时通讯和 AI 模块复杂，但它在系统整体设计中承担了一项很关键的工作：把短时交流结果转化为长期个人知识资产。
+
+如图4-8所示，收藏模块从发起收藏、读取原始消息、生成快照到列表查询与来源回溯形成了一条完整处理过程。该图说明收藏模块的关键设计点在于保存快照而不是单纯保存引用关系。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_8.png}
+\caption{收藏流程图}
+\label{fig:4-8}
+\end{figure}
+
+\section{界面设计}
+
+界面设计直接影响系统能否把前面的业务与技术方案转化成可感知的使用体验。结合项目现有前端实现可以看到，为了确保技术讨论中的全天候沉浸感，系统在登录注册、主聊天窗口和聊天室空间进行了分场景结构的独立设计，从而在连续性与低干扰性之间找到平衡。
+
+\subsection{登录与注册界面}
+
+系统的第一入口为身份认证界面，视觉层次极其精简集中。整体画面采用典型的大幅面柔和底层叠加中心悬浮卡片布局。该认证卡片平滑支持着以红白为主基调的“密码登录”与“验证码快捷登录”两种选项卡切换体系。在卡片底部防触碰边界保留了纵向排列的 OAuth 第三方开发者体系授权（Google、GitHub）接口按钮。这种设计不仅极大避免了前置信息屏的冗余过载，也为用户快速切入极客风格的聊天应用建立起良好的心理信任落点。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_9.png}
+\caption{登录与注册界面结构图}
+\label{fig:4-9}
+\end{figure}
+
+\subsection{主聊天业务界面}
+
+主聊天业务界面是日均访问频次最高的重负载画布空间。桌面端的设计并未跟风激进的弹出或拉伸布局，而是坚守了极其标准稳定的“左-中-右”三栏体系。如图4-10所示，最左侧 70px 切片为固定纵列导航台，囊括个人应用内的最高维度通道；中部则切分出 240px 专属挂载轻量级的搜索栏与“最近个人通讯集”视图；占据半屏以上的右侧宏大空间则全面分配给当前会话气泡树、带有下沉工具扩展栏及指令挂件集的底部富文本输入框。值得提及的是，右侧的结构去除了多余的“右翼扩展面框”的横向压迫，留白充沛的三栏分布彻底为技术信息检索拔高了视觉屏宽\cite{vueguide2026,electrondocs2026}。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_10.png}
+\caption{主聊天界面结构图}
+\label{fig:4-10}
+\end{figure}
+
+\subsection{沉浸式技术聊天室界面}
+
+针对本系统强依赖的特定“技术讨论”群落，结构上又衍生出高度定制的专属聊天室布局阵地。尽管同属三栏体，但在内部元素的渲染优先级上彻底易位。如图4-11所示，中栏退化合并了大量与讨论无关的私聊元素，更替成具有高度针对性的分类群落及搜索过滤口；右主内容窗内更是注入了高度沉寂且专注的功能条：在顶栏嵌压了目前技术讨论群进展剩余生命周期节点，主体信息流排版强制追加了附属于单卡模块的问答指代型操作组（针对性提问、引用答谢）；并在键盘控制区引入了代码专向按键及高亮的 AI 召唤按键\cite{promptliteracy2025}。严谨细密的重构方案构建了具有聚焦效应的业务闭环空间。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_11.png}
+\caption{聊天室界面结构图}
+\label{fig:4-11}
+\end{figure}
+
+\section{数据库设计}
+
+\subsection{E-R图设计}
+
+尽管本项目在物理实现上采用 MongoDB 文档数据库，但在概念层面仍然需要通过 E-R 设计明确核心实体及其关系。系统中的主要实体包括用户、聊天室、私聊消息、群聊消息、收藏记录、AI 对话记录和聊天总结记录。用户实体既可以与其他用户形成好友关系，也可以作为聊天室创建者、消息发送者、收藏创建者和 AI 对话发起者出现；聊天室实体既保存成员结构，也与群聊消息形成一对多关系；收藏、AI 对话和聊天总结则都可以看作用户在原始消息基础上生成的扩展实体。
+
+从关系角度分析，用户与聊天室之间是典型的多对多关系，Room 集合中的 Members 数组承担了这一关系的实际存储；用户与消息之间是“一名用户可以发送多条消息”的一对多关系；聊天室与群聊消息之间同样是一对多关系；用户与收藏、用户与 AIConversation、用户与 Summary 之间均为一对多关系。除此之外，群聊消息内部还包含引用消息、问题状态与最佳答案等扩展关系，这些关系在概念建模时仍可视为围绕消息实体展开的自关联或派生关系。通过这样的 E-R 抽象，系统的业务对象边界会更加清晰，也为后续集合设计和索引设计提供了依据。
+
+如图4-12所示，用户、聊天室、消息、收藏和 AI 相关实体之间存在清晰的概念关联关系。该图能够帮助说明 MongoDB 文档结构背后仍然存在明确的业务实体映射。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_12.png}
+\caption{系统数据库E-R图}
+\label{fig:4-12}
+\end{figure}
+
+\subsection{数据库逻辑结构设计}
+
+在逻辑结构设计层面，系统并未采用传统关系数据库的高度规范化模式，而是依据聊天业务的高频读写特点选择文档型数据组织方式。其设计思路是：对访问路径稳定、结构相对清晰的数据保持独立集合；对需要频繁联合展示的数据适度冗余存储；对 AI 相关结构化结果与快照型内容单独建模，以减少对主消息集合的干扰\cite{mongodbdocs2026}。下文对项目中的核心集合进行说明。
+
+\subsubsection{用户表设计}
+
+Users 集合承担账号、认证和基础资料存储任务，是所有业务功能的身份入口。其设计重点在于兼容本地注册与第三方登录两种模式，因此在保留用户名、邮箱和密码字段的同时，也保留了 googleId、githubId 和 provider 等登录渠道字段。好友关系没有单独拆分为复杂的关联表，而是直接通过 Friends 数组保存好友标识，这与项目当前中小规模用户场景较为匹配，能够减少关系查询开销。
+
+\begin{table}[H]
+\centering
+\caption{用户表结构}
+\label{tab:4-1}
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.6ex}
+\begin{tabular}{M{0.17\textwidth}M{0.08\textwidth}M{0.13\textwidth}M{0.10\textwidth}p{0.34\textwidth}}
+\toprule
+\textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
+\midrule
+\_id & 是 & ObjectId & 否 & MongoDB 自动生成的文档主键 \\
+uID & 否 & String & 否 & 业务用户唯一标识，用于登录态和业务关联 \\
+uName & 否 & String & 否 & 用户名 \\
+uEmail & 否 & String & 否 & 邮箱地址，普通注册缺省时写入临时邮箱 \\
+Password & 否 & String & 是 & 加密后的本地登录密码，第三方登录场景可为空 \\
+uAvatar & 否 & String & 否 & 用户头像路径，默认使用系统头像 \\
+Friends & 否 & Object[] & 是 & 好友列表，元素中保存好友的 `uID` \\
+googleId & 否 & String & 是 & Google 登录标识 \\
+githubId & 否 & String & 是 & GitHub 登录标识 \\
+provider & 否 & String & 否 & 登录来源，取值为 `local`、`google` 或 `github` \\
+isEmailVerified & 否 & Boolean & 否 & 邮箱验证状态，默认值为 `false` \\
+createdAt & 否 & Date & 否 & 创建时间，由时间戳自动生成 \\
+updatedAt & 否 & Date & 否 & 更新时间，由时间戳自动生成 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{聊天室表设计}
+
+Room 集合同时服务于普通群聊和技术聊天室，其设计思路是用 type 字段区分房间类别，再通过 joinType、inviteCode、password、duration 和 expiresAt 等字段扩展聊天室行为。这样既保持了群聊与聊天室在成员结构和公告结构上的统一性，又允许聊天室在加入策略、技术方向和生命周期方面体现差异。Members 数组中直接嵌入成员昵称、头像与加入时间，也减少了房间详情页读取时的二次查询次数。
+
+\begin{table}[H]
+\centering
+\caption{聊天室表结构}
+\label{tab:4-2}
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.6ex}
+\begin{tabular}{M{0.17\textwidth}M{0.08\textwidth}M{0.13\textwidth}M{0.10\textwidth}p{0.34\textwidth}}
+\toprule
+\textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
+\midrule
+\_id & 是 & ObjectId & 否 & MongoDB 自动生成的文档主键 \\
+RoomID & 否 & String & 否 & 业务房间唯一标识，同时建立唯一约束 \\
+RoomName & 否 & String & 否 & 房间名称 \\
+RoomAvatar & 否 & String & 否 & 房间头像路径，缺省时使用默认群头像 \\
+Creator & 否 & String & 否 & 创建者用户标识 \\
+Admins & 否 & String[] & 是 & 管理员用户标识集合 \\
+Members & 否 & Object[] & 是 & 成员信息列表，内含 `userID`、昵称、头像和加入时间 \\
+Announcement & 否 & String & 是 & 房间公告内容 \\
+MaxMembers & 否 & Number & 否 & 房间最大成员数，默认值为 `500` \\
+type & 否 & String & 否 & 房间类型，取值为 `normal` 或 `chatroom` \\
+techDirection & 否 & String & 是 & 聊天室技术方向标签 \\
+joinType & 否 & String & 否 & 加入方式，取值为 `public`、`invite` 或 `password` \\
+inviteCode & 否 & String & 是 & 邀请码，仅邀请码加入场景使用 \\
+password & 否 & String & 是 & 房间密码，仅密码加入场景使用 \\
+duration & 否 & Number & 否 & 房间有效时长，单位为小时 \\
+expiresAt & 否 & Date & 是 & 过期时间，用于控制聊天室生命周期 \\
+createdAt & 否 & Date & 否 & 创建时间 \\
+updatedAt & 否 & Date & 否 & 更新时间 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{私聊消息表设计}
+
+Messages 集合用于存储一对一私聊消息，其逻辑结构围绕“发送者 + 接收者 + 内容 + 状态”展开。由于私聊消息以两人之间的历史记录查询为主，因此集合中建立了 from 与 to 的组合索引，并通过 time 字段支持时间排序。消息类型方面，项目为文本、图片、文件、视频、音频和聊天室邀请卡片预留了统一的字段体系，便于前端以不同组件完成展示。
+
+\begin{table}[H]
+\centering
+\caption{私聊消息表结构}
+\label{tab:4-3}
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.6ex}
+\begin{tabular}{M{0.17\textwidth}M{0.08\textwidth}M{0.13\textwidth}M{0.10\textwidth}p{0.34\textwidth}}
+\toprule
+\textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
+\midrule
+\_id & 是 & ObjectId & 否 & MongoDB 自动生成的文档主键 \\
+from & 否 & String & 否 & 发送者用户标识 \\
+to & 否 & String & 否 & 接收者用户标识 \\
+time & 否 & Date & 否 & 消息发送时间 \\
+messageType & 否 & String & 否 & 消息类型，支持文本、图片、文件、音视频和聊天室邀请 \\
+content & 否 & String & 是 & 文本正文或文件名称 \\
+fileInfo & 否 & Object & 是 & 文件名、地址、大小、类型等附件信息 \\
+isForwarded & 否 & Boolean & 否 & 是否为转发消息，默认值为 `false` \\
+forwardedFrom & 否 & String & 是 & 转发来源标识 \\
+isRead & 否 & Boolean & 否 & 是否已读，默认值为 `false` \\
+readTime & 否 & Date & 是 & 已读时间 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{群聊与聊天室消息表设计}
+
+GroupMessage 集合承担群聊和聊天室消息的统一存储任务，是本系统消息结构中最复杂的集合。与私聊消息相比，它不仅需要记录 roomId、发送者信息和消息正文，还要保存代码片段结构、引用消息快照、问题状态、最佳答案、点赞信息和 Emoji 反应等扩展内容。采用统一集合进行管理的原因在于群聊与聊天室在消息展示和查询路径上高度相似，通过 roomId 就可以完成大部分过滤操作。
+
+\begin{table}[H]
+\centering
+\caption{群聊与聊天室消息表结构}
+\label{tab:4-4}
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.6ex}
+\begin{tabular}{M{0.17\textwidth}M{0.08\textwidth}M{0.13\textwidth}M{0.10\textwidth}p{0.34\textwidth}}
+\toprule
+\textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
+\midrule
+\_id & 是 & ObjectId & 否 & MongoDB 自动生成的文档主键 \\
+roomId & 否 & String & 否 & 所属房间标识 \\
+from & 否 & String & 否 & 发送者用户标识 \\
+fromName & 否 & String & 否 & 发送者名称 \\
+fromAvatar & 否 & String & 是 & 发送者头像路径 \\
+content & 否 & String & 是 & 消息正文 \\
+messageType & 否 & String & 否 & 消息类型，支持文本、系统消息、代码等多种形式 \\
+fileInfo & 否 & Object & 是 & 文件名、地址、类型、大小和时长等附件信息 \\
+codeInfo & 否 & Object & 是 & 代码语言、代码正文和文件名等结构化信息 \\
+quotedMessage & 否 & Object & 是 & 被引用消息的快照信息 \\
+isQuestion & 否 & Boolean & 否 & 是否标记为问题，默认值为 `false` \\
+questionStatus & 否 & String & 否 & 问题状态，取值为 `open`、`solved` 或 `closed` \\
+isSolution & 否 & Boolean & 否 & 是否标记为解决方案，默认值为 `false` \\
+solutionTo & 否 & String & 是 & 对应的问题消息标识 \\
+bestAnswer & 否 & String & 是 & 最佳答案消息标识 \\
+upvotes & 否 & String[] & 是 & 点赞用户标识集合 \\
+upvoteCount & 否 & Number & 否 & 点赞数量，默认值为 `0` \\
+reactions & 否 & Object[] & 是 & Emoji 反应列表，记录表情、用户和创建时间 \\
+time & 否 & Date & 否 & 发送时间 \\
+status & 否 & String & 否 & 消息投递状态，取值为 `sent` 或 `delivered` \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{收藏表设计}
+
+Favorite 集合用于保存用户收藏的消息快照，其核心设计思想是“保存快照而不是保存单纯引用”。因此，收藏记录中不仅保留 messageId 和 chatId，还保留 content、contentType、codeInfo、fileInfo、sender、tags 和 note 等信息。这样一来，即便原始消息被删除，收藏内容仍然保有完整的阅读价值。对于技术讨论场景而言，这种设计能够显著提升经验沉淀的稳定性。
+
+\begin{table}[H]
+\centering
+\caption{收藏表结构}
+\label{tab:4-5}
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.6ex}
+\begin{tabular}{M{0.17\textwidth}M{0.08\textwidth}M{0.13\textwidth}M{0.10\textwidth}p{0.34\textwidth}}
+\toprule
+\textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
+\midrule
+\_id & 是 & ObjectId & 否 & MongoDB 自动生成的文档主键 \\
+userId & 否 & String & 否 & 收藏所属用户标识，与 `messageId` 共同形成联合唯一约束 \\
+messageId & 否 & String & 否 & 原始消息标识，与 `userId` 共同形成联合唯一约束 \\
+messageType & 否 & String & 否 & 原始消息所属会话类型，取值为 `private`、`group` 或 `chatroom` \\
+chatId & 否 & String & 否 & 原始会话标识 \\
+content & 否 & String & 是 & 收藏内容正文快照 \\
+contentType & 否 & String & 否 & 收藏内容类型，支持文本、代码、图片、文件、音视频 \\
+codeInfo & 否 & Object & 是 & 代码语言、代码正文和文件名等附加信息 \\
+fileInfo & 否 & Object & 是 & 文件名、文件地址、大小和类型等附加信息 \\
+sender & 否 & Object & 是 & 发送者快照信息，包含 id、name 和 avatar \\
+createdAt & 否 & Date & 否 & 收藏创建时间 \\
+tags & 否 & String[] & 是 & 用户自定义标签集合 \\
+note & 否 & String & 是 & 用户备注信息 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{AI对话表设计}
+
+AIConversation 集合用于保存独立 AI 面板中的多轮对话内容。其设计重点不在单条消息，而在“某位用户与某个 AI 角色的一段连续会话”，因此集合中将多条消息组织为 messages 数组，并通过 role 与 rolePrompt 保留 AI 角色设置。系统在保存前还会对消息历史长度进行裁剪，只保留最近若干轮消息，以控制上下文长度和存储体量。
+
+\begin{table}[H]
+\centering
+\caption{AI对话表结构}
+\label{tab:4-6}
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.6ex}
+\begin{tabular}{M{0.17\textwidth}M{0.08\textwidth}M{0.13\textwidth}M{0.10\textwidth}p{0.34\textwidth}}
+\toprule
+\textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
+\midrule
+\_id & 是 & ObjectId & 否 & MongoDB 自动生成的文档主键 \\
+userId & 否 & String & 否 & 会话所属用户标识，并建立普通索引 \\
+role & 否 & String & 否 & AI 角色类型，支持默认、教师、程序员等预设角色 \\
+rolePrompt & 否 & String & 是 & 自定义角色提示词 \\
+messages & 否 & Object[] & 是 & 对话消息集合，元素包含 role、content 和 timestamp \\
+createdAt & 否 & Date & 否 & 创建时间 \\
+updatedAt & 否 & Date & 否 & 更新时间 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{聊天总结表设计}
+
+Summary 集合用于保存 AI 生成的结构化聊天总结，其设计目标是让系统能够长期保存某段对话的概要、关键结论和待办事项。与普通消息不同，总结记录更接近分析结果，因此其主体字段 summary 被设计为嵌套对象，内部包含标题、概览、关键点、结论、待办事项和技术术语等内容。该设计既方便前端按模块化方式展示总结内容，也便于后续继续扩展更多结构化分析维度。
+
+\begin{table}[H]
+\centering
+\caption{聊天总结表结构}
+\label{tab:4-7}
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.6ex}
+\begin{tabular}{M{0.17\textwidth}M{0.08\textwidth}M{0.13\textwidth}M{0.10\textwidth}p{0.34\textwidth}}
+\toprule
+\textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
+\midrule
+\_id & 是 & ObjectId & 否 & MongoDB 自动生成的文档主键 \\
+userId & 否 & String & 否 & 总结创建者用户标识，并与 `chatType`、`targetId` 形成复合索引 \\
+chatType & 否 & String & 否 & 会话类型，取值为 `private` 或 `group` \\
+targetId & 否 & String & 否 & 会话目标标识，并与 `userId`、`chatType` 形成复合索引 \\
+summary & 否 & Object & 否 & 结构化总结内容，包含标题、概览、关键点、结论和待办事项 \\
+statistics & 否 & Object & 是 & 统计信息，如参与人数、时间范围和消息类型分布 \\
+messageCount & 否 & Number & 否 & 参与总结的消息数量，默认值为 `0` \\
+createdAt & 否 & Date & 否 & 总结生成时间 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+从以上逻辑结构设计可以看到，系统数据库并没有刻意追求抽象层面的绝对规范化，而是围绕项目的真实访问路径来组织。用户、房间和消息构成了系统的基础数据骨架，收藏、AI 对话和聊天总结则在这一骨架上承担增强与沉淀功能。
+
+\section{核心底层机制与部署拓扑设计}
+
+\subsection{WebSocket 即时通信协作机理}
+
+尽管前文梳理了通讯模块的一般流程，但作为即时通信系统，其本质需要深入到全双工长连接的事件级别才算完整。系统并非采用简单的接口轮询，而是依靠 WebSocket 协议构建起真实低延迟的管道。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_13.png}
+\caption{Socket即时通信底层时序图}
+\label{fig:4-13}
+\end{figure}
+
+如图4-13所示，一个完整的端到端交互涵盖了认证建立与广播分发两大核心闭环：首先，客户端的建立握手请求严格依赖常规 HTTP 接口签发的 JWT 进行无状态鉴权。握手通过后，Client A 建立独立进程进行业务广播（例如抛出 `group-message`），此时服务端的 Express / Socket.IO 控制器会立即接管，串行执行权限核验与 MongoDB 库的数据持久化落盘。仅仅在持久化成功触发 ACK 的同时，系统调用 `io.to(roomId).emit` 对同房间的 Client B 推送完整消息单元，真正实现了毫秒级的一致性送达体验。
+
+\subsection{系统物理部署与网络拓扑架构}
+
+对于任何 Web 后端项目而言，逻辑架构的“软设计”最终必须要落地到容器或服务器集群的“硬拓扑”上。系统需要明确各服务角色的物理挂载方式与流转关卡。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图4_14.png}
+\caption{系统物理部署与网络拓扑架构图}
+\label{fig:4-14}
+\end{figure}
+
+如图4-14所示的系统最终网络拓扑结构，其设计体现了清晰的前后端解耦分布与流量路由规则：
+外界用户的 Web 端和基于 Electron 的桌面端首先通过 WSS/HTTPS 安全协议接触网络边缘层（反向代理/网关 Nginx），再由网关将长连接请求 Proxy 甚至负载分发到内网 Node.js 核心服务进程。其中 Node.js Server 内挂载了 Express 的 REST 层、Socket 集群维护和 RAG 控制器守护线程。
+所有数据交互最终分别下沉至内网状态完全隔离的数据库栈（MongoDB），而大模型服务则在需要执行时以外网 API 调用的形式异步请求第三方私有化云端接口。这样的软硬解耦模式确保了即便是单机轻量开发环境下也能做到平替验证。
+
+这不仅完善了逻辑到实控环境的闭环，也为下一章的系统实现乃至真实的系统测试提供了完整的前置运行环境参考依据。

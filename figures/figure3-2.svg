@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1080" viewBox="0 0 1800 1080">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="20" y="20" width="250" height="1020" class="lane"/><rect x="20" y="20" width="250" height="56" class="lane-header"/><text x="145.0" y="54" text-anchor="middle" font-size="22" font-weight="700" class="label">用户</text><rect x="270" y="20" width="360" height="1020" class="lane"/><rect x="270" y="20" width="360" height="56" class="lane-header"/><text x="450.0" y="54" text-anchor="middle" font-size="22" font-weight="700" class="label">Web / Electron 客户端</text><rect x="630" y="20" width="520" height="1020" class="lane"/><rect x="630" y="20" width="520" height="56" class="lane-header"/><text x="890.0" y="54" text-anchor="middle" font-size="22" font-weight="700" class="label">业务服务层</text><rect x="1150" y="20" width="630" height="1020" class="lane"/><rect x="1150" y="20" width="630" height="56" class="lane-header"/><text x="1465.0" y="54" text-anchor="middle" font-size="22" font-weight="700" class="label">AI / RAG / 存储</text><rect x="50" y="110" width="190" height="70" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="145.0" y="152.0">登录并进入交流空间</tspan></text><rect x="320" y="100" width="260" height="92" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="450.0" y="139.5">加载会话列表</tspan><tspan x="450.0" y="166.5">历史消息与在线状态</tspan></text><rect x="710" y="100" width="360" height="92" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="890.0" y="139.5">认证身份</tspan><tspan x="890.0" y="166.5">返回房间、成员与上下文数据</tspan></text><rect x="50" y="260" width="190" height="70" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="145.0" y="302.0">发送消息</tspan></text><rect x="320" y="250" width="260" height="92" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="450.0" y="262.5">提交文本 / 代码 / </tspan><tspan x="450.0" y="289.5">文件</tspan><tspan x="450.0" y="316.5">并同步 Socket 事</tspan><tspan x="450.0" y="343.5">件</tspan></text><rect x="710" y="240" width="360" height="112" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="890.0" y="276.0">校验消息内容</tspan><tspan x="890.0" y="303.0">持久化消息与附件信息</tspan><tspan x="890.0" y="330.0">广播给当前会话成员</tspan></text><rect x="1240" y="255" width="300" height="82" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1390.0" y="289.5">写入 MongoDB</tspan><tspan x="1390.0" y="316.5">更新索引队列</tspan></text><rect x="320" y="420" width="260" height="100" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="450.0" y="450.0">渲染新消息</tspan><tspan x="450.0" y="477.0">支持引用、问题状态</tspan><tspan x="450.0" y="504.0">与最佳答案展示</tspan></text><polygon points="920,510.0 1005.0,570 920,630.0 835.0,570" class="decision"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="920" y="564.15">人工回复是否</tspan><tspan x="920" y="589.15">已解决问题</tspan></text><rect x="1240" y="460" width="300" height="82" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1390.0" y="494.5">检索相似问题</tspan><tspan x="1390.0" y="521.5">与历史讨论</tspan></text><rect x="1240" y="610" width="300" height="102" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1390.0" y="654.5">生成 AI 问答</tspan><tspan x="1390.0" y="681.5">代码分析与阶段总结</tspan></text><rect x="710" y="760" width="360" height="92" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="890.0" y="799.5">将 AI 结果写回消息流</tspan><tspan x="890.0" y="826.5">并广播给当前空间</tspan></text><rect x="50" y="900" width="190" height="72" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="145.0" y="943.0">收藏关键内容</tspan></text><rect x="320" y="890" width="260" height="92" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="450.0" y="929.5">查看收藏、总结</tspan><tspan x="450.0" y="956.5">与历史检索结果</tspan></text><rect x="710" y="890" width="360" height="92" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="890.0" y="929.5">保存标签、备注、总结</tspan><tspan x="890.0" y="956.5">供后续检索与复用</tspan></text><line x1="240" y1="145" x2="320" y2="145" class="line" marker-end="url(#arrow)"/><line x1="580" y1="145" x2="710" y2="145" class="line" marker-end="url(#arrow)"/><line x1="240" y1="285" x2="320" y2="285" class="line" marker-end="url(#arrow)"/><line x1="580" y1="285" x2="710" y2="285" class="line" marker-end="url(#arrow)"/><line x1="240" y1="425" x2="320" y2="425" class="line" marker-end="url(#arrow)"/><line x1="580" y1="425" x2="710" y2="425" class="line" marker-end="url(#arrow)"/><line x1="1070" y1="425" x2="1240" y2="425" class="line" marker-end="url(#arrow)"/><line x1="580" y1="470" x2="690" y2="470" class="line" marker-end="url(#arrow)"/><polyline points="920,630 920,730 890,730 890,760" fill="none" class="line" marker-end="url(#arrow)"/><text x="960" y="555" text-anchor="middle" font-size="16" font-weight="700" class="label">是</text><text x="1010" y="640" text-anchor="middle" font-size="16" font-weight="700" class="label">否</text><polyline points="1005,570 1180,570 1180,500 1240,500" fill="none" class="line" marker-end="url(#arrow)"/><line x1="1390" y1="542" x2="1390" y2="610" class="line" marker-end="url(#arrow)"/><polyline points="1240,660 1150,660 1150,806 1070,806" fill="none" class="line" marker-end="url(#arrow)"/><line x1="240" y1="936" x2="320" y2="936" class="line" marker-end="url(#arrow)"/><line x1="580" y1="936" x2="710" y2="936" class="line" marker-end="url(#arrow)"/>
+</svg>

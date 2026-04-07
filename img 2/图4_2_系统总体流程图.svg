@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="980" viewBox="0 0 1100 980" style="background-color:#FFFFFF; font-family: Arial, sans-serif;">
+    <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" />
+        </marker>
+    </defs>
+
+    <!-- ====== Swimlane Columns ====== -->
+    <!-- Lane widths: each 210px, starting x=40 -->
+    <!-- Lane 1: 用户       x=40  w=180 -->
+    <!-- Lane 2: 前端界面   x=220 w=210 -->
+    <!-- Lane 3: 业务服务   x=430 w=210 -->
+    <!-- Lane 4: 存储与索引 x=640 w=200 -->
+    <!-- Lane 5: AI服务     x=840 w=220 -->
+
+    <!-- Outer border -->
+    <rect x="40" y="40" width="1020" height="920" fill="none" stroke="#333333" stroke-width="2" />
+
+    <!-- Header row -->
+    <rect x="40" y="40" width="1020" height="40" fill="#E8E8E8" stroke="#333333" stroke-width="2" />
+
+    <!-- Vertical dividers -->
+    <line x1="220" y1="40" x2="220" y2="960" stroke="#333333" stroke-width="1.5" stroke-dasharray="4,3" />
+    <line x1="430" y1="40" x2="430" y2="960" stroke="#333333" stroke-width="1.5" stroke-dasharray="4,3" />
+    <line x1="640" y1="40" x2="640" y2="960" stroke="#333333" stroke-width="1.5" stroke-dasharray="4,3" />
+    <line x1="840" y1="40" x2="840" y2="960" stroke="#333333" stroke-width="1.5" stroke-dasharray="4,3" />
+
+    <!-- Lane Headers -->
+    <text x="130" y="60" font-size="15" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">用户</text>
+    <text x="325" y="60" font-size="15" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">前端界面</text>
+    <text x="535" y="60" font-size="15" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">业务服务</text>
+    <text x="740" y="60" font-size="15" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">存储与索引</text>
+    <text x="950" y="60" font-size="15" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">AI服务</text>
+
+    <!-- ====== N1: 开始 (用户) ====== -->
+    <ellipse cx="130" cy="115" rx="50" ry="20" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="130" y="115" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">开始</text>
+
+    <!-- ====== N2: 登录系统 (用户) ====== -->
+    <rect x="60" y="155" width="140" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="130" y="174" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="middle">登录系统</text>
+
+    <!-- N1 -> N2 -->
+    <path d="M 130 135 L 130 155" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N3: 校验令牌并初始化页面 (前端界面) ====== -->
+    <rect x="245" y="155" width="160" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="168" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">校验令牌</text>
+    <text x="325" y="184" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">并初始化页面</text>
+
+    <!-- N2 -> N3 (horizontal) -->
+    <path d="M 200 174 L 245 174" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N4: 返回用户信息和房间数据 (业务服务) ====== -->
+    <rect x="455" y="155" width="160" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="535" y="168" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">返回用户信息</text>
+    <text x="535" y="184" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">和房间数据</text>
+
+    <!-- N3 -> N4 -->
+    <path d="M 405 174 L 455 174" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N5: 进入聊天空间 (用户) ====== -->
+    <rect x="60" y="255" width="140" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="130" y="274" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="middle">进入聊天空间</text>
+
+    <!-- N4 bend back to user -->
+    <path d="M 535 193 L 535 230 L 130 230 L 130 255" stroke="#333333" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#arr)" />
+
+    <!-- ====== N6: 加载历史消息并建立Socket连接 (前端界面) ====== -->
+    <rect x="245" y="255" width="160" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="325" y="268" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">加载历史消息</text>
+    <text x="325" y="284" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">并建立Socket连接</text>
+
+    <!-- N5 -> N6 -->
+    <path d="M 200 274 L 245 274" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N7: 发送消息 (用户) ====== -->
+    <rect x="60" y="355" width="140" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="130" y="374" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="middle">发送消息</text>
+
+    <!-- N6 -> down then to N7 -->
+    <path d="M 325 293 L 325 335 L 130 335 L 130 355" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N8: 校验权限和消息类型 (业务服务) ====== -->
+    <rect x="455" y="355" width="160" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="535" y="368" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">校验权限</text>
+    <text x="535" y="384" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">和消息类型</text>
+
+    <!-- N7 -> N8 (via front end) -->
+    <path d="M 200 374 L 455 374" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N9: 写入消息记录并广播 (业务服务) ====== -->
+    <rect x="455" y="445" width="160" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="535" y="458" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">写入消息记录</text>
+    <text x="535" y="474" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">并广播</text>
+
+    <!-- N8 -> N9 -->
+    <path d="M 535 393 L 535 445" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N10: 持久化消息并更新索引 (存储与索引) ====== -->
+    <rect x="660" y="445" width="160" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="740" y="458" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">持久化消息</text>
+    <text x="740" y="474" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">并更新索引</text>
+
+    <!-- N9 -> N10 -->
+    <path d="M 615 464 L 660 464" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N11: 是否触发AI辅助 (决策菱形, 业务服务) ====== -->
+    <polygon points="535,560 595,590 535,620 475,590" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="535" y="583" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">是否触发</text>
+    <text x="535" y="599" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">AI辅助？</text>
+
+    <!-- N10 -> N11 (down then left) -->
+    <path d="M 740 483 L 740 540 L 595 590" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N12: 生成回复或总结 (AI服务) ====== -->
+    <rect x="870" y="562" width="160" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="950" y="575" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">生成AI回复</text>
+    <text x="950" y="591" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">或总结</text>
+
+    <!-- N11 -> N12 (是) -->
+    <path d="M 595 590 L 870 581" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <text x="720" y="580" font-size="12" fill="#333333" text-anchor="middle">是</text>
+
+    <!-- AI result feeds back to 业务服务 -->
+    <path d="M 950 600 L 950 660 L 535 660 L 535 630" stroke="#333333" stroke-width="2" stroke-dasharray="5,3" fill="none" marker-end="url(#arr)" />
+
+    <!-- N11 否 -> 收藏 -->
+    <path d="M 535 620 L 535 700" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <text x="545" y="665" font-size="12" fill="#333333">否</text>
+
+    <!-- ====== N13: 收藏或回看结果 (用户) ====== -->
+    <rect x="60" y="695" width="140" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="130" y="714" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="middle">收藏或回看结果</text>
+
+    <!-- from N11-否path arrives at 535,700 -> route to user lane -->
+    <path d="M 535 700 L 535 714 L 200 714" stroke="#333333" stroke-width="2" fill="none" />
+    <path d="M 200 714 L 200 714" stroke="none" />
+    <!-- direct connector -->
+    <path d="M 535 700 L 130 700 L 130 695" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N14: 保存收藏快照和标签备注 (存储与索引) ====== -->
+    <rect x="660" y="695" width="160" height="38" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="740" y="708" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">保存收藏快照</text>
+    <text x="740" y="724" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">和标签备注</text>
+
+    <!-- N13 -> N14 -->
+    <path d="M 200 714 L 660 714" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- ====== N15: 结束 (用户) ====== -->
+    <ellipse cx="130" cy="835" rx="50" ry="20" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="130" y="835" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">结束</text>
+
+    <!-- N14 -> 结束 -->
+    <path d="M 740 733 L 740 800 L 130 800 L 130 815" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+</svg>

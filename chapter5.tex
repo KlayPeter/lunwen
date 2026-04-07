@@ -1,0 +1,705 @@
+\chapter{系统实现}
+
+\newcommand{\chapterfiveplaceholder}[1]{%
+\begin{center}
+\fbox{\parbox[c][4.0cm][c]{0.82\textwidth}{\centering #1（占位）}}
+\end{center}
+\begin{center}
+#1（占位）
+\end{center}
+}
+
+\lstdefinestyle{chapterfivecode}{
+  basicstyle=\ttfamily\zihao{5},
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  xleftmargin=1em,
+  xrightmargin=1em,
+  aboveskip=0.7em,
+  belowskip=0.7em,
+  rulecolor=\color{black}
+}
+
+\tikzset{
+  chapterfivebox/.style={rectangle, draw, rounded corners=2pt, minimum width=3.7cm, minimum height=0.9cm, text centered, align=center},
+  chapterfivedecision/.style={diamond, draw, minimum width=2.8cm, minimum height=1.0cm, text centered, aspect=2},
+  chapterfivearrow/.style={->, >=Stealth, thick}
+}
+
+这一章主要回答一个问题：Mini-Chat-Bar-main 在代码里到底是怎么实现出来的。前面做需求分析和总体设计的时候，更多是在讲系统要做什么、为什么这样拆；到了这一章，就更关心实际落地的部分了。结合项目目录可以看出，整个系统不是一套单体前端，也不是单纯的聊天页面加几个接口，而是由 \texttt{server} 目录下的后端服务和 \texttt{ccb} 目录下的 Web/Electron 前端两部分一起组成的。前者负责鉴权、消息存储、AI 调用和 Socket.IO 实时通信，后者负责聊天界面、状态同步、桌面端托盘和通知交互\cite{expressdocs2026,socketiodocs2026,electrondocs2026}。下面按后端、Web 前端和桌面端三个部分展开说明。
+
+\section{后端实现}
+
+\subsection{后端项目结构说明}
+
+从源码结构来看，后端并不是把所有逻辑都堆在 \texttt{server.js} 里，而是按职责拆成了路由、控制器、模型、Socket 事件、AI 代理和服务模块几层。这样拆的好处很实际：新增接口时先加路由，再补控制器；消息模型变更时只动 \texttt{models}；实时通信异常时直接去 \texttt{sockets} 里查，不会来回翻整棵目录。后端核心目录结构如代码清单所示。
+
+\begin{lstlisting}[style=chapterfivecode]
+server/
+|-- server.js
+|-- config/
+|   |-- db.js
+|   `-- passport.js
+|-- routes/
+|   |-- user.js
+|   |-- chat.js
+|   |-- room.js
+|   |-- agent.js
+|   `-- chatroomAI.js
+|-- controllers/
+|   |-- UserController.js
+|   |-- ChatController.js
+|   |-- GroupController.js
+|   |-- AgentController.js
+|   `-- ChatRoomAIController.js
+|-- middlewares/
+|   `-- auth.js
+|-- models/
+|   |-- Users.js
+|   |-- Messages.js
+|   |-- GroupMessage.js
+|   `-- Room.js
+|-- sockets/
+|   |-- chat.js
+|   |-- room.js
+|   |-- voiceRoom.js
+|   `-- codeCollaboration.js
+|-- agents/
+|   |-- BaseAgent.js
+|   |-- ChatAgent.js
+|   `-- SummaryAgent.js
+|-- services/
+|   |-- RAGService.js
+|   |-- MessageIndexer.js
+|   |-- vectorStoreFactory.js
+|   `-- emailService.js
+`-- tools/
+    |-- DatabaseTool.js
+    `-- VectorSearchTool.js
+\end{lstlisting}
+
+\begin{enumerate}
+  \item \texttt{config} 主要处理数据库连接和 OAuth 配置。像 MongoDB 连接在 \texttt{db.js} 里完成，Google、GitHub 登录策略则在 \texttt{passport.js} 中注册。
+  \item \texttt{routes} 负责把请求路径分给不同业务模块。用户、私聊、聊天室、AI、收藏、上传这些接口都在这一层挂接。
+  \item \texttt{controllers} 负责真正的业务逻辑，是后端最核心的一层。前端点登录、发消息、拉历史记录，本质上最后都会落到这里。
+  \item \texttt{models} 对应 MongoDB 文档结构。项目里把私聊消息和群聊消息分开建模，这一点和前端界面划分是对得上的。
+  \item \texttt{middlewares} 目前最关键的是 \texttt{auth.js}，它负责 JWT 校验，后端很多接口能不能访问都靠这一层先拦一下。
+  \item \texttt{sockets} 负责 Socket.IO 事件。私聊、群聊、语音房间和代码协作分别独立放置，后面出问题时会比较好排查。
+  \item \texttt{agents}、\texttt{services} 和 \texttt{tools} 一起组成 AI 能力。这里不是简单写个“调模型接口”的函数，而是做成了带步骤编排的 Agent 结构。
+\end{enumerate}
+
+从实现方式上说，这样的目录拆分不算特别复杂，但对一个聊天系统来说已经够用了。后续如果还要继续扩，比如继续加消息审核、AI 角色管理或者更细的权限控制，也基本能沿着这套结构往下加，不至于把旧代码越改越乱。
+
+\subsection{核心模块实现}
+
+\subsubsection{用户模块}
+
+\textbf{功能说明：} 用户模块主要由 \texttt{UserController.js}、\texttt{routes/user.js} 和 \texttt{config/passport.js} 组成，支持邮箱密码登录、邮箱验证码登录、邮箱注册，以及 Google、GitHub 的 OAuth 登录。登录成功以后，后端会返回 JWT，前端再把 token 和用户信息保存到本地，并继续初始化 Socket 连接和在线状态\cite{oauthcn2024,oauthbcp2025}。
+
+\textbf{关键代码片段：}
+\begin{lstlisting}[style=chapterfivecode]
+const token = jwt.sign(
+  { userId: user.uID, username: user.uName, email: user.uEmail },
+  SECRET_KEY,
+  { expiresIn: '24h' }
+)
+
+res.status(200).json({
+  message: '登录成功',
+  token,
+  user: {
+    id: user.uID,
+    name: user.uName,
+    email: user.uEmail,
+    ava: user.uAvatar
+  }
+})
+\end{lstlisting}
+
+\textbf{实现逻辑说明：} 这部分实现比较扎实，没有花很多“包装性的”东西。普通注册时，后端先校验邮箱是否合法、密码强度够不够，再用 \texttt{bcrypt} 做密码哈希；普通登录时，用邮箱查用户，再比较哈希后的密码；验证成功后才生成 token。验证码登录的逻辑则是先走 \texttt{emailService}，把验证码暂存在内存结构里，用户提交验证码后再去核验。OAuth 登录稍微多一步，但思路也清楚：先从第三方平台取回资料，再尝试用第三方 ID 或邮箱查本地账户，如果没查到就自动创建。这样做的好处是，项目最后只维护一套 \texttt{Users} 集合，不会因为登录方式不同把用户表拆成几份。
+
+另外，后端在 \texttt{/api/user/info} 里统一返回当前用户的基础信息，这个接口在前端其实用得很频繁。登录完成后要靠它补齐头像和邮箱；设置页修改完资料之后也会重新请求它；OAuth 回调回来以后，前端也是先靠这个接口确认当前是谁，再决定进入哪一页。也就是说，用户模块虽然表面上只是“登录和注册”，但它其实是整个系统的入口。
+
+\subsubsection{聊天模块}
+
+\textbf{功能说明：} 聊天模块分成私聊和群聊两条主线。私聊这一块主要落在 \texttt{ChatController.js} 和 \texttt{Messages.js} 上；群聊和技术聊天室则更多由 \texttt{GroupController.js}、\texttt{Room.js}、\texttt{GroupMessage.js} 这几处一起处理。除了最基础的文本消息，项目还支持图片、文件、语音、代码片段、引用回复和问题标记。
+
+\textbf{关键代码片段：}
+\begin{lstlisting}[style=chapterfivecode]
+const message = new GroupMessage({
+  roomId,
+  from: userId,
+  fromName: userInfo.uName,
+  fromAvatar: userInfo.uAvatar,
+  content,
+  messageType: messageType || 'text',
+  fileInfo,
+  codeInfo,
+  quotedMessage,
+  isQuestion: isQuestion || false
+})
+
+await message.save()
+room.updatedAt = new Date()
+await room.save()
+io.to(roomId).emit('group-message', responseMessage)
+\end{lstlisting}
+
+\textbf{实现逻辑说明：} 群聊消息发送时，后端会先确认房间是否存在、当前用户是不是成员，再从 \texttt{Users} 集合里补齐当前昵称和头像，最后把消息写入 \texttt{GroupMessage}。这里有一个挺重要的处理细节：群消息文档里直接冗余保存了 \texttt{fromName} 和 \texttt{fromAvatar}，这样前端拉历史消息时就不用再逐条去查用户表，聊天室里消息一多，这个差别会很明显。私聊部分的思路类似，不过数据结构更简单，核心字段主要是 \texttt{from}、\texttt{to}、\texttt{content} 和 \texttt{isRead}。
+
+从项目代码看，群聊并不只是一个“多人版私聊”。\texttt{GroupMessage.js} 里额外留了 \texttt{quotedMessage}、\texttt{isQuestion}、\texttt{questionStatus}、\texttt{isSolution}、\texttt{reactions} 等字段，这些字段和前端的技术讨论功能是一一对应的。比如用户在聊天室里标记“这条是问题”，后端保存的其实不是一个临时 UI 状态，而是实打实写到消息文档里；最佳答案、解决方案、表情反应也是同样的做法。换句话说，聊天室那套“像论坛但又比论坛轻”的交互，底层是有数据模型支撑的，不是前端临时拼效果。
+
+\subsubsection{AI智能检索与流式交互（RAG \& SSE）}
+
+\textbf{逻辑架构说明：} AI 模块的核心突破点在于打破了“单向死板问答”的模式，将 \texttt{/api/chatroom-ai/ask-stream} 设计成了一个融合 RAG 向量检索与 Server-Sent Events (SSE) 双向广播的实时流式处理器。当用户在聊天室发送带有 \texttt{@AI} 的问题时，控制器不会简单把请求透明代理给 DeepSeek，而是会先接管上下文\cite{qaoverview2025,ragllmsurvey2024,ragsurveycn2025}。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_1.png}
+\caption{RAG智能流式问答核心处理流}
+\label{fig:5-20}
+\end{figure}
+
+如图\ref{fig:5-20}所示，其实际执行链为：先通过 \texttt{VectorSearchTool} 在 MongoDB 历史集合中迅速抽取 Top-5 强相关聊天记录，将其组装进 Prompt，接着向后端发起 axios \texttt{responseType: 'stream'} 的请求。
+
+\textbf{核心代码实现（截取自 \texttt{ChatRoomAIController.js}）：}
+\begin{lstlisting}[style=chapterfivecode]
+// 核心逻辑：发起网络流式请求并使用 SSE 实时回写客户端
+const aiResponse = await axios.post(DEEPSEEK_API_URL, {
+  model: 'deepseek-chat',
+  messages: [
+    { role: 'system', content: '你是一个专业的技术助手...' },
+    { role: 'user', content: context } // context包含了RAG检索的 Top-K 历史
+  ],
+  stream: true
+}, { responseType: 'stream' })
+
+aiResponse.data.on('data', (chunk) => {
+  const lines = chunk.toString().split('\n').filter(line => line.trim() !== '')
+  for (const line of lines) {
+    if (line.startsWith('data: ') && line.slice(6) !== '[DONE]') {
+      const content = JSON.parse(line.slice(6)).choices[0]?.delta?.content || ''
+      if (content) {
+        fullAnswer += content
+        // 1. SSE HTTP 分块下发给发起提问的客户端
+        res.write(`data: ${JSON.stringify({ content })}\n\n`)
+        // 2. 借助 Socket.IO 将流式片段同步广播给同一聊天室内所有其他成员
+        io.to(roomId).emit('ai-stream-chunk', { roomId, content, isComplete: false })
+      }
+    }
+  }
+})
+\end{lstlisting}
+
+\textbf{实现机制延伸：} 从上述源码可以看出，该接口非常巧妙地将 HTTP 的 SSE 协议与 WebSocket 长连接多播结合在了一起。提问者本人通过传统的长 HTTP response 依次渲染打字机效果，而同一房间内的其他观测者，则通过全局监听 \texttt{ai-stream-chunk} 事件获取增量块。对于计算极其耗时的大语言模型而言，这种分块下发机制彻底消灭了首字节等待时间（TTFB），使大规模技术群体的协同解题体验做到了极致平滑\cite{deepseekrag2026}。
+
+\subsubsection{WebSocket模块}
+
+\textbf{功能说明：} WebSocket 主要由 \texttt{sockets/chat.js} 和 \texttt{sockets/room.js} 处理。前者负责私聊消息、在线状态、头像同步等点对点事件，后者负责群聊加入、在线人数、输入状态、群消息广播等房间级事件。除此之外，\texttt{voiceRoom.js} 和 \texttt{codeCollaboration.js} 又把语音交流和代码协作单独拆了出去\cite{socketiodocs2026,imsecurity2024}。
+
+\textbf{关键代码片段：}
+\begin{lstlisting}[style=chapterfivecode]
+if (!users.has(userId)) {
+  users.set(userId, new Set())
+}
+users.get(userId).add(socket.id)
+
+if (!roomUsers.has(roomId)) {
+  roomUsers.set(roomId, new Set())
+}
+roomUsers.get(roomId).add(userId)
+
+io.to(roomId).emit('online-count', {
+  roomId,
+  count: roomUsers.get(roomId).size
+})
+\end{lstlisting}
+
+\textbf{实现逻辑说明：} 这一层最实用的地方在于，它不是拿 \texttt{socket.id} 直接当用户标识来用，而是做了两层映射。私聊这边，\texttt{users} 存的是“一个用户对应一组 socket 连接”，这样同一个账号在多个窗口同时登录也不会丢消息；群聊这边，\texttt{roomUsers} 记录的是“某个房间里有哪些 userId 在线”，所以在线人数统计按用户去重，不会因为一个人开两个窗口就多算两次。这个处理虽然看起来只是多套了一个 \texttt{Set}，但对聊天工具来说挺关键，不然在线人数和未读提醒会很容易乱掉。
+
+还有一点也很明显：项目没有把所有实时事件混在一起处理。私聊消息、群消息、语音连麦、代码协作是分文件写的，这样后面改群聊，不容易误伤语音房间；查 Bug 的时候也能更快定位到具体层面。对于一个功能越来越多的聊天系统来说，这种拆法比“都塞在一个 socket 入口里”稳很多。
+
+\subsubsection{数据模型与辅助模块}
+
+\textbf{功能说明：} 后端除了核心聊天主链路，还补了不少辅助能力，包括上传、收藏、问题追踪、代码片段保存、消息索引和链接预览。这些模块单看都不算大，但它们把系统从“能聊”往“更适合技术交流”推了一步。
+
+\textbf{关键代码片段：}
+\begin{lstlisting}[style=chapterfivecode]
+const groupMessageSchema = new mongoose.Schema({
+  roomId: { type: String, required: true, index: true },
+  from: { type: String, required: true },
+  fromName: { type: String, required: true },
+  fromAvatar: { type: String },
+  content: { type: String },
+  messageType: { type: String, default: 'text' },
+  quotedMessage: { id: String, content: String, fromName: String },
+  isQuestion: { type: Boolean, default: false },
+  reactions: [{ emoji: String, userId: String }],
+  time: { type: Date, default: Date.now, index: true }
+})
+\end{lstlisting}
+
+\textbf{实现逻辑说明：} 这部分能看出项目并不是只在前端做“功能按钮”，而是把对应的数据结构也补齐了。比如引用回复、问题标记、表情反应，这些都是消息模型自带的字段；收藏模块则会把消息快照保存下来，即使原消息被删，收藏内容也还能留住；上传模块先把文件落到服务器，再把文件地址写回消息记录，所以图片、语音和文件在历史记录里都能长期回看。还有 \texttt{MessageIndexer} 和 \texttt{RAGService}，它们负责把文本消息做向量化索引，给后面的 AI 检索做准备。说得直白一点，这些辅助模块不是“可有可无的小功能”，它们已经和主聊天流程绑在一起了\cite{mongodbdocs2026,llmplatform2024}。
+
+\subsubsection{聊天室洞察与智能话题聚类分析（Room Insights）}
+
+对于一个活跃的技术交流平台，除了被动等待用户输入指令外，后台系统还需要具备“宏观把控房间态势”的数据加工能力。项目中专门设计了 \texttt{getRoomInsights} 接口来实现对房间消息生命周期的全局审视。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_2.png}
+\caption{聊天室实时洞察与状态分析流}
+\label{fig:5-21}
+\end{figure}
+
+如上图\ref{fig:5-21}所示，该组件并非通过机器学习来处理繁重语料，而是极为巧妙地结合了 MongoDB 文档数据库的灵便聚合特性。
+
+\textbf{核心代码截取：}
+\begin{lstlisting}[style=chapterfivecode]
+// 1. 查询超过30分钟处于无人问津状态的疑难技术点
+const openQuestions = await GroupMessage.find({ roomId, isQuestion: true, questionStatus: 'open' })
+  .sort({ time: -1 }).limit(10).lean()
+
+// 2. 构建话题聚类探针 (Topic Map)
+const topicMap = new Map()
+for (const msg of recentMessages) {
+  const topic = msg.content.substring(0, 20) // 对消息抽丝剥茧
+  if (!topicMap.has(topic)) {
+    topicMap.set(topic, { topic, messageCount: 0, participants: new Set() })
+  }
+  topicMap.get(topic).messageCount++
+  topicMap.get(topic).participants.add(msg.fromName)
+}
+// 将 Map 对象依据消息讨论体量进行降序提取热门 Top3
+const hotTopics = Array.from(topicMap.values())
+  .sort((a, b) => b.messageCount - a.messageCount).slice(0, 3)
+\end{lstlisting}
+
+**算法层价值：** 这组算法赋予了聊天室极强的“可读观测能力”。系统先按时间流切割最近 30 分钟的数据窗口，再利用原生 Map/Set 结构在计算服务器主内存中实时执行高频遍历去重聚合。它能无缝剥离出哪些是“无人解答的冷门 Bug”，哪些是“正处于广泛讨论的代码异常”。基于处理结果，系统组装出一份扁平化的 \texttt{insights} 评估报告并生成口语化的 \texttt{aiSpeech} 回塞给前端呈现侧边悬浮引导框。这种由数据流反向牵引互动的设计极大幅度地加强了学术与开发群体之间的良性共振。
+
+\subsection{接口设计}
+
+结合 \texttt{server.js}、各个路由文件和控制器实现，可以把项目常用接口分成普通 REST 接口、AI 接口和 WebSocket 通信接口三类。这里不把所有接口都展开，而是挑出最能代表系统实现特点的几组来说明。为了避免接口设计部分只停留在表格罗列层面，下面按照接口类别分别进行说明，并结合表中内容概括每一类接口承担的职责。
+
+\textbf{（1）普通 REST 接口设计。} 这一部分主要包含用户认证、用户资料读取、私聊历史查询以及聊天室消息写入等标准 HTTP 请求接口。它们的共同特点是“请求一次，返回一次”，重点解决身份校验、数据持久化和列表查询等基础业务问题，是前端大多数页面功能能够正常工作的前提。普通 REST 接口的代表性设计如表~\ref{tab:5-1}所示。
+
+\begin{table}[H]
+\centering
+\caption{普通 REST 接口设计}
+\label{tab:5-1}
+\scriptsize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.7ex}
+\begin{tabular}{M{0.16\textwidth}M{0.22\textwidth}M{0.10\textwidth}p{0.23\textwidth}p{0.19\textwidth}}
+\toprule
+\textbf{接口名称} & \textbf{请求路径} & \textbf{请求方式} & \textbf{参数说明} & \textbf{返回示例} \\
+\midrule
+发送验证码 & \parbox[t]{0.20\textwidth}{\raggedright \texttt{/api/user/}\\\texttt{send-verification}} & POST & \texttt{email}、\texttt{type} & 返回提示信息 \\
+邮箱密码登录 & \texttt{/api/user/login-email} & POST & \texttt{email}、\texttt{password} & 返回 \texttt{token} 与用户信息 \\
+获取当前用户信息 & \texttt{/api/user/info} & GET & Bearer Token & 返回 \texttt{user} 对象 \\
+获取私聊消息 & \parbox[t]{0.20\textwidth}{\raggedright \texttt{/api/chat/}\\\texttt{messages/:id}} & GET & 路径参数为对方用户 ID & 返回消息数组 \\
+发送群聊消息 & \parbox[t]{0.20\textwidth}{\raggedright \texttt{/room/:roomId/}\\\texttt{messages}} & POST & \texttt{content}、\texttt{messageType}、\texttt{quotedMessage} 等 & 返回消息对象 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent 由表~\ref{tab:5-1}可以看出，普通 REST 接口更多承担“可靠落库”和“稳定读取”的任务。其中，登录、发送验证码和获取当前用户信息属于用户域接口，私聊消息读取和聊天室消息发送则属于会话域接口。这类接口并不追求长连接式的实时推送，而是强调参数明确、返回结构稳定和便于前后端分层调试。
+
+\textbf{（2）AI 接口设计。} AI 接口主要服务于智能问答、文本解释和聊天总结等增强功能。与普通业务接口相比，它们通常需要拼接上下文、调用检索服务并进一步请求大语言模型，因此返回结果中不仅包含答案正文，还可能包含来源信息、置信度或结构化摘要内容。AI 接口的代表性设计如表~\ref{tab:5-2}所示。
+
+\begin{table}[H]
+\centering
+\caption{AI 接口设计}
+\label{tab:5-2}
+\scriptsize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.7ex}
+\begin{tabular}{M{0.16\textwidth}M{0.22\textwidth}M{0.10\textwidth}p{0.23\textwidth}p{0.19\textwidth}}
+\toprule
+\textbf{接口名称} & \textbf{请求路径} & \textbf{请求方式} & \textbf{参数说明} & \textbf{返回示例} \\
+\midrule
+侧边栏智能问答 & \texttt{/api/agent/chat} & POST & \texttt{question}、\texttt{chatType}、\texttt{sessionId} 等 & 返回答案、来源和置信度 \\
+会话总结 & \texttt{/api/agent/summarize} & POST & \texttt{chatType}、\texttt{targetId/roomId}、\texttt{timeRange} & 返回结构化总结 \\
+划词解释 & \texttt{/api/agent/explain} & POST & \texttt{text}、\texttt{isFollowUp} & 返回解释文本 \\
+聊天室流式问答 & \parbox[t]{0.20\textwidth}{\raggedright \texttt{/api/chatroom-ai/}\\\texttt{ask-stream}} & POST & \texttt{roomId}、\texttt{question}、\texttt{useRAG} & 以 SSE 分块返回结果 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent 从表~\ref{tab:5-2}可以看出，AI 接口并不是单一的一条“问答接口”，而是根据使用场景分成了侧边栏智能问答、会话总结、划词解释和聊天室流式问答四种类型。这样的拆分有助于把“单人查询”“多轮解释”和“多人协作中的 AI 介入”区分开来，也方便前端在不同页面里选择更合适的交互方式。
+
+\textbf{（3）WebSocket 通信接口设计。} WebSocket 部分主要用于处理用户上线注册、私聊消息通知、加入聊天室、群消息广播以及 AI 流式输出同步等事件。它与前两类接口最大的不同，在于它强调服务端主动推送和多端实时同步，更适合承载聊天系统里的在线状态与增量消息场景。WebSocket 通信接口的代表性设计如表~\ref{tab:5-3}所示。
+
+\begin{table}[H]
+\centering
+\caption{WebSocket 通信接口设计}
+\label{tab:5-3}
+\scriptsize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.7ex}
+\begin{tabular}{M{0.15\textwidth}M{0.20\textwidth}M{0.10\textwidth}p{0.24\textwidth}p{0.20\textwidth}}
+\toprule
+\textbf{接口名称} & \textbf{通信标识} & \textbf{触发方式} & \textbf{参数说明} & \textbf{返回示例} \\
+\midrule
+用户上线注册 & \texttt{login} & client emit & \texttt{userId} & 服务端登记在线状态并回推列表 \\
+私聊消息通知 & \texttt{private-message} & 双向 & \texttt{from}、\texttt{to}、\texttt{content} 等 & 实时推送私聊消息 \\
+加入聊天室 & \texttt{join-group} & client emit & \texttt{roomId}、\texttt{userId} & 触发在线人数和成员广播 \\
+群消息广播 & \texttt{group-message} & 双向 & \texttt{roomId}、\texttt{content}、\texttt{fromName} 等 & 房间成员收到完整消息对象 \\
+AI 增量输出 & \texttt{ai-stream-chunk} & server emit & \texttt{roomId}、\texttt{content}、\texttt{isComplete} & 前端逐段渲染 AI 回答 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent 表~\ref{tab:5-3}反映出系统实时通信层的核心职责，即把“谁上线了”“谁加入了房间”“哪条消息需要立即同步给谁”这些高频事件从普通 HTTP 请求中拆出来单独处理。尤其是 \texttt{group-message} 与 \texttt{ai-stream-chunk} 这类事件，直接决定了聊天室消息和 AI 回答能否在界面上即时呈现。
+
+\subsection{示例数据}
+
+为了让接口设计看起来不是空表格，下面给出两个更贴近实际返回格式的示例。字段名和控制器中的实现保持一致，只对 token 和部分 ID 做了简化。
+
+\textbf{示例 1：邮箱密码登录接口返回}
+\begin{lstlisting}[style=chapterfivecode]
+{
+  "message": "登录成功",
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": "1742902338123",
+    "name": "klay",
+    "email": "klay@example.com",
+    "ava": "/images/avatar/default-avatar.webp"
+  }
+}
+\end{lstlisting}
+
+\textbf{示例 2：智能问答接口返回}
+\begin{lstlisting}[style=chapterfivecode]
+{
+  "success": true,
+  "data": {
+    "answer": "这个问题更像是组件通信边界没有收住...",
+    "sources": [
+      {
+        "content": "ChatView 里通过 router-view 切换详情区...",
+        "sender": "AI助手",
+        "relevance": 0.71,
+        "type": "rag"
+      }
+    ],
+    "confidence": 0.9,
+    "contextUsed": true,
+    "ragUsed": true,
+    "retrievedCount": 3
+  }
+}
+\end{lstlisting}
+
+\subsection{通信机制说明}
+
+\subsubsection{HTTP 通信流程}
+
+普通业务请求大多走的是这条链路：前端通过 Axios 发起请求，请求头里自动附带 token；后端先经过 \texttt{auth.js} 做鉴权，确认用户身份没问题之后，再进入控制器；控制器根据请求内容调用 Mongoose 模型读写 MongoDB，最后把结果返回给前端。像登录、获取当前用户信息、拉取历史消息、上传文件、创建聊天室这类操作，本质上都是按这个流程往下走\cite{expressdocs2026,mongodbdocs2026}。
+
+\begin{lstlisting}[style=chapterfivecode]
+token = localStorage.getItem('token')
+axios.get('/api/user/info', { Authorization: Bearer token })
+-> auth middleware
+-> UserController.getUserInfo()
+-> Users.findOne({ uID: req.user.userId })
+-> res.json({ user })
+\end{lstlisting}
+
+\subsubsection{WebSocket 实时通信流程}
+
+实时通信和 HTTP 的分工很清楚。HTTP 更像是“把数据真正写下来”，Socket.IO 则负责“让在线成员马上看到变化”。私聊发送时，前端通常先走 REST 接口写库，再发 \texttt{private-message} 通知对方刷新；群聊发送时，前端调用消息接口后，后端控制器会主动广播 \texttt{group-message}，所以前端反而不用自己再补发一次。这样一来，消息是否保存成功、在线用户是否立刻收到，也都能分别在不同层面查到\cite{socketiodocs2026}。
+
+\begin{lstlisting}[style=chapterfivecode]
+socket.emit('login', userId)
+socket.emit('join-group', { roomId, userId })
+
+client POST /room/:roomId/messages
+-> GroupController.sendGroupMessage()
+-> save GroupMessage
+-> io.to(roomId).emit('group-message', responseMessage)
+-> room members refresh message list
+\end{lstlisting}
+
+\subsubsection{AI 请求调用流程}
+
+AI 请求比普通接口多了一层上下文和检索处理。侧边栏 AI 助手先进入 \texttt{AgentController}，再由 \texttt{ChatAgent} 规划步骤，按顺序执行最近消息提取、RAG 检索和答案生成。聊天室里的 \texttt{@AI} 则更偏向实时协作，控制器会先拼好提示词，再请求流式模型接口，并把增量内容同步回房间\cite{qaoverview2025,ragsurveycn2025,deepseekrag2026}。
+
+\begin{lstlisting}[style=chapterfivecode]
+POST /api/agent/chat
+-> AgentController.chat()
+-> chatAgent.execute()
+   -> getRecentMessages
+   -> ragService.retrieve
+   -> generateAnswerWithRAG
+-> return { answer, sources, confidence }
+\end{lstlisting}
+
+\begin{lstlisting}[style=chapterfivecode]
+POST /api/chatroom-ai/ask-stream
+-> ChatRoomAIController.askAIStream()
+-> VectorSearchTool.search()
+-> request DeepSeek stream
+-> res.write(SSE chunk)
+-> io.to(roomId).emit('ai-stream-chunk', chunk)
+\end{lstlisting}
+
+\subsection{展示内容}
+
+为了验证接口文档与控制器实现保持一致，项目在联调阶段使用 Swagger 页面对主要 REST 接口进行逐项核对，包括用户认证、聊天室消息、收藏和 AI 相关请求。接口文档界面如图~\ref{fig:5-1}所示，它能够直接展示请求方法、路径、参数结构和调试入口，对后续接口联调和答辩演示都比较直观。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_3.png}
+\caption{Swagger 接口文档}
+\label{fig:5-1}
+\end{figure}
+
+后端运行时的日志也比较有代表性。接口是否进来了、Socket 有没有连上、AI 请求有没有发出去，在控制台里基本都能看出来。论文里把这一层留一小段出来，其实挺有必要，因为它能让“系统确实跑起来了”这件事更直观。
+
+\begin{lstlisting}[style=chapterfivecode]
+[2026-03-29 14:23:11] POST /api/user/login-email 200 42ms
+[2026-03-29 14:23:15] GET /room/chatroom_1743xx/messages?limit=50 200 18ms
+[2026-03-29 14:23:18] Socket connected: x8Yp9AbC
+[2026-03-29 14:23:19] user 1742902338123 join-group room=chatroom_1743xx
+[2026-03-29 14:23:27] POST /api/agent/chat 200 6832ms
+\end{lstlisting}
+
+\section{Web前端实现}
+
+前端实现主要集中在 \texttt{ccb/src} 目录下。这个项目的前端不是完全按技术层来分，而是更偏向功能模块：登录页单独做一套交互，聊天主界面负责承接会话和导航，AI 助手单独有自己的组件，消息管理和设置页也各自独立。这样的写法虽然没有做得特别“学院派”，但在阅读代码时会比较顺，想找哪个功能就直接去对应目录，不太容易迷路\cite{vueguide2026,piniadocs2026,electrondocs2026}。
+
+\subsection{登录/注册页面}
+
+\textbf{界面功能说明：} 登录和注册主要放在 \texttt{components/layout/Login.vue} 中。页面做成了翻转卡片形式，正面是登录，背面是注册。登录又分成邮箱密码和邮箱验证码两种方式，卡片底部另外保留了 Google 和 GitHub 的第三方登录按钮。这个页面在视觉上比较完整，不是只放了一个表单，而是把欢迎信息、输入反馈和登录方式切换都做进去了，如图\ref{fig:5-2}和图\ref{fig:5-3}所示。
+
+\textbf{关键交互逻辑：} 用户在输入邮箱和密码后，前端会先做格式校验。邮箱格式不对、密码为空，或者注册时两次密码不一致，页面会先在前端挡下来，不会直接把无效请求丢给后端。验证码登录则多了一步冷却时间控制，60 秒内不能重复获取验证码，这一点也是在前端先处理的。登录真正成功以后，页面不会只保存 token 就结束，而是继续调用 \texttt{waitForSocketConnection()}，在 Socket 成功连接后发出 \texttt{login} 和 \texttt{user-online} 事件，把在线状态一起初始化。
+
+\textbf{与后端的接口交互说明：} 邮箱密码登录调用 \texttt{/api/user/login-email}，验证码登录调用 \texttt{/api/user/login-code}，发送验证码调用 \texttt{/api/user/send-verification}，注册调用 \texttt{/api/user/register-email}，第三方登录则直接跳转到 \texttt{/auth/google} 和 \texttt{/auth/github}。
+
+\textbf{操作流程：} 登录/注册模块的操作流程比较清楚。用户先进入登录页，根据自己的习惯选择密码登录、验证码登录或第三方登录；如果是本地登录，就输入表单并提交；后端验证通过以后返回 token 和用户资料；前端接着保存登录信息、初始化在线状态和 Socket 连接，最后跳转到聊天主界面。整个流程如图\ref{fig:5-4}所示。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_4.png}
+\caption{登录页面展示}
+\label{fig:5-2}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_5.png}
+\caption{注册页面与表单交互展示}
+\label{fig:5-3}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_6.png}
+\caption{登录/注册操作流程图}
+\label{fig:5-4}
+\end{figure}
+
+\subsection{聊天主界面}
+
+\textbf{界面功能说明：} 聊天主界面由 \texttt{ChatView.vue} 负责整体承接。桌面端采用典型的三栏布局，左侧是导航入口，中间是会话或联系人列表，右侧是详情区；移动端则切换成底部导航形式。实际看代码会发现，这个页面更像一个容器，而不是所有逻辑都在这里处理。它的工作重点是根据当前路由和按钮点击结果，决定中间栏和右侧区域应该显示什么。主界面总览如图\ref{fig:5-5}所示，通讯录和聊天室入口则分别如图\ref{fig:5-6}、图\ref{fig:5-7}所示。
+
+\textbf{关键交互逻辑：} 页面初始化时，前端会先检查是否已经登录，再根据路由状态决定默认展示聊天列表、联系人还是聊天室列表。用户点击左侧导航栏或底部导航时，不是单纯隐藏某一块 DOM，而是通过路由切换对应的内容区域。用户进一步点进某个联系人或房间后，\texttt{showdetail()} 会把当前目标 ID 写入 \texttt{useChatStore}，并把昵称、头像、聊天类型等参数一并带到详情页。这一层虽然看着简单，但它把“当前到底在和谁聊”“当前打开的是私聊还是聊天室”这两个最核心的上下文传稳了，后面的消息加载和状态同步才能跟上。
+
+\textbf{与后端的接口交互说明：} 主界面本身不直接发送消息，但会触发好友列表、群列表、聊天室列表以及用户信息等接口的请求。常见调用包括 \texttt{/api/user/info}、\texttt{/api/user/friends}、\texttt{/room/list} 和 \texttt{/room/chatrooms}。
+
+\textbf{操作流程：} 用户登录进入主界面后，前端先加载基础资料和列表数据；用户再根据当前需求切到聊天、联系人或聊天室；选择具体会话后，前端写入当前会话上下文并跳转详情页；详情页继续拉取消息记录并建立需要的 Socket 监听。这个过程如图\ref{fig:5-8}所示。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_7.png}
+\caption{聊天主界面总览}
+\label{fig:5-5}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_8.png}
+\caption{通讯录列表界面展示}
+\label{fig:5-6}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_9.png}
+\caption{聊天室列表界面展示}
+\label{fig:5-7}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_10.png}
+\caption{聊天主界面操作流程图}
+\label{fig:5-8}
+\end{figure}
+
+\subsection{AI对话界面}
+
+\textbf{界面功能说明：} AI 对话相关的界面有两种典型形态。第一种是侧边栏 AI 助手，由 \texttt{AIAssistantPanel.vue} 提供，适合做单独问答、补充解释和上下文延续；第二种是聊天室里的 \texttt{@AI} 交互，它把 AI 回答直接放回房间消息流，更适合多人讨论时一起参考。侧边栏 AI 助手界面如图\ref{fig:5-9}所示，聊天室中的 AI 回答效果如图\ref{fig:5-10}所示。
+
+\textbf{关键交互逻辑：} 侧边栏模式下，用户输入的问题会先追加到本地消息数组，再调用 \texttt{/api/agent/chat} 请求答案，请求成功后再把 AI 回复和来源信息追加到界面。聊天室模式则更强调实时感。用户在输入框里直接输入 \texttt{@AI} 开头的问题，前端会先把原问题发进房间，再触发 \texttt{/api/chatroom-ai/ask-stream}，然后一边接收流式内容，一边刷新当前房间的消息列表。因为后端会把 AI 输出同步广播到房间，所以这个回答不是只对提问者可见，而是房间成员都能看到。
+
+\textbf{与后端的接口交互说明：} 侧边栏模式主要依赖智能问答和解释接口，聊天室模式则围绕流式问答、智能提示和主动答题几类接口展开。
+
+\textbf{操作流程：} AI 模块的操作流程可以概括为：用户打开 AI 面板或在聊天室中输入 \texttt{@AI}；前端提交问题并附带当前上下文；后端结合最近消息和历史检索结果生成回答；回答返回后前端按普通消息或流式消息渲染出来。流程如图\ref{fig:5-11}所示。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_11.png}
+\caption{侧边栏 AI 助手界面}
+\label{fig:5-9}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_12.png}
+\caption{AI 根据历史记录检索后的回答展示}
+\label{fig:5-10}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_13.png}
+\caption{AI 对话操作流程图}
+\label{fig:5-11}
+\end{figure}
+
+\subsection{消息列表与会话管理}
+
+\textbf{界面功能说明：} 会话管理相关功能主要分布在 \texttt{LastChats.vue}、\texttt{Content.vue}、\texttt{ChatMessageList.vue} 和 \texttt{Favorites.vue}。这一块不只是展示消息列表，还包括最近会话排序、未读数显示、历史消息搜索、收藏整理以及消息转发、撤回等行为。最近会话列表和消息页结合后的效果如图\ref{fig:5-12}所示，历史消息搜索和收藏页分别如图\ref{fig:5-13}、图\ref{fig:5-14}所示。
+
+\textbf{关键交互逻辑：} 会话列表加载时，前端会先拉好友列表，再去查每个联系人和群聊的最后一条消息以及未读数，随后按时间重新排序。当前会话打开以后，页面会继续拉完整历史记录，并对消息类型做分类渲染。用户点击搜索图标时，前端会在当前消息数组里做关键词匹配并高亮结果；点击收藏时，则把消息 ID、消息类型和会话 ID 一起发给后端，方便后面单独在收藏页回看。这里的处理比较贴近日常使用场景，不会让用户只能靠无限滚动去找旧消息。
+
+\textbf{与后端的接口交互说明：} 这一块会频繁调用 \texttt{/api/chat/last\_message/:id}、\texttt{/api/chat/unread}、\texttt{/api/chat/messages/:id}、\texttt{/room/:roomId/messages}、\texttt{/api/favorites} 和 \texttt{/api/favorites/:messageId} 等接口。
+
+\textbf{操作流程：} 消息列表与会话管理的基本流程是：先加载会话摘要信息，再根据用户选择打开具体会话；进入会话后加载完整历史消息；如果用户执行搜索、收藏或删除等操作，再分别调用对应接口更新状态，并同步刷新列表。流程如图\ref{fig:5-15}所示。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_14.png}
+\caption{会话列表与私聊界面展示}
+\label{fig:5-12}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_15.png}
+\caption{历史消息搜索界面展示}
+\label{fig:5-13}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_16.png}
+\caption{收藏页面展示}
+\label{fig:5-14}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_17.png}
+\caption{消息列表与会话管理操作流程图}
+\label{fig:5-15}
+\end{figure}
+
+\subsection{设置与个人中心}
+
+\textbf{界面功能说明：} 设置与个人中心主要集中在 \texttt{SettingsDialog.vue} 中，包含头像上传、预设头像切换、用户名修改、主题切换和退出登录。虽然这一块功能不像聊天页那么密集，但它和主界面并不是割裂的。头像一改，最近会话列表、当前聊天页和其他在线用户看到的资料都要跟着刷新。设置与个人中心界面的实际效果如图\ref{fig:5-16}所示。
+
+\textbf{关键交互逻辑：} 用户上传头像时，前端先把图片发到 \texttt{/api/upload}，拿到文件地址后再调用 \texttt{/api/user/avatar} 更新资料；修改用户名时，则直接调用 \texttt{/api/user/username}。更新成功后，前端会发出 \texttt{avatar-updated} 事件，通知其他在线用户同步刷新头像。主题切换则通过 \texttt{useThemeStore} 完成，并把主题键值写入 \texttt{localStorage}，这样刷新页面后仍然保留用户上一次的选择。
+
+\textbf{与后端的接口交互说明：} 头像上传依赖 \texttt{/api/upload}，资料更新依赖 \texttt{/api/user/avatar} 和 \texttt{/api/user/username}，界面刷新时则重新读取 \texttt{/api/user/info}。
+
+\textbf{操作流程：} 设置模块的操作流程比较顺：用户打开设置弹窗，修改头像、用户名或主题；前端调用对应接口并保存结果；保存成功后，同步刷新本地资料和相关组件；如果是头像这类会影响其他用户的内容，还会继续通过 Socket 广播更新。流程如图\ref{fig:5-17}所示。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_18.png}
+\caption{设置与个人中心界面展示}
+\label{fig:5-16}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_19.png}
+\caption{设置与个人中心操作流程图}
+\label{fig:5-17}
+\end{figure}
+
+\subsection{Web端消息流转与状态管理}
+
+如果只看功能按钮，Web 端看起来像是“登录以后发消息、收消息、切会话”这么简单，但真正让它稳定运行的，是消息流转和状态管理这一层。这里可以分三部分来看。
+
+第一部分是消息发送、接收和渲染流程。私聊发送时，\texttt{Content.vue} 会先调用 \texttt{/api/chat/messages/:id} 把消息写入数据库，再通过 \texttt{private-message} 事件提醒另一端刷新；群聊发送时，前端调用 \texttt{/room/:roomId/messages}，后端控制器保存成功后会主动广播 \texttt{group-message}，所以前端不需要重复发同名消息。收到消息以后，界面不是直接把原始字符串塞上去，而是会根据 \texttt{messageType} 区分成文本、图片、文件、语音、代码等不同渲染分支。这样一来，消息列表虽然看上去是一串气泡，底层其实已经做了类型分流。
+
+第二部分是 WebSocket 的使用方式。普通聊天页大多依赖 \texttt{utils/socket.js} 那条全局连接，这条连接自带自动重连、断线提示和心跳包；聊天室详情页 \texttt{ChatRoomDetail.vue} 又额外维护了一组更重的房间级事件，包括 \texttt{join-group}、\texttt{online-count}、\texttt{ai-stream-chunk}、\texttt{join-voice-room} 等。这样拆的结果是，普通会话页比较轻，聊天室则能承载语音、AI 和问题追踪这些更复杂的实时交互。
+
+第三部分是状态管理。项目虽然用了 Pinia，但并没有把所有东西都塞进全局 store。\texttt{useChatStore.js} 只保留了 \texttt{currentChatUser} 和按用户区分的消息列表；真正大量的会话列表、未读数、当前房间详情、搜索结果和收藏状态，还是散在各自组件的 \texttt{ref} 和自定义事件里。比如群聊消息发送后，前端会发出 \texttt{group-message-sent} 事件通知列表刷新；聊天室打开后，再发 \texttt{group-chat-opened} 事件清除未读数。这种做法不算很“重框架”，但和当前项目的体量其实比较匹配，读起来也不别扭。
+
+\section{桌面端实现}
+
+桌面端实际上还是同一套前端页面，只是外面加了一层 Electron 封装。所以它和 Web 端最大的不同，不在聊天主流程本身，而在窗口管理、系统托盘、本地通知和 IPC 通信这一层。
+
+\subsection{系统托盘功能}
+
+桌面端主进程主要写在 \texttt{ccb/main.js} 中。程序启动后会先创建主窗口，再创建托盘图标。在 Windows 下，如果用户关闭主窗口，程序不会直接退出，而是隐藏到系统托盘继续运行。托盘左键用于显示或隐藏主窗口，右键菜单则提供“打开应用”和“退出应用”两个入口。这个行为和 Web 页面的“关掉浏览器标签页就结束”完全不一样，它更适合挂在后台持续收消息的使用方式。
+
+\begin{lstlisting}[style=chapterfivecode]
+tray = new Tray(iconPath)
+
+tray.on('click', () => {
+  if (mainWindow.isVisible()) {
+    mainWindow.hide()
+  } else {
+    mainWindow.show()
+    mainWindow.focus()
+  }
+})
+\end{lstlisting}
+
+桌面端在收到新消息后的未读提醒和任务栏反馈效果如图\ref{fig:5-18}所示。该图能够说明桌面端并不是简单复用网页界面，而是确实增加了桌面环境下的消息提醒机制。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_20.png}
+\caption{桌面端未读提醒展示}
+\label{fig:5-18}
+\end{figure}
+
+\subsection{本地通知}
+
+本地通知由 \texttt{notificationManager.js}、\texttt{preload.js} 和 \texttt{main.js} 三部分配合完成。渲染进程收到新消息后，会通过 \texttt{window.electronAPI.notifyNewMessage()} 把未读数发给主进程；主进程根据平台再去设置任务栏闪烁、Overlay 图标、托盘提示和最近消息预览。用户如果从托盘预览里点击某个会话，主进程还会继续把 \texttt{open-chat} 事件发回渲染进程，前端再切到对应私聊或群聊。
+
+\begin{lstlisting}[style=chapterfivecode]
+window.electronAPI.notifyNewMessage(unreadCount)
+window.electronAPI.updateRecentMessages(recentMessages)
+
+ipcMain.on('new-message', (event, count) => {
+  startFlashing()
+  setBadge(count)
+})
+\end{lstlisting}
+
+系统托盘的图标、菜单入口与后台驻留形态如图\ref{fig:5-19}所示。托盘机制使桌面端在关闭主窗口后仍能继续接收消息并保留快速唤起入口。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图5_21.png}
+\caption{系统托盘展示}
+\label{fig:5-19}
+\end{figure}
+
+\subsection{与后端和WebSocket通信}
+
+桌面端和后端通信的基础方式并没有变，还是 Axios 调 REST 接口，Socket.IO 负责实时同步。区别在于，桌面端比 Web 端多了一层 \texttt{preload.js} 暴露出来的 \texttt{electronAPI}，让渲染进程在不直接接触 Node API 的前提下，也能把“新消息提醒”“清空角标”“打开对应会话”这些动作交给主进程处理。
+
+从这个角度看，桌面端并不是另一套独立业务系统，而是把 Web 端原有的聊天逻辑保留下来，再额外补上一层桌面环境能力。这样做的好处比较明显：核心业务代码只维护一份，桌面端主要负责托盘、通知和窗口行为，后续功能更新时不容易和 Web 端分叉太远。

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="640" viewBox="0 0 700 640" style="background-color:#FFFFFF; font-family: Arial, sans-serif;">
+    <!-- System Boundary -->
+    <rect x="250" y="40" width="400" height="560" fill="none" stroke="#333333" stroke-width="2" />
+    <text x="265" y="75" font-size="16" font-weight="bold" fill="#333333" text-anchor="start">智能聊天室系统</text>
+
+    <!-- Connectors: Actor to Use Cases -->
+    <!-- From actor hand (150, 290) to left edge of ellipses (360, y) -->
+    <path d="M 150 290 L 360 120" stroke="#333333" stroke-width="1.5" fill="none" />
+    <path d="M 150 290 L 360 190" stroke="#333333" stroke-width="1.5" fill="none" />
+    <path d="M 150 290 L 360 260" stroke="#333333" stroke-width="1.5" fill="none" />
+    <path d="M 150 290 L 360 330" stroke="#333333" stroke-width="1.5" fill="none" />
+    <path d="M 150 290 L 360 400" stroke="#333333" stroke-width="1.5" fill="none" />
+    <path d="M 150 290 L 360 470" stroke="#333333" stroke-width="1.5" fill="none" />
+    <path d="M 150 290 L 360 540" stroke="#333333" stroke-width="1.5" fill="none" />
+
+    <!-- Left Actor: 普通交流用户 -->
+    <g id="actor-left">
+        <!-- Head -->
+        <circle cx="120" cy="240" r="16" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <!-- Body -->
+        <path d="M 120 256 L 120 320 M 90 290 L 150 290 M 120 320 L 100 370 M 120 320 L 140 370" stroke="#333333" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+        <!-- Label -->
+        <text x="120" y="400" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle">普通交流用户</text>
+    </g>
+
+    <!-- Use Cases -->
+    <g id="usecases">
+        <!-- UC 1 -->
+        <ellipse cx="450" cy="120" rx="90" ry="26" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <text x="450" y="120" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">加入聊天室/群聊</text>
+
+        <!-- UC 2 -->
+        <ellipse cx="450" cy="190" rx="90" ry="26" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <text x="450" y="190" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">浏览公告与消息</text>
+
+        <!-- UC 3 -->
+        <ellipse cx="450" cy="260" rx="90" ry="26" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <text x="450" y="260" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">发送文本/附件</text>
+
+        <!-- UC 4 -->
+        <ellipse cx="450" cy="330" rx="90" ry="26" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <text x="450" y="330" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">搜索历史消息</text>
+
+        <!-- UC 5 -->
+        <ellipse cx="450" cy="400" rx="90" ry="26" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <text x="450" y="400" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">下载共享资料</text>
+
+        <!-- UC 6 -->
+        <ellipse cx="450" cy="470" rx="90" ry="26" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <text x="450" y="470" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">查看阶段总结</text>
+
+        <!-- UC 7 -->
+        <ellipse cx="450" cy="540" rx="90" ry="26" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+        <text x="450" y="540" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">收藏重要内容</text>
+    </g>
+
+</svg>

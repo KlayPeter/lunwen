@@ -1,0 +1,89 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% !TeX encoding = UTF-8
+% !TeX program = xelatex
+% !Mode:: "TeX:UTF-8"
+
+\documentclass[oneside]{thesis-cls-Miya}
+
+\usepackage{float}
+
+\usetikzlibrary{shapes,shapes.geometric,arrows.meta}
+
+\raggedbottom
+\hbadness=10000
+\newcommand{\thesisfigureplaceholder}[2][0.90\textwidth]{%
+  \begingroup
+  \setlength{\fboxsep}{12pt}%
+  \fbox{%
+    \parbox[c][4.8cm][c]{\dimexpr#1-2\fboxsep-2\fboxrule\relax}{%
+      \centering
+      \textbf{图片占位符}\\[0.6em]
+      #2\\[0.6em]
+      \small 后续按项目实际重新绘制
+    }%
+  }%
+  \endgroup
+}
+
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.95}
+\begin{document}
+
+\title{基于技术交流群体的智能聊天室}
+\titleB{设计与实现}
+\englishtitleA{Design and Implementation of an Intelligent}
+\englishtitleB{Chat Room for Technical Communication Groups}
+
+\author{麦旻轩}
+
+\kongF{2214100540}
+\kongG{22软件工程1班}
+\kongH{刘利 副教授}
+\kongI{2026年3月}
+
+\maketitle
+
+\frontmatter
+
+\begin{abstract}
+当前软件开发团队的远程协作日益频繁。然而，市面上的通用聊天软件在服务技术人员时暴露出明显短板：代码片段展示效果差，过往讨论难以快速定位，缺少智能化的辅助手段。针对这些实际痛点，本研究构建了一套专门服务于开发者群体的智能化聊天平台，力求提升技术团队的沟通效率。
+
+在技术路线上，本系统将前端展示层与后端业务层完全解耦。前端选用Vue 3及其Composition API打造动态交互界面，后端依托Node.js配合Express构建API服务体系，持久化层面则组合使用MongoDB文档库与Redis内存库。借助WebSocket协议建立的长连接通道，系统实现了毫秒级的消息推送能力，覆盖一对一私聊、多人群组、文件共享等常规场景。在智能化方面，系统接入了大语言模型接口，不仅能回答技术提问、生成讨论摘要，还通过RAG（检索增强生成）方案将历史对话向量化存储，让AI的回复更贴合团队实际情况。同时配备了语法高亮、Markdown解析、全文检索、状态同步等技术交流专属特性。
+
+实测数据显示，系统在功能完备度、运行效率、操作体验三个维度均符合设计预期。具体而言，可稳定承载200人同时在线，端到端消息延时控制在150毫秒以内，切实为技术团队打造了一个好用的沟通工具。
+
+\keywords{智能聊天室；实时通信；AI助手；代码协作；Vue 3框架；RAG技术}
+\end{abstract}
+
+\begin{englishabstract}
+With the growing demand for remote collaboration and online technical communication, traditional instant messaging tools face challenges in technical discussion scenarios, such as unfriendly code display, difficult historical information retrieval, and lack of intelligent assistance. This paper designs and implements an intelligent chat room system for technical communication groups, aiming to provide developers with a more efficient communication and collaboration platform.
+
+The system adopts a front-end and back-end separation architecture. The front-end is built with Vue 3 framework and Composition API to create a responsive user interface, while the back-end uses Node.js and Express framework to build RESTful API services. Data storage employs MongoDB document database and Redis cache database. Real-time bidirectional communication with low latency is achieved through WebSocket technology, supporting basic functions such as private chat, group chat, and file transfer. The system integrates large language model APIs to provide AI intelligent Q\&A and chat content summarization functions, and adopts RAG (Retrieval-Augmented Generation) technology, utilizing vector databases to store historical conversations, enhancing the accuracy and contextual relevance of AI responses. Additionally, the system implements technical communication-oriented features such as code syntax highlighting, Markdown rendering, message search, and online status management.
+
+Through systematic testing, the system meets expected goals in terms of functional completeness, performance, and user experience. It can stably support 200 concurrent users with message delivery latency below 150ms, providing a practical communication and collaboration tool for technical teams.
+
+\englishkeywords{Intelligent Chat Room; Real-time Communication; AI Assistant; Code Collaboration; Vue 3; RAG Technology}
+\end{englishabstract}
+
+\tableofcontents
+
+\mainmatter
+
+% 引入各章节
+\input{chapter1}
+\input{chapter2}
+\input{chapter3}
+\input{chapter4}
+\input{chapter5}
+\input{chapter6}
+\input{chapter7}
+
+\input{main.bbl}
+
+\chapterspecialcenter{致 谢}
+感谢我的指导老师刘利副教授在论文撰写过程中给予的悉心指导和帮助。感谢家人和朋友的支持与鼓励。
+
+\end{document}

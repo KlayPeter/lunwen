@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="70" y="180" width="250" height="184" rx="14" class="box"/><rect x="70" y="180" width="250" height="54" rx="14" class="header"/><text x="195.0" y="213" text-anchor="middle" font-size="21" font-weight="700" class="label">接入端</text><rect x="84" y="248" width="222" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="195.0" y="266.6">Web 客户端</tspan></text><rect x="84" y="282" width="222" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="195.0" y="300.6">Electron 桌面端</tspan></text><rect x="84" y="316" width="222" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="195.0" y="334.6">系统通知与托盘</tspan></text><rect x="390" y="180" width="280" height="184" rx="14" class="box"/><rect x="390" y="180" width="280" height="54" rx="14" class="header"/><text x="530.0" y="213" text-anchor="middle" font-size="21" font-weight="700" class="label">前端应用层</text><rect x="404" y="248" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="530.0" y="256.1">ChatView / Conte</tspan><tspan x="530.0" y="277.1">nt</tspan></text><rect x="404" y="282" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="530.0" y="290.1">ChatRoom / Favor</tspan><tspan x="530.0" y="311.1">ites</tspan></text><rect x="404" y="316" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="530.0" y="324.1">Pinia / Router /</tspan><tspan x="530.0" y="345.1"> Axios</tspan></text><rect x="740" y="180" width="280" height="184" rx="14" class="box"/><rect x="740" y="180" width="280" height="54" rx="14" class="header"/><text x="880.0" y="213" text-anchor="middle" font-size="21" font-weight="700" class="label">接入协议层</text><rect x="754" y="248" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="880.0" y="266.6">RESTful API</tspan></text><rect x="754" y="282" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="880.0" y="300.6">Socket.IO 事件</tspan></text><rect x="754" y="316" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="880.0" y="334.6">JWT 鉴权</tspan></text><rect x="1090" y="180" width="280" height="184" rx="14" class="box"/><rect x="1090" y="180" width="280" height="54" rx="14" class="header"/><text x="1230.0" y="213" text-anchor="middle" font-size="21" font-weight="700" class="label">业务服务层</text><rect x="1104" y="248" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1230.0" y="266.6">用户 / 房间 / 消息</tspan></text><rect x="1104" y="282" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1230.0" y="300.6">收藏 / 上传 / 链接预览</tspan></text><rect x="1104" y="316" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1230.0" y="334.6">AI / Agent 控制器</tspan></text><rect x="1440" y="180" width="280" height="184" rx="14" class="box"/><rect x="1440" y="180" width="280" height="54" rx="14" class="header"/><text x="1580.0" y="213" text-anchor="middle" font-size="21" font-weight="700" class="label">数据与智能层</text><rect x="1454" y="248" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1580.0" y="266.6">MongoDB</tspan></text><rect x="1454" y="282" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1580.0" y="300.6">Uploads</tspan></text><rect x="1454" y="316" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1580.0" y="324.1">VectorSearch / D</tspan><tspan x="1580.0" y="345.1">eepSeek</tspan></text><rect x="250" y="510" width="280" height="218" rx="14" class="box"/><rect x="250" y="510" width="280" height="54" rx="14" class="header"/><text x="390.0" y="543" text-anchor="middle" font-size="21" font-weight="700" class="label">普通请求链路</text><rect x="264" y="578" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="390.0" y="596.6">登录</tspan></text><rect x="264" y="612" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="390.0" y="630.6">资料查询</tspan></text><rect x="264" y="646" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="390.0" y="664.6">收藏管理</tspan></text><rect x="264" y="680" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="390.0" y="698.6">文件上传</tspan></text><rect x="610" y="510" width="280" height="184" rx="14" class="box"/><rect x="610" y="510" width="280" height="54" rx="14" class="header"/><text x="750.0" y="543" text-anchor="middle" font-size="21" font-weight="700" class="label">实时通信链路</text><rect x="624" y="578" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="750.0" y="596.6">私聊推送</tspan></text><rect x="624" y="612" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="750.0" y="630.6">群聊广播</tspan></text><rect x="624" y="646" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="750.0" y="664.6">在线状态与房间成员</tspan></text><rect x="970" y="510" width="280" height="184" rx="14" class="box"/><rect x="970" y="510" width="280" height="54" rx="14" class="header"/><text x="1110.0" y="543" text-anchor="middle" font-size="21" font-weight="700" class="label">智能服务链路</text><rect x="984" y="578" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1110.0" y="596.6">问答</tspan></text><rect x="984" y="612" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1110.0" y="630.6">代码分析</tspan></text><rect x="984" y="646" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1110.0" y="664.6">聊天总结</tspan></text><rect x="1330" y="510" width="280" height="184" rx="14" class="box"/><rect x="1330" y="510" width="280" height="54" rx="14" class="header"/><text x="1470.0" y="543" text-anchor="middle" font-size="21" font-weight="700" class="label">知识沉淀链路</text><rect x="1344" y="578" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1470.0" y="596.6">消息索引</tspan></text><rect x="1344" y="612" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1470.0" y="630.6">收藏快照</tspan></text><rect x="1344" y="646" width="252" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1470.0" y="664.6">总结记录</tspan></text><polyline points="195,320 530,320 530,510" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="530,320 750,320" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="750,320 1110,320" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="1110,320 1580,320" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="880,320 750,320 750,510" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="1230,320 1110,320 1110,510" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="1580,320 1470,320 1470,510" fill="none" class="line" marker-end="url(#arrow)"/><line x1="530" y1="656" x2="610" y2="656" class="line" marker-end="url(#arrow)"/><line x1="890" y1="656" x2="970" y2="656" class="line" marker-end="url(#arrow)"/><line x1="1250" y1="656" x2="1330" y2="656" class="line" marker-end="url(#arrow)"/>
+</svg>

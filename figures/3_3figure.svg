@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#000000"/>
+</marker>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g stroke="#000000" fill="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" font-family="Microsoft YaHei, SimSun, Arial, sans-serif">
+<rect x="620" y="70" width="360" height="90" rx="14" ry="14"/>
+<text x="800.0" y="115.0" fill="#000000" stroke="none" font-size="30" font-weight="bold" text-anchor="middle"><tspan x="800.0" dy="0">智能聊天室系统</tspan></text>
+<rect x="110" y="250" width="360" height="210" rx="14" ry="14"/>
+<text x="290.0" y="290.2" fill="#000000" stroke="none" font-size="24" font-weight="normal" text-anchor="middle"><tspan x="290.0" dy="0">用户管理模块</tspan><tspan x="290.0" dy="32.400000000000006">· 邮箱 / 验证码登录</tspan><tspan x="290.0" dy="32.400000000000006">· OAuth 第三方登录</tspan><tspan x="290.0" dy="32.400000000000006">· 资料维护与联系人</tspan><tspan x="290.0" dy="32.400000000000006">· 在线状态与权限校验</tspan></text>
+<rect x="620" y="250" width="360" height="210" rx="14" ry="14"/>
+<text x="800.0" y="290.2" fill="#000000" stroke="none" font-size="24" font-weight="normal" text-anchor="middle"><tspan x="800.0" dy="0">即时通讯模块</tspan><tspan x="800.0" dy="32.400000000000006">· 私聊与群聊消息</tspan><tspan x="800.0" dy="32.400000000000006">· 文本 / 代码 / 文件传输</tspan><tspan x="800.0" dy="32.400000000000006">· 引用转发与消息搜索</tspan><tspan x="800.0" dy="32.400000000000006">· 已读状态与实时同步</tspan></text>
+<rect x="1130" y="250" width="360" height="210" rx="14" ry="14"/>
+<text x="1310.0" y="290.2" fill="#000000" stroke="none" font-size="24" font-weight="normal" text-anchor="middle"><tspan x="1310.0" dy="0">聊天室模块</tspan><tspan x="1310.0" dy="32.400000000000006">· 聊天室创建与加入</tspan><tspan x="1310.0" dy="32.400000000000006">· 公开 / 密码 / 邀请码策略</tspan><tspan x="1310.0" dy="32.400000000000006">· 公告、成员与在线统计</tspan><tspan x="1310.0" dy="32.400000000000006">· 时长控制与自动过期</tspan></text>
+<rect x="365" y="620" width="360" height="210" rx="14" ry="14"/>
+<text x="545.0" y="660.2" fill="#000000" stroke="none" font-size="24" font-weight="normal" text-anchor="middle"><tspan x="545.0" dy="0">AI助手智能问答模块</tspan><tspan x="545.0" dy="32.400000000000006">· 技术问答与流式回答</tspan><tspan x="545.0" dy="32.400000000000006">· RAG 历史检索</tspan><tspan x="545.0" dy="32.400000000000006">· 代码解释与错误分析</tspan><tspan x="545.0" dy="32.400000000000006">· 聊天总结与上下文对话</tspan></text>
+<rect x="875" y="620" width="360" height="210" rx="14" ry="14"/>
+<text x="1055.0" y="660.2" fill="#000000" stroke="none" font-size="24" font-weight="normal" text-anchor="middle"><tspan x="1055.0" dy="0">收藏模块</tspan><tspan x="1055.0" dy="32.400000000000006">· 消息收藏与来源回溯</tspan><tspan x="1055.0" dy="32.400000000000006">· 标签、备注与分类</tspan><tspan x="1055.0" dy="32.400000000000006">· 关键字筛选检索</tspan><tspan x="1055.0" dy="32.400000000000006">· 个人知识沉淀复用</tspan></text>
+<line x1="800" y1="160" x2="290" y2="250" marker-end="url(#arrow)"/>
+<line x1="800" y1="160" x2="800" y2="250" marker-end="url(#arrow)"/>
+<line x1="800" y1="160" x2="1310" y2="250" marker-end="url(#arrow)"/>
+<line x1="800" y1="460" x2="545" y2="620" marker-end="url(#arrow)"/>
+<line x1="980" y1="460" x2="1055" y2="620" marker-end="url(#arrow)"/>
+<line x1="1310" y1="460" x2="545" y2="620" marker-end="url(#arrow)"/>
+<line x1="1310" y1="460" x2="1055" y2="620" marker-end="url(#arrow)"/>
+<polyline points="725,725 800,725 875,725" fill="none" marker-end="url(#arrow)"/>
+<text x="800" y="695.0" fill="#000000" stroke="none" font-size="22" font-weight="normal" text-anchor="middle"><tspan x="800" dy="0">知识沉淀与智能辅助联动</tspan></text>
+</g>
+</svg>

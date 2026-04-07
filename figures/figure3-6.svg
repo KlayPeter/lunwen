@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="920" viewBox="0 0 1500 920">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<circle cx="110" cy="320" r="20" class="actor-line"/><line x1="110" y1="340" x2="110" y2="402" class="actor-line"/><line x1="82" y1="360" x2="138" y2="360" class="actor-line"/><line x1="110" y1="402" x2="86" y2="438" class="actor-line"/><line x1="110" y1="402" x2="134" y2="438" class="actor-line"/><text text-anchor="middle" font-size="21" font-weight="700" class="label"><tspan x="110" y="482.35">普通交流用户</tspan></text><rect x="280" y="70" width="980" height="780" rx="18" class="boundary"/><text x="298" y="100" text-anchor="start" font-size="22" font-weight="700" class="label">智能聊天室系统</text><ellipse cx="540" cy="180" rx="150" ry="46" class="usecase"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="540" y="174.15">加入聊天室 / </tspan><tspan x="540" y="199.15">群聊</tspan></text><ellipse cx="920" cy="180" rx="150" ry="46" class="usecase"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="920" y="186.65">浏览公告与消息</tspan></text><ellipse cx="540" cy="360" rx="150" ry="46" class="usecase"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="540" y="354.15">发送文本 / 附</tspan><tspan x="540" y="379.15">件</tspan></text><ellipse cx="920" cy="360" rx="150" ry="46" class="usecase"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="920" y="366.65">搜索历史消息</tspan></text><ellipse cx="540" cy="560" rx="150" ry="46" class="usecase"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="540" y="566.65">下载共享资料</tspan></text><ellipse cx="920" cy="560" rx="150" ry="46" class="usecase"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="920" y="566.65">查看阶段总结</tspan></text><ellipse cx="730" cy="720" rx="150" ry="46" class="usecase"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="730" y="726.65">收藏重要内容</tspan></text><line x1="140" y1="362" x2="390" y2="180" class="line"/><line x1="140" y1="362" x2="770" y2="180" class="line"/><line x1="140" y1="362" x2="390" y2="360" class="line"/><line x1="140" y1="362" x2="770" y2="360" class="line"/><line x1="140" y1="362" x2="390" y2="560" class="line"/><line x1="140" y1="362" x2="770" y2="560" class="line"/><line x1="140" y1="362" x2="580" y2="720" class="line"/><polyline points="690,180 770,180" fill="none" class="line" stroke-dasharray="10 7" marker-end="url(#arrow)"/><rect x="712" y="146" width="116" height="26" rx="8" fill="#ffffff"/><text x="770" y="164" text-anchor="middle" font-size="15" font-weight="700" class="label">&lt;&lt;include&gt;&gt;</text><polyline points="1070,360 1140,360 1140,560 1070,560" fill="none" class="line" stroke-dasharray="10 7" marker-end="url(#arrow)"/><rect x="1090" y="446" width="116" height="26" rx="8" fill="#ffffff"/><text x="1148" y="464" text-anchor="middle" font-size="15" font-weight="700" class="label">&lt;&lt;extend&gt;&gt;</text><polyline points="540,606 540,666 580,720" fill="none" class="line" stroke-dasharray="10 7" marker-end="url(#arrow)"/><rect x="482" y="634" width="116" height="26" rx="8" fill="#ffffff"/><text x="540" y="652" text-anchor="middle" font-size="15" font-weight="700" class="label">&lt;&lt;extend&gt;&gt;</text>
+</svg>

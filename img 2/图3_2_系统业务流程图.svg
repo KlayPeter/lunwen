@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="980" viewBox="0 0 1060 980" style="background-color:#FFFFFF; font-family: Arial, sans-serif;">
+    <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" /></marker>
+    </defs>
+
+    <rect x="40" y="60" width="240" height="900" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <rect x="280" y="60" width="240" height="900" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <rect x="520" y="60" width="240" height="900" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <rect x="760" y="60" width="260" height="900" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+
+    <rect x="40" y="60" width="240" height="36" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="160" y="78" font-size="15" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">用户</text>
+    
+    <rect x="280" y="60" width="240" height="36" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="78" font-size="15" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">Web / Electron 客户端</text>
+    
+    <rect x="520" y="60" width="240" height="36" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="640" y="78" font-size="15" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">业务服务层</text>
+    
+    <rect x="760" y="60" width="260" height="36" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="890" y="78" font-size="15" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">AI / RAG / 存储</text>
+
+    <!-- N1 -->
+    <ellipse cx="160" cy="130" rx="50" ry="18" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="160" y="130" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">开始</text>
+
+    <rect x="90" y="170" width="140" height="40" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="160" y="190" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">登录并进入空间</text>
+
+    <rect x="310" y="240" width="180" height="50" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="255" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">加载会话列表</text>
+    <text x="400" y="275" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">历史消息 / 在线状态</text>
+
+    <rect x="565" y="240" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="640" y="260" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">身份校验 (JWT)</text>
+
+    <rect x="555" y="310" width="170" height="40" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="640" y="330" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">返回上下文数据</text>
+
+    <rect x="70" y="390" width="180" height="50" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="160" y="405" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">发送消息</text>
+    <text x="160" y="425" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">文本 / 代码 / 图片 / 文件</text>
+
+    <rect x="310" y="390" width="180" height="50" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="405" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">消息封装</text>
+    <text x="400" y="425" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">HTTP / Socket.IO 发送</text>
+
+    <rect x="555" y="390" width="170" height="50" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="640" y="405" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">消息校验与广播</text>
+    <text x="640" y="425" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">Socket.IO 推送事件</text>
+
+    <rect x="790" y="390" width="200" height="50" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="890" y="405" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">MongoDB 持久化</text>
+    <text x="890" y="425" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">MessageIndexer 加入索引</text>
+
+    <!-- N10: Decision -->
+    <polygon points="640,510 720,550 640,590 560,550" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="640" y="540" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">人工回复</text>
+    <text x="640" y="560" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">是否充分？</text>
+
+    <rect x="790" y="530" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="890" y="550" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">AI / RAG 检索与问答</text>
+
+    <rect x="555" y="620" width="170" height="50" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="640" y="635" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">AI结果回写</text>
+    <text x="640" y="655" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">消息流 / 总结记录</text>
+
+    <rect x="310" y="620" width="180" height="40" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="400" y="640" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">展示AI回复与总结</text>
+
+    <rect x="70" y="710" width="180" height="50" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="160" y="725" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">收藏关键消息</text>
+    <text x="160" y="745" font-size="12" fill="#333333" text-anchor="middle" dominant-baseline="middle">添加标签与备注</text>
+
+    <rect x="790" y="710" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="890" y="730" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">收藏与标签持久化</text>
+
+    <rect x="90" y="800" width="140" height="40" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="160" y="820" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">搜索与再次复用</text>
+
+    <rect x="790" y="800" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="890" y="820" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="middle">VectorSearch 检索</text>
+
+    <!-- N18: 结束 -->
+    <ellipse cx="160" cy="890" rx="50" ry="18" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="160" y="890" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">结束</text>
+
+    <!-- ====== ARROWS ====== -->
+    <path d="M 160 148 L 160 170" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 230 190 L 310 265" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 490 265 L 565 260" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <text x="530" y="248" font-size="11" fill="#333333" text-anchor="middle">HTTP</text>
+    
+    <path d="M 640 280 L 640 310" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 555 330 L 490 280" stroke="#333333" stroke-width="2" stroke-dasharray="6,4" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 250 415 L 310 415" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 490 415 L 555 415" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 725 415 L 790 415" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 400 290 L 400 370 L 160 370 L 160 390" stroke="#333333" stroke-width="2" stroke-dasharray="6,4" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 640 440 L 640 510" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 720 550 L 790 550" stroke="#333333" stroke-width="2.5" fill="none" marker-end="url(#arr)" />
+    <text x="755" y="540" font-size="12" fill="#333333" font-weight="bold">否</text>
+    
+    <path d="M 890 570 L 890 600 L 725 640" stroke="#333333" stroke-width="2.5" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 640 590 L 640 620" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <text x="655" y="608" font-size="12" fill="#333333" font-weight="bold">是</text>
+    
+    <path d="M 555 645 L 490 640" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 310 640 L 250 700 L 250 735" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 250 735 L 790 730" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 230 820 L 790 820" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 160 760 L 160 800" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    
+    <path d="M 890 840 L 890 870 L 210 870 L 210 890" stroke="#333333" stroke-width="2" stroke-dasharray="6,4" fill="none" marker-end="url(#arr)" />
+    <path d="M 160 840 L 160 872" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+</svg>

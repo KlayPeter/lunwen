@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="850" viewBox="0 0 700 850" style="background-color:#FFFFFF; font-family: Arial, sans-serif;">
+    <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" />
+        </marker>
+    </defs>
+
+    <!-- 1. Start -->
+    <ellipse cx="350" cy="50" rx="60" ry="22" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="350" y="50" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">开始发送消息</text>
+
+    <!-- 2. 前端组织消息体 -->
+    <rect x="260" y="120" width="180" height="40" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="350" y="140" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">前端组织消息体</text>
+
+    <!-- 3. 区分消息目标 -->
+    <rect x="250" y="200" width="200" height="40" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="350" y="220" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">区分私聊/群聊/聊天室</text>
+
+    <!-- 4. 服务端校验 -->
+    <rect x="240" y="280" width="220" height="42" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="350" y="301" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">服务端校验权限与消息类型</text>
+
+    <!-- Parallel Fork Bar -->
+    <rect x="150" y="360" width="400" height="6" fill="#333333" stroke="none" />
+
+    <!-- 5. Left Action 1: Socket.IO Broadcast -->
+    <rect x="110" y="410" width="180" height="42" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="200" y="431" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">Socket.IO 实时广播</text>
+
+    <!-- 5. Right Action 1: Write DB -->
+    <rect x="400" y="410" width="200" height="42" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="500" y="423" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="central">写入 Messages</text>
+    <text x="500" y="439" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="central">或 GroupMessage</text>
+
+    <!-- 6. Left Action 2: Update Unread -->
+    <rect x="110" y="500" width="180" height="42" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="200" y="521" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">更新在线状态/未读已读</text>
+
+    <!-- 6. Right Action 2: Enqueue Index -->
+    <rect x="400" y="500" width="200" height="42" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="500" y="513" font-size="13" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">加入 MessageIndexer</text>
+    <text x="500" y="529" font-size="13" fill="#333333" text-anchor="middle" dominant-baseline="central">索引队列</text>
+
+    <!-- Parallel Join Bar -->
+    <rect x="150" y="590" width="400" height="6" fill="#333333" stroke="none" />
+
+    <!-- 7. Refresh View -->
+    <rect x="270" y="640" width="160" height="40" rx="6" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="350" y="660" font-size="14" fill="#333333" text-anchor="middle" dominant-baseline="central">客户端刷新消息区</text>
+
+    <!-- 8. End -->
+    <ellipse cx="350" cy="730" rx="60" ry="22" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="350" y="730" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">结束</text>
+
+
+    <!-- ======== Edges ======== -->
+    <path d="M 350 72 L 350 120" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 350 160 L 350 200" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 350 240 L 350 280" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    
+    <!-- Going to Fork Bar -->
+    <path d="M 350 322 L 350 360" stroke="#333333" stroke-width="2" fill="none" />
+    
+    <!-- From Fork Bar down to Left/Right Branches -->
+    <path d="M 200 366 L 200 410" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 500 366 L 500 410" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- Right and Left continue -->
+    <path d="M 200 452 L 200 500" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 500 452 L 500 500" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+    <!-- From Branches to Join Bar -->
+    <path d="M 200 542 L 200 590" stroke="#333333" stroke-width="2" fill="none" />
+    <path d="M 500 542 L 500 590" stroke="#333333" stroke-width="2" fill="none" />
+
+    <!-- Join Bar to final blocks -->
+    <path d="M 350 596 L 350 640" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+    <path d="M 350 680 L 350 708" stroke="#333333" stroke-width="2" fill="none" marker-end="url(#arr)" />
+
+</svg>

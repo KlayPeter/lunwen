@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="920" viewBox="0 0 1700 920">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="90" y="380" width="150" height="60" rx="14" class="header"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="165.0" y="417.0">开始</tspan></text><rect x="300" y="360" width="190" height="100" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="395.0" y="390.0">选择认证方式</tspan><tspan x="395.0" y="417.0">邮箱密码 / 验证码 /</tspan><tspan x="395.0" y="444.0"> OAuth</tspan></text><polygon points="590,350.0 675.0,410 590,470.0 505.0,410" class="decision"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="590" y="404.15">是否为</tspan><tspan x="590" y="429.15">本地认证</tspan></text><rect x="760" y="260" width="220" height="80" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="870.0" y="293.5">校验邮箱与密码</tspan><tspan x="870.0" y="320.5">或验证码</tspan></text><rect x="760" y="520" width="220" height="80" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="870.0" y="553.5">跳转 OAuth 平台</tspan><tspan x="870.0" y="580.5">并接收回调</tspan></text><rect x="1070" y="390" width="240" height="80" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1190.0" y="423.5">统一生成 JWT</tspan><tspan x="1190.0" y="450.5">写入用户身份信息</tspan></text><rect x="1400" y="390" width="190" height="80" rx="14" class="box"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1495.0" y="437.0">访问受保护资源</tspan></text><line x1="240" y1="410" x2="300" y2="410" class="line" marker-end="url(#arrow)"/><line x1="490" y1="410" x2="505" y2="410" class="line" marker-end="url(#arrow)"/><text x="665" y="340" text-anchor="middle" font-size="16" font-weight="700" class="label">是</text><text x="665" y="500" text-anchor="middle" font-size="16" font-weight="700" class="label">否</text><polyline points="675,410 720,410 720,300 760,300" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="675,410 720,410 720,560 760,560" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="980,300 1030,300 1030,430 1070,430" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="980,560 1030,560 1030,430 1070,430" fill="none" class="line" marker-end="url(#arrow)"/><line x1="1310" y1="430" x2="1400" y2="430" class="line" marker-end="url(#arrow)"/>
+</svg>

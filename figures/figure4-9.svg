@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="980" viewBox="0 0 1700 980">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="120" y="150" width="1080" height="720" rx="14" class="box"/><rect x="150" y="190" width="120" height="640" rx="14" class="subbox"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="210.0" y="463.0">导航区</tspan><tspan x="210.0" y="490.0">首页</tspan><tspan x="210.0" y="517.0">联系人</tspan><tspan x="210.0" y="544.0">聊天室</tspan><tspan x="210.0" y="571.0">收藏</tspan></text><rect x="300" y="190" width="240" height="640" rx="14" class="subbox"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="420.0" y="463.0">会话区</tspan><tspan x="420.0" y="490.0">最近聊天</tspan><tspan x="420.0" y="517.0">群聊列表</tspan><tspan x="420.0" y="544.0">聊天室列表</tspan><tspan x="420.0" y="571.0">搜索入口</tspan></text><rect x="570" y="190" width="440" height="120" rx="14" class="subbox"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="790.0" y="230.0">消息头部</tspan><tspan x="790.0" y="257.0">当前会话信息 / 成员 / 房间</tspan><tspan x="790.0" y="284.0">详情按钮</tspan></text><rect x="570" y="340" width="440" height="360" rx="14" class="subbox"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="790.0" y="500.0">消息区</tspan><tspan x="790.0" y="527.0">文本、代码、文件、引用消息</tspan><tspan x="790.0" y="554.0">问题标记、最佳答案、表情反馈</tspan></text><rect x="570" y="730" width="440" height="100" rx="14" class="subbox"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="790.0" y="760.0">输入区</tspan><tspan x="790.0" y="787.0">文本输入、文件上传、代码发送、AI </tspan><tspan x="790.0" y="814.0">入口</tspan></text><rect x="1040" y="190" width="130" height="640" rx="14" class="subbox"/><text text-anchor="middle" font-size="20" font-weight="500" class="label"><tspan x="1105.0" y="476.5">右侧扩展区</tspan><tspan x="1105.0" y="503.5">AI 面板</tspan><tspan x="1105.0" y="530.5">收藏详情</tspan><tspan x="1105.0" y="557.5">聊天总结</tspan></text><rect x="1290" y="250" width="280" height="520" rx="14" class="box"/><rect x="1320" y="290" width="220" height="90" rx="14" class="subbox"/><text text-anchor="middle" font-size="18" font-weight="500" class="label"><tspan x="1430.0" y="341.3">移动端消息头</tspan></text><rect x="1320" y="410" width="220" height="210" rx="14" class="subbox"/><text text-anchor="middle" font-size="18" font-weight="500" class="label"><tspan x="1430.0" y="521.3">消息区</tspan></text><rect x="1320" y="650" width="220" height="60" rx="14" class="subbox"/><text text-anchor="middle" font-size="18" font-weight="500" class="label"><tspan x="1430.0" y="686.3">底部输入栏</tspan></text><rect x="1320" y="730" width="220" height="30" rx="14" class="subbox"/><text text-anchor="middle" font-size="14" font-weight="500" class="label"><tspan x="1430.0" y="740.9">底部导航：聊天 / 聊天室 / </tspan><tspan x="1430.0" y="758.9">收藏</tspan></text>
+</svg>

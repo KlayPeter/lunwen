@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="800" viewBox="0 0 1120 800" style="background-color:#FFFFFF; font-family: Arial, sans-serif;">
+    <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#333333" />
+        </marker>
+        <marker id="arr_open" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 1 L 8 5 L 0 9" fill="none" stroke="#333333" stroke-width="1.5" />
+        </marker>
+    </defs>
+
+    <!-- ====== Lifeline Headers ====== -->
+    <!-- X = 80, 240, 460, 680, 860, 1040 -->
+    
+    <!-- 用户 -->
+    <rect x="30" y="30" width="100" height="40" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="80" y="50" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">用户</text>
+
+    <!-- 前端页面 -->
+    <rect x="190" y="30" width="100" height="40" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="240" y="50" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">前端页面</text>
+
+    <!-- ChatRoomAIController/AIController -->
+    <rect x="360" y="30" width="200" height="40" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="460" y="50" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">ChatRoomAIController</text>
+
+    <!-- VectorSearchTool/RAGService -->
+    <rect x="580" y="30" width="200" height="40" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="680" y="50" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">VectorSearchTool</text>
+
+    <!-- DeepSeek API -->
+    <rect x="800" y="30" width="120" height="40" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="860" y="50" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">DeepSeek API</text>
+
+    <!-- 消息存储 -->
+    <rect x="980" y="30" width="120" height="40" rx="4" fill="#FFFFFF" stroke="#333333" stroke-width="2" />
+    <text x="1040" y="50" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">消息存储</text>
+
+    <!-- ====== Vertical Dashed Lifelines ====== -->
+    <path d="M 80 70 L 80 760" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 240 70 L 240 760" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 460 70 L 460 760" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 680 70 L 680 760" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 860 70 L 860 760" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 1040 70 L 1040 760" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+
+    <!-- ====== Activation Boxes ====== -->
+    <rect x="235" y="120" width="10" height="590" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+    <rect x="455" y="170" width="10" height="490" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+    <rect x="1035" y="220" width="10" height="45" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+    <rect x="675" y="315" width="10" height="45" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+    <rect x="855" y="480" width="10" height="45" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+    <rect x="1035" y="575" width="10" height="45" fill="#FFFFFF" stroke="#333333" stroke-width="1.5" />
+
+    <!-- ====== Message Sequence Calls ====== -->
+    <!-- 1. 提交问题 -->
+    <path d="M 80 120 L 235 120" stroke="#333333" stroke-width="1.5" fill="none" marker-end="url(#arr)" />
+    <text x="157" y="112" font-size="13" fill="#333333" text-anchor="middle">提交问题</text>
+
+    <!-- 2. 调用 askAI / chat -->
+    <path d="M 245 170 L 455 170" stroke="#333333" stroke-width="1.5" fill="none" marker-end="url(#arr)" />
+    <text x="350" y="162" font-size="13" fill="#333333" text-anchor="middle">调用 askAI() / chat()</text>
+
+    <!-- 3. 读取房间或会话上下文 -->
+    <path d="M 465 220 L 1035 220" stroke="#333333" stroke-width="1.5" fill="none" marker-end="url(#arr)" />
+    <text x="750" y="212" font-size="13" fill="#333333" text-anchor="middle">读取房间或会话上下文</text>
+
+    <!-- 4. 返回上下文 (Return) -->
+    <path d="M 1035 265 L 465 265" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" marker-end="url(#arr_open)" />
+    <text x="750" y="257" font-size="13" fill="#333333" text-anchor="middle">返回基础上下文</text>
+
+    <!-- 5. 检索历史消息 -->
+    <path d="M 465 315 L 675 315" stroke="#333333" stroke-width="1.5" fill="none" marker-end="url(#arr)" />
+    <text x="570" y="307" font-size="13" fill="#333333" text-anchor="middle">检索相关历史消息 (RAG)</text>
+
+    <!-- 6. 返回相似上下文 (Return) -->
+    <path d="M 675 360 L 465 360" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" marker-end="url(#arr_open)" />
+    <text x="570" y="352" font-size="13" fill="#333333" text-anchor="middle">返回向量相似上下文片段</text>
+
+    <!-- 7. 组织提示词 (Self-call) -->
+    <path d="M 465 415 L 500 415 L 500 445 L 465 445" stroke="#333333" stroke-width="1.5" fill="none" marker-end="url(#arr)" />
+    <text x="508" y="434" font-size="13" fill="#333333" text-anchor="start">组织完整 Prompt</text>
+
+    <!-- 8. 调用 DeepSeek -->
+    <path d="M 465 480 L 855 480" stroke="#333333" stroke-width="1.5" fill="none" marker-end="url(#arr)" />
+    <text x="660" y="472" font-size="13" fill="#333333" text-anchor="middle">调用大语言模型接口</text>
+
+    <!-- 9. 返回回答内容 (Return) -->
+    <path d="M 855 525 L 465 525" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" marker-end="url(#arr_open)" />
+    <text x="660" y="517" font-size="13" fill="#333333" text-anchor="middle">流式或完整返回回答内容</text>
+
+    <!-- 10. 写入持久化存储 -->
+    <path d="M 465 575 L 1035 575" stroke="#333333" stroke-width="1.5" fill="none" marker-end="url(#arr)" />
+    <text x="750" y="567" font-size="13" fill="#333333" text-anchor="middle">写入 GroupMessage / AIConversation / Summary</text>
+
+    <!-- 11. 持久化成功返回 (Return) -->
+    <path d="M 1035 620 L 465 620" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" marker-end="url(#arr_open)" />
+    <text x="750" y="612" font-size="13" fill="#333333" text-anchor="middle">持久化完成</text>
+
+    <!-- 12. 返回给前端 -->
+    <path d="M 455 660 L 245 660" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" marker-end="url(#arr_open)" />
+    <text x="350" y="652" font-size="13" fill="#333333" text-anchor="middle">返回完整 AI 回复数据</text>
+
+    <!-- 13. 前端更新给用户 -->
+    <path d="M 235 710 L 80 710" stroke="#333333" stroke-width="1.5" stroke-dasharray="6,4" fill="none" marker-end="url(#arr_open)" />
+    <text x="157" y="702" font-size="13" fill="#333333" text-anchor="middle">渲染回复，更新界面</text>
+
+</svg>

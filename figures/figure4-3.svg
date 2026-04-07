@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1000" viewBox="0 0 1800 1000">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="760" y="140" width="280" height="72" rx="14" class="header"/><text text-anchor="middle" font-size="24" font-weight="500" class="label"><tspan x="900.0" y="184.4">智能聊天室系统</tspan></text><rect x="10" y="320" width="220" height="218" rx="14" class="box"/><rect x="10" y="320" width="220" height="54" rx="14" class="header"/><text x="120.0" y="353" text-anchor="middle" font-size="21" font-weight="700" class="label">用户管理模块</text><rect x="24" y="388" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="120.0" y="406.6">注册与登录</tspan></text><rect x="24" y="422" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="120.0" y="440.6">验证码登录</tspan></text><rect x="24" y="456" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="120.0" y="474.6">OAuth 登录</tspan></text><rect x="24" y="490" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="120.0" y="508.6">好友与资料管理</tspan></text><polyline points="900,212 900,260 120,260 120,320" fill="none" class="line" marker-end="url(#arrow)"/><rect x="360" y="320" width="220" height="218" rx="14" class="box"/><rect x="360" y="320" width="220" height="54" rx="14" class="header"/><text x="470.0" y="353" text-anchor="middle" font-size="21" font-weight="700" class="label">即时通讯模块</text><rect x="374" y="388" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="470.0" y="406.6">私聊 / 群聊</tspan></text><rect x="374" y="422" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="470.0" y="440.6">消息检索</tspan></text><rect x="374" y="456" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="470.0" y="474.6">在线状态</tspan></text><rect x="374" y="490" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="470.0" y="508.6">多类型消息</tspan></text><polyline points="900,212 900,260 470,260 470,320" fill="none" class="line" marker-end="url(#arrow)"/><rect x="710" y="320" width="220" height="218" rx="14" class="box"/><rect x="710" y="320" width="220" height="54" rx="14" class="header"/><text x="820.0" y="353" text-anchor="middle" font-size="21" font-weight="700" class="label">聊天室模块</text><rect x="724" y="388" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="820.0" y="406.6">聊天室创建</tspan></text><rect x="724" y="422" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="820.0" y="440.6">加入策略</tspan></text><rect x="724" y="456" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="820.0" y="474.6">房间成员</tspan></text><rect x="724" y="490" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="820.0" y="508.6">问题状态</tspan></text><polyline points="900,212 900,260 820,260 820,320" fill="none" class="line" marker-end="url(#arrow)"/><rect x="1060" y="320" width="220" height="218" rx="14" class="box"/><rect x="1060" y="320" width="220" height="54" rx="14" class="header"/><text x="1170.0" y="353" text-anchor="middle" font-size="21" font-weight="700" class="label">AI 助手模块</text><rect x="1074" y="388" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1170.0" y="406.6">问答</tspan></text><rect x="1074" y="422" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1170.0" y="440.6">代码分析</tspan></text><rect x="1074" y="456" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1170.0" y="474.6">RAG 检索</tspan></text><rect x="1074" y="490" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1170.0" y="508.6">阶段总结</tspan></text><polyline points="900,212 900,260 1170,260 1170,320" fill="none" class="line" marker-end="url(#arrow)"/><rect x="1410" y="320" width="220" height="218" rx="14" class="box"/><rect x="1410" y="320" width="220" height="54" rx="14" class="header"/><text x="1520.0" y="353" text-anchor="middle" font-size="21" font-weight="700" class="label">收藏模块</text><rect x="1424" y="388" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1520.0" y="406.6">收藏快照</tspan></text><rect x="1424" y="422" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1520.0" y="440.6">标签备注</tspan></text><rect x="1424" y="456" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1520.0" y="474.6">来源回溯</tspan></text><rect x="1424" y="490" width="192" height="26" rx="8" class="subbox"/><text text-anchor="middle" font-size="16" font-weight="500" class="label"><tspan x="1520.0" y="508.6">统计分析</tspan></text><polyline points="900,212 900,260 1520,260 1520,320" fill="none" class="line" marker-end="url(#arrow)"/>
+</svg>

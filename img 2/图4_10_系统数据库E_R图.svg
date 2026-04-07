@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="780" viewBox="0 0 1100 780" style="background-color:#FFFFFF; font-family: Arial, sans-serif;">
+    <defs>
+        <!-- Optional markers, if needed. For ER typical lines we use text (1/N) -->
+    </defs>
+
+    <!-- ======== Relationship Connecting Lines ======== -->
+
+    <!-- 1. Users <-> Room -->
+    <path d="M 640 135 L 820 135" stroke="#333333" stroke-width="2" fill="none" />
+    <text x="650" y="125" font-size="13" font-weight="bold" fill="#333333">1</text>
+    <text x="805" y="125" font-size="13" font-weight="bold" fill="#333333">N</text>
+    <text x="730" y="125" font-size="13" fill="#333333" text-anchor="middle">创建 / 加入</text>
+
+    <!-- 2. Users <-> AIConversation -->
+    <path d="M 280 135 L 460 135" stroke="#333333" stroke-width="2" fill="none" />
+    <text x="290" y="125" font-size="13" font-weight="bold" fill="#333333">N</text>
+    <text x="445" y="125" font-size="13" font-weight="bold" fill="#333333">1</text>
+    <text x="370" y="125" font-size="13" fill="#333333" text-anchor="middle">拥有</text>
+
+    <!-- 3. Users <-> Messages -->
+    <path d="M 550 210 L 550 310" stroke="#333333" stroke-width="2" fill="none" />
+    <text x="560" y="225" font-size="13" font-weight="bold" fill="#333333">1</text>
+    <text x="560" y="295" font-size="13" font-weight="bold" fill="#333333">N</text>
+    <text x="560" y="260" font-size="13" fill="#333333" dominant-baseline="central">发送 / 接收</text>
+
+    <!-- 4. Room <-> GroupMessage -->
+    <path d="M 910 210 L 910 310" stroke="#333333" stroke-width="2" fill="none" />
+    <text x="920" y="225" font-size="13" font-weight="bold" fill="#333333">1</text>
+    <text x="920" y="295" font-size="13" font-weight="bold" fill="#333333">N</text>
+    <text x="920" y="260" font-size="13" fill="#333333" dominant-baseline="central">包含群消息</text>
+
+    <!-- 5. Users <-> Summary (routing) -->
+    <path d="M 480 210 L 480 260 L 190 260 L 190 310" stroke="#333333" stroke-width="2" fill="none" />
+    <text x="490" y="225" font-size="13" font-weight="bold" fill="#333333">1</text>
+    <text x="200" y="295" font-size="13" font-weight="bold" fill="#333333">N</text>
+    <text x="335" y="250" font-size="13" fill="#333333" text-anchor="middle">专属聊天总结</text>
+
+    <!-- 6. Users <-> Favorite (routing) -->
+    <path d="M 620 210 L 620 260 L 730 260 L 730 560" stroke="#333333" stroke-width="2" fill="none" />
+    <text x="630" y="225" font-size="13" font-weight="bold" fill="#333333">1</text>
+    <text x="740" y="545" font-size="13" font-weight="bold" fill="#333333">N</text>
+    <text x="675" y="250" font-size="13" fill="#333333" text-anchor="middle">留存收藏</text>
+
+    <!-- 7. Favorite <-> Messages (traceback routing) -->
+    <path d="M 660 560 L 660 510 L 550 510 L 550 460" stroke="#333333" stroke-width="2" fill="none" />
+    <text x="670" y="545" font-size="13" font-weight="bold" fill="#333333">N</text>
+    <text x="560" y="475" font-size="13" font-weight="bold" fill="#333333">1</text>
+    <text x="605" y="500" font-size="13" fill="#333333" text-anchor="middle">回溯源消息</text>
+
+    <!-- 8. Favorite <-> GroupMessage (traceback routing) -->
+    <path d="M 800 560 L 800 510 L 910 510 L 910 460" stroke="#333333" stroke-width="2" fill="none" />
+    <text x="810" y="545" font-size="13" font-weight="bold" fill="#333333">N</text>
+    <text x="920" y="475" font-size="13" font-weight="bold" fill="#333333">1</text>
+    <text x="855" y="500" font-size="13" fill="#333333" text-anchor="middle">回溯源群消息</text>
+
+
+    <!-- ======== Entities (Tables) ======== -->
+
+    <!-- 1. Users -->
+    <g transform="translate(460, 60)">
+        <rect x="0" y="0" width="180" height="150" fill="#FFFFFF" stroke="#333333" stroke-width="2" rx="4"/>
+        <rect x="0" y="0" width="180" height="35" fill="#F4F4F4" stroke="#333333" stroke-width="2" rx="4"/>
+        <path d="M 0 30 L 0 35 L 180 35 L 180 30 Z" fill="#F4F4F4" />
+        <path d="M 0 35 L 180 35" stroke="#333333" stroke-width="2" />
+        <text x="90" y="18" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">Users</text>
+        <circle cx="15" cy="55" r="3" fill="#333333" />
+        <text x="25" y="60" font-size="13" font-weight="bold" fill="#333333">uID (PK)</text>
+        <circle cx="15" cy="75" r="3" fill="#333333" />
+        <text x="25" y="80" font-size="13" fill="#333333">uName</text>
+        <circle cx="15" cy="95" r="3" fill="#333333" />
+        <text x="25" y="100" font-size="13" fill="#333333">uEmail</text>
+        <circle cx="15" cy="115" r="3" fill="#333333" />
+        <text x="25" y="120" font-size="13" fill="#333333">provider</text>
+        <circle cx="15" cy="135" r="3" fill="#333333" />
+        <text x="25" y="140" font-size="13" fill="#333333">Friends</text>
+    </g>
+
+    <!-- 2. Room -->
+    <g transform="translate(820, 60)">
+        <rect x="0" y="0" width="180" height="150" fill="#FFFFFF" stroke="#333333" stroke-width="2" rx="4"/>
+        <rect x="0" y="0" width="180" height="35" fill="#F4F4F4" stroke="#333333" stroke-width="2" rx="4"/>
+        <path d="M 0 30 L 0 35 L 180 35 L 180 30 Z" fill="#F4F4F4" />
+        <path d="M 0 35 L 180 35" stroke="#333333" stroke-width="2" />
+        <text x="90" y="18" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">Room</text>
+        <circle cx="15" cy="55" r="3" fill="#333333" />
+        <text x="25" y="60" font-size="13" font-weight="bold" fill="#333333">RoomID (PK)</text>
+        <circle cx="15" cy="75" r="3" fill="#333333" />
+        <text x="25" y="80" font-size="13" fill="#333333">RoomName</text>
+        <circle cx="15" cy="95" r="3" fill="#333333" />
+        <text x="25" y="100" font-size="13" fill="#333333">type</text>
+        <circle cx="15" cy="115" r="3" fill="#333333" />
+        <text x="25" y="120" font-size="13" fill="#333333">Members</text>
+        <circle cx="15" cy="135" r="3" fill="#333333" />
+        <text x="25" y="140" font-size="13" fill="#333333">expiresAt</text>
+    </g>
+
+    <!-- 3. AIConversation -->
+    <g transform="translate(100, 60)">
+        <rect x="0" y="0" width="180" height="150" fill="#FFFFFF" stroke="#333333" stroke-width="2" rx="4"/>
+        <rect x="0" y="0" width="180" height="35" fill="#F4F4F4" stroke="#333333" stroke-width="2" rx="4"/>
+        <path d="M 0 30 L 0 35 L 180 35 L 180 30 Z" fill="#F4F4F4" />
+        <path d="M 0 35 L 180 35" stroke="#333333" stroke-width="2" />
+        <text x="90" y="18" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">AIConversation</text>
+        <circle cx="15" cy="55" r="3" fill="#333333" />
+        <text x="25" y="60" font-size="13" fill="#333333">userId (FK)</text>
+        <circle cx="15" cy="75" r="3" fill="#333333" />
+        <text x="25" y="80" font-size="13" fill="#333333">role</text>
+        <circle cx="15" cy="95" r="3" fill="#333333" />
+        <text x="25" y="100" font-size="13" fill="#333333">messages</text>
+        <circle cx="15" cy="115" r="3" fill="#333333" />
+        <text x="25" y="120" font-size="13" fill="#333333">updatedAt</text>
+    </g>
+
+    <!-- 4. Messages -->
+    <g transform="translate(460, 310)">
+        <rect x="0" y="0" width="180" height="150" fill="#FFFFFF" stroke="#333333" stroke-width="2" rx="4"/>
+        <rect x="0" y="0" width="180" height="35" fill="#F4F4F4" stroke="#333333" stroke-width="2" rx="4"/>
+        <path d="M 0 30 L 0 35 L 180 35 L 180 30 Z" fill="#F4F4F4" />
+        <path d="M 0 35 L 180 35" stroke="#333333" stroke-width="2" />
+        <text x="90" y="18" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">Messages</text>
+        <circle cx="15" cy="55" r="3" fill="#333333" />
+        <text x="25" y="60" font-size="13" fill="#333333">from (FK)</text>
+        <circle cx="15" cy="75" r="3" fill="#333333" />
+        <text x="25" y="80" font-size="13" fill="#333333">to</text>
+        <circle cx="15" cy="95" r="3" fill="#333333" />
+        <text x="25" y="100" font-size="13" fill="#333333">content</text>
+        <circle cx="15" cy="115" r="3" fill="#333333" />
+        <text x="25" y="120" font-size="13" fill="#333333">messageType</text>
+        <circle cx="15" cy="135" r="3" fill="#333333" />
+        <text x="25" y="140" font-size="13" fill="#333333">time</text>
+    </g>
+
+    <!-- 5. GroupMessage -->
+    <g transform="translate(820, 310)">
+        <rect x="0" y="0" width="180" height="150" fill="#FFFFFF" stroke="#333333" stroke-width="2" rx="4"/>
+        <rect x="0" y="0" width="180" height="35" fill="#F4F4F4" stroke="#333333" stroke-width="2" rx="4"/>
+        <path d="M 0 30 L 0 35 L 180 35 L 180 30 Z" fill="#F4F4F4" />
+        <path d="M 0 35 L 180 35" stroke="#333333" stroke-width="2" />
+        <text x="90" y="18" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">GroupMessage</text>
+        <circle cx="15" cy="55" r="3" fill="#333333" />
+        <text x="25" y="60" font-size="13" fill="#333333">roomId (FK)</text>
+        <circle cx="15" cy="75" r="3" fill="#333333" />
+        <text x="25" y="80" font-size="13" fill="#333333">from</text>
+        <circle cx="15" cy="95" r="3" fill="#333333" />
+        <text x="25" y="100" font-size="13" fill="#333333">content</text>
+        <circle cx="15" cy="115" r="3" fill="#333333" />
+        <text x="25" y="120" font-size="13" fill="#333333">messageType</text>
+        <circle cx="15" cy="135" r="3" fill="#333333" />
+        <text x="25" y="140" font-size="13" fill="#333333">isQuestion</text>
+    </g>
+
+    <!-- 6. Summary -->
+    <g transform="translate(100, 310)">
+        <rect x="0" y="0" width="180" height="150" fill="#FFFFFF" stroke="#333333" stroke-width="2" rx="4"/>
+        <rect x="0" y="0" width="180" height="35" fill="#F4F4F4" stroke="#333333" stroke-width="2" rx="4"/>
+        <path d="M 0 30 L 0 35 L 180 35 L 180 30 Z" fill="#F4F4F4" />
+        <path d="M 0 35 L 180 35" stroke="#333333" stroke-width="2" />
+        <text x="90" y="18" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">Summary</text>
+        <circle cx="15" cy="55" r="3" fill="#333333" />
+        <text x="25" y="60" font-size="13" fill="#333333">userId (FK)</text>
+        <circle cx="15" cy="75" r="3" fill="#333333" />
+        <text x="25" y="80" font-size="13" fill="#333333">chatType</text>
+        <circle cx="15" cy="95" r="3" fill="#333333" />
+        <text x="25" y="100" font-size="13" fill="#333333">targetId</text>
+        <circle cx="15" cy="115" r="3" fill="#333333" />
+        <text x="25" y="120" font-size="13" fill="#333333">summary</text>
+        <circle cx="15" cy="135" r="3" fill="#333333" />
+        <text x="25" y="140" font-size="13" fill="#333333">createdAt</text>
+    </g>
+
+    <!-- 7. Favorite -->
+    <g transform="translate(640, 560)">
+        <rect x="0" y="0" width="180" height="150" fill="#FFFFFF" stroke="#333333" stroke-width="2" rx="4"/>
+        <rect x="0" y="0" width="180" height="35" fill="#F4F4F4" stroke="#333333" stroke-width="2" rx="4"/>
+        <path d="M 0 30 L 0 35 L 180 35 L 180 30 Z" fill="#F4F4F4" />
+        <path d="M 0 35 L 180 35" stroke="#333333" stroke-width="2" />
+        <text x="90" y="18" font-size="14" font-weight="bold" fill="#333333" text-anchor="middle" dominant-baseline="central">Favorite</text>
+        <circle cx="15" cy="55" r="3" fill="#333333" />
+        <text x="25" y="60" font-size="13" fill="#333333">userId (FK)</text>
+        <circle cx="15" cy="75" r="3" fill="#333333" />
+        <text x="25" y="80" font-size="13" fill="#333333">messageId (Trace)</text>
+        <circle cx="15" cy="95" r="3" fill="#333333" />
+        <text x="25" y="100" font-size="13" fill="#333333">chatId</text>
+        <circle cx="15" cy="115" r="3" fill="#333333" />
+        <text x="25" y="120" font-size="13" fill="#333333">contentType</text>
+        <circle cx="15" cy="135" r="3" fill="#333333" />
+        <text x="25" y="140" font-size="13" fill="#333333">tags</text>
+    </g>
+
+</svg>

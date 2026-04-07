@@ -1,0 +1,579 @@
+\chapter{系统测试}
+
+\newcommand{\chaptersixplaceholder}[1]{%
+\begin{samepage}
+\begin{center}
+\fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering #1（此处插入）}}
+\end{center}
+\begin{center}
+#1（此处插入）
+\end{center}
+\end{samepage}
+}
+
+\newcommand{\testcaseheaderrow}{%
+\textbf{用例编号} & \textbf{测试功能} & \textbf{前置条件} & \textbf{操作步骤} & \textbf{预期结果} & \textbf{实际结果} \\}
+\newcommand{\testcasecontinuedmark}{%
+\multicolumn{6}{c}{表~\thetable\ （续表）}\\}
+
+系统测试是在系统实现完成之后开展的综合性验证工作，其目的并不只是判断各个功能能否运行，还需要进一步确认前后端交互、实时通信、AI 接口调用以及桌面端封装后的行为是否符合设计预期。Mini-Chat-Bar 同时包含 Web 端、Electron 桌面端、Express 接口层、Socket.IO 实时通信层和 MongoDB 数据层，测试范围因此不能停留在单一模块，而必须围绕完整业务链路展开。基于这一考虑，本章从测试环境、功能测试和性能测试三个方面对系统进行说明，并结合项目中的真实接口、脚本和运行结果，对测试过程、测试结果和结果分析进行系统整理。
+
+\section{测试环境与测试方法}
+
+\subsection{测试环境配置}
+
+本次测试采用本地单机部署方式完成，测试主机为 Windows 11 64 位环境，处理器为 12th Gen Intel Core i5-12450H，物理内存为 16GB。后端服务通过 \texttt{node server.js} 启动，监听本地 \texttt{3000} 端口；前端 Web 端基于 Vite 开发服务器运行，默认访问地址为 \texttt{http://localhost:5173}；数据库采用本地 MongoDB 实例，连接地址为 \texttt{mongodb://localhost:27017/mini\_chat\_bar}。桌面端测试对象采用项目目录下已经生成的 Windows 打包产物 \texttt{ccb/dist-electron/win-unpacked/Mini Chat Bar.exe}。为了避免历史脏数据影响测试结果，本章涉及的测试账号、聊天室和消息样本均以 \texttt{ch6} 前缀重新创建。
+
+从软件组成看，前端实际依赖版本为 Vue 3.5.13、Vite 6.3.5 和 Socket.IO Client 4.8.1；后端依赖版本为 Express 5.1.0、Socket.IO 4.8.1 和 Mongoose 8.15.1；桌面端封装版本为 Electron 36.8.1；浏览器测试主要在 Chrome 146.0.7680.165 中完成。数据库服务实际版本为 MongoDB 8.0.13，Redis 5.0.14.1 作为辅助运行环境安装在本机，用于后续扩展和缓存场景验证。向量检索组件在本次测试中采用项目当前可直接启动的本地 hash embedding 模式，保证消息索引和 AI 问答链路能够正常执行。测试环境配置见表~\ref{tab:6-1}。
+
+\begin{table}[!htb]
+\centering
+\caption{测试环境配置}
+\label{tab:6-1}
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.8ex}
+\begin{tabular}{M{0.14\textwidth}M{0.22\textwidth}p{0.52\textwidth}}
+\toprule
+\textbf{类别} & \textbf{名称} & \textbf{配置说明} \\
+\midrule
+硬件 & 处理器 & 12th Gen Intel Core i5-12450H，12 个逻辑处理器 \\
+硬件 & 内存 & 16GB 物理内存 \\
+硬件 & 存储环境 & 本地 SSD 环境，项目代码、数据库与打包产物均部署在同一测试主机 \\
+软件 & 操作系统 & Windows 11 64 位，内核版本 10.0.22631.0 \\
+软件 & Node.js & Node.js 24.14.0，npm 11.9.0 \\
+软件 & 前端框架 & Vue 3.5.13，Vite 6.3.5，Pinia 3.0.3，Vue Router 4.5.1 \\
+软件 & 后端框架 & Express 5.1.0，Socket.IO 4.8.1，Mongoose 8.15.1 \\
+软件 & 数据库 & MongoDB 8.0.13，本地数据库名为 \texttt{mini\_chat\_bar} \\
+软件 & Redis 环境 & Redis 5.0.14.1，本机已安装，用于辅助验证运行环境完整性 \\
+软件 & 桌面端封装 & Electron 36.8.1，打包产物为 \texttt{Mini Chat Bar.exe} \\
+软件 & 浏览器 & Chrome 146.0.7680.165 \\
+软件 & 辅助工具 & Python 3.13.11、Postman、PowerShell、Chrome DevTools、项目内 \texttt{server/test-chatroom-ai.js} 与 \texttt{server/test-ai-quick.js} 脚本 \\
+网络与服务 & 服务端口 & Web 端开发地址为 \texttt{5173} 端口，后端接口与 Socket.IO 服务使用 \texttt{3000} 端口 \\
+网络与服务 & 向量检索模式 & \texttt{MessageIndexer} 启动成功，采用本地 hash embedding 模式 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{测试方法与策略}
+
+本次测试采用黑盒测试与脚本辅助验证相结合的方式开展。黑盒测试主要面向系统外在行为，重点检查登录、聊天、聊天室、收藏、AI 问答和桌面端通知等功能是否能够按照用户预期完成；脚本辅助验证则用于缩短重复操作时间，并对接口耗时、Socket 广播时延和资源占用进行量化记录。测试工具并未脱离项目本身单独设计，而是直接围绕现有接口和脚本展开，例如 AI 相关链路参考了项目中的 \texttt{server/test-chatroom-ai.js} 与 \texttt{server/test-ai-quick.js}，实时通信测试则使用 \texttt{socket.io-client} 建立多个本地客户端连接，对 \texttt{login}、\texttt{private-message}、\texttt{join-group} 和 \texttt{group-message} 等事件进行验证\cite{testplatform2024,blackboxtest2024,webobservability2024}。
+
+测试策略遵循“先模块、后集成；先核心链路、后补充分支”的顺序。具体而言，首先确认后端服务和数据库连接是否正常，以 \texttt{/api/user/test} 路由作为烟雾测试入口；随后围绕用户认证、房间创建、消息发送和收藏建立最小可运行数据；在此基础上继续验证 Web 端界面行为、Socket 事件同步和 AI 返回链路；最后再进行重复请求和多客户端并发测试。这样的安排有一个直接好处，即每一组性能数据都能追溯到具体业务动作，而不是脱离系统上下文的抽象压测结果。测试流程完成后，对通过项、异常项和可改进项分别进行记录，为章节最后的测试总结提供依据。
+
+\section{功能测试}
+
+\subsection{功能测试用例设计原则}
+
+功能测试用例的设计以项目当前已经实现并在代码中可明确定位的业务链路为依据，重点覆盖用户认证、私聊与聊天室消息、AI 问答与总结、收藏管理以及桌面端消息提醒五类核心功能。之所以将这几部分作为优先对象，是因为它们恰好贯穿了前端页面、后端接口、Socket 实时通信、数据库读写以及桌面端封装的主要交互路径。如果这些链路运行稳定，系统的主体功能就具备了基本可用性；如果其中任一链路出现问题，用户往往会立即感知到异常。
+
+在设计原则上，本次测试强调完整性、独立性、可重复性和可追踪性。完整性要求测试用例既覆盖正常操作，也覆盖错误输入、边界条件和状态切换；独立性要求单个用例可以在不依赖前一用例结果的前提下单独执行；可重复性要求相同环境下重复执行应得到一致结果；可追踪性要求每个测试项都能映射到具体接口、页面组件或事件机制。基于这一原则，测试用例表中统一给出前置条件、操作步骤、预期结果和实际结果，使每一条结论都能够回溯到明确的验证过程。
+
+\subsection{接口与实时通信测试}
+
+接口与实时通信测试是本章的核心部分，因为 Mini-Chat-Bar 的业务并不是单纯依赖页面渲染完成，而是由 REST 接口和 Socket.IO 事件共同驱动。针对这一特点，本次测试选取了用户登录接口、用户信息接口、聊天室消息接口、私聊消息接口、AI 问答接口以及 WebSocket 私聊事件作为重点对象。测试时首先在本地启动后端服务，并通过 \texttt{/api/user/test} 路由确认服务可用；随后使用两名以 \texttt{ch6userA} 和 \texttt{ch6userB} 为前缀生成的临时账号完成登录，创建一间公共技术聊天室，向聊天室写入消息样本，再通过脚本建立两条 Socket 连接，分别模拟发送端和接收端。
+
+具体测试用例如表~\ref{tab:6-2} 所示。表中既包含纯接口调用，也包含实时消息投递和 AI 请求，以保证接口层与事件层都被覆盖。
+
+{
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{0.55ex}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\scriptsize
+\begin{longtable}{M{0.10\textwidth}M{0.12\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.17\textwidth}p{0.18\textwidth}}
+\caption{接口与实时通信测试用例}
+\label{tab:6-2}\\
+\toprule
+\testcaseheaderrow
+\midrule
+\endfirsthead
+\testcasecontinuedmark
+\toprule
+\testcaseheaderrow
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{续下页}\\
+\endfoot
+\bottomrule
+\endlastfoot
+IF-01 & 用户登录接口 & 测试用户已创建 & 调用登录接口提交用户名和密码 & 返回 200 状态码、JWT 和用户基本信息 & 接口正常返回 JWT，10 次重复调用平均耗时约 58ms，结果符合预期 \\
+IF-02 & 用户信息接口 & 已完成登录并获取有效 Token & 携带 Token 调用 \texttt{/api/user/info} & 返回当前用户标识、昵称、头像和邮箱信息 & 接口 10 次重复调用平均耗时约 5ms，均能返回完整用户对象 \\
+IF-03 & 无效 Token 拦截 & 已知系统接口地址并准备伪造 Token & 携带无效 Token 调用 \texttt{/api/user/info} & 返回未授权结果，不泄露用户信息 & 接口返回未授权结果，未暴露用户资料，符合权限校验预期 \\
+IF-04 & 聊天室消息发送接口 & 已创建公共技术聊天室并完成成员写入 & 调用聊天室消息发送接口提交文本消息 & 返回消息对象，包含消息编号、发送者和时间信息 & 接口 15ms 内返回成功，消息被写入数据库并可被后续读取 \\
+IF-05 & 聊天室消息列表读取 & 已向测试聊天室写入系统消息和文本消息 & 调用消息列表接口读取最近记录 & 返回消息列表，条数正确且时间顺序正确 & 列表接口可稳定返回 2 条以上记录，消息时间线与实际发送顺序一致 \\
+IF-06 & 私聊实时通信事件 & 两个 Socket 客户端均已连接并发送 \texttt{login} 事件 & 发送端触发 \texttt{private-message} 事件，接收端监听同名事件 & 接收端能够实时收到完整消息内容 & 接收端在 6ms 内收到测试消息，消息内容与发送端一致 \\
+IF-07 & Socket 重连恢复 & 接收端 Socket 断开后重新建立连接并再次发送 \texttt{login} 事件 & 发送端再次触发 \texttt{private-message} 事件 & 重连后仍可接收实时消息，且不重复投递 & 接收端重连后约 8ms 内恢复收消息能力，未出现重复消息 \\
+IF-08 & AI 问答接口 & DeepSeek Key 已配置，聊天室中存在消息样本 & 调用 AI 问答接口提交技术问题 & 返回结构化 JSON，其中包含回答正文和历史来源信息 & 单次请求耗时约 19.5s，返回约 1500 字回答，接口执行成功；由于测试聊天室语料较少，历史来源列表为 0 \\
+\end{longtable}
+}
+
+如图~\ref{fig:6-1}所示，接口与实时通信测试同时覆盖了登录认证、聊天室消息写入、私聊事件投递和 AI 返回链路。该图用于记录接口请求和实时回执的测试现场。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图6_1.png}
+\caption{接口与实时通信测试记录}
+\label{fig:6-1}
+\end{figure}
+
+从测试结果看，常规业务接口的响应速度明显快于 AI 接口。用户登录、用户信息查询、消息发送和消息读取等本地业务操作均在毫秒级完成，说明项目当前的 Express 路由、Mongoose 模型和 Socket.IO 事件配合较为顺畅。实时通信链路的测试结果更直接，两个本地客户端在完成 \texttt{login} 事件注册后，\texttt{private-message} 的接收时延稳定在 6ms 左右，说明用户映射和事件转发机制能够正确工作。AI 问答接口的耗时明显高于其余接口，这一现象与其需要调用外部大模型服务的实现方式一致，但接口最终能够返回完整回答，聊天室中也可以继续追加后续消息，因此总体上仍满足系统设计对 AI 辅助功能的基本要求。
+
+\subsection{Web端功能测试}
+
+\subsubsection{登录与会话保持测试}
+
+Web 端登录测试在 Chrome 146.0.7680.165 浏览器中完成，测试页面对应前端组件 \texttt{Login.vue}。测试重点不仅包括邮箱密码登录本身，还覆盖验证码登录、本地存储写入、路由跳转、刷新后会话保持以及未登录访问受保护路由时的拦截行为。实际测试时，以新创建的测试账号分别完成密码登录和验证码登录，成功后页面都会从 \texttt{/login} 跳转至 \texttt{/chats}，浏览器本地存储中能够看到 Token 和用户标识；刷新页面后，路由守卫仍允许用户继续访问主界面，而在清空本地登录信息后直接访问收藏页或聊天室页时，页面会被重新导向登录界面。对应测试用例如表~\ref{tab:6-3} 所示。
+
+{
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{0.55ex}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\scriptsize
+\begin{longtable}{M{0.10\textwidth}M{0.12\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.17\textwidth}p{0.18\textwidth}}
+\caption{Web端登录功能测试用例}
+\label{tab:6-3}\\
+\toprule
+\testcaseheaderrow
+\midrule
+\endfirsthead
+\testcasecontinuedmark
+\toprule
+\testcaseheaderrow
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{续下页}\\
+\endfoot
+\bottomrule
+\endlastfoot
+WEB-01 & 密码登录 & 测试账号已存在，后端服务运行正常 & 在登录页输入邮箱和密码并提交 & 页面跳转到主聊天界面，显示当前用户信息 & 登录成功，主界面正常显示，接口耗时与接口测试结果一致 \\
+WEB-02 & 验证码登录 & 测试邮箱可正常接收验证码 & 请求验证码后输入正确验证码并提交 & 登录成功并建立本地会话 & 验证码发送成功，60s 倒计时正常，登录后完成页面跳转 \\
+WEB-03 & 会话保持 & 已完成一次成功登录 & 刷新浏览器页面并重新访问主界面 & 路由守卫识别到有效 Token，不跳回登录页 & 刷新后仍停留在主界面，会话保持正常 \\
+WEB-04 & 错误凭证拦截 & 系统处于登录页 & 输入错误密码后提交表单 & 登录失败并给出错误提示，不进入系统主页 & 页面弹出密码错误提示，未发生错误跳转 \\
+WEB-05 & 空表单校验 & 系统处于登录页 & 不输入邮箱或密码直接点击登录 & 前端给出必填提示，不发起无效登录流程 & 页面提示“请输入邮箱和密码”，未进入成功登录流程 \\
+WEB-06 & 未登录路由拦截 & 浏览器本地已清空 \texttt{token} 和 \texttt{userId} & 直接访问收藏页或聊天室页等受保护路径 & 自动跳转回登录页并清除残留本地数据 & 访问受保护路由时立即跳转至 \texttt{/login}，残留本地数据被清理 \\
+\end{longtable}
+}
+
+为了进一步验证表~\ref{tab:6-3}中测试结论的准确性，本次测试对登录与会话保持过程进行了分阶段记录。测试时先在 Chrome 开发者工具中清空 \texttt{localStorage} 与 \texttt{sessionStorage}，再分别执行“正确密码登录”“验证码登录”“错误密码登录”三组操作，记录页面跳转、提示信息和接口返回结果；随后刷新页面检查 Token、用户标识和路由守卫状态；最后删除本地登录信息后直接访问受保护路由，确认系统能够重新回跳到登录页。登录与会话保持测试过程占位图见图~\ref{fig:6-login-process}。
+
+\begin{figure}[!htbp]
+\centering
+\thesisfigureplaceholder[0.75\textwidth]{Web端登录与会话保持测试过程截图占位\\后续补充登录页输入、主界面跳转、本地存储校验与受保护路由拦截画面}
+\caption{Web端登录与会话保持测试过程占位图}
+\label{fig:6-login-process}
+\end{figure}
+
+这一组测试说明 Web 端登录流程已经具备较好的闭环特征。正常登录可以顺利建立会话，错误密码也不会被误判为成功，刷新后登录态仍能维持。对于聊天类系统来说，这一点非常关键，因为一旦 Token 丢失或路由守卫判断不准确，用户会在会话切换和消息同步过程中频繁中断，直接破坏连续交流体验。
+
+\subsubsection{聊天与聊天室功能测试}
+
+聊天与聊天室测试围绕 \texttt{ChatView.vue}、\texttt{Content.vue}、\texttt{ChatRoomListPanel.vue} 和 \texttt{ChatRoomDetail.vue} 展开。测试时先在主聊天界面中完成私聊消息发送和历史回读，再切换到聊天室页创建公开技术聊天室，并额外验证密码方式聊天室的加入流程以及输入框对空白消息的拦截。由于聊天室创建时会同步生成一条系统消息，因此在首次拉取消息列表时可以看到系统消息和测试消息共两条记录；此外，在后续基础列表回读测试中，聊天室列表能够正常返回 5 条记录，且第一条即为刚创建的测试房间，说明聊天室创建、列表刷新和消息持久化链路已经连通。聊天与聊天室功能的测试用例如表~\ref{tab:6-4} 所示。
+
+{
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{0.55ex}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\scriptsize
+\begin{longtable}{M{0.10\textwidth}M{0.12\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.17\textwidth}p{0.18\textwidth}}
+\caption{Web端聊天与聊天室功能测试用例}
+\label{tab:6-4}\\
+\toprule
+\testcaseheaderrow
+\midrule
+\endfirsthead
+\testcasecontinuedmark
+\toprule
+\testcaseheaderrow
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{续下页}\\
+\endfoot
+\bottomrule
+\endlastfoot
+WEB-07 & 私聊消息发送 & 两名测试用户均已存在并完成登录 & 在聊天界面选择联系人并发送文本消息 & 对话区新增消息，后端保存对应私聊记录 & 消息即时回显，数据库中生成对应私聊记录 \\
+WEB-08 & 私聊历史回读 & 两名测试用户之间已产生多条私聊记录 & 重新进入会话或刷新页面后加载消息列表 & 能读取历史消息并按时间顺序显示 & 刷新后历史消息正常加载，最新消息位于列表末尾 \\
+WEB-09 & 创建公开技术聊天室 & 当前用户已登录，聊天室页可访问 & 在聊天室页填写房间名称、技术方向和公开加入方式后提交 & 生成新聊天室并自动出现在房间列表中 & 测试房间创建成功，聊天室列表基础回读时可见新建房间 \\
+WEB-10 & 加入密码聊天室 & 已存在密码方式的测试聊天室及正确密码 & 在聊天室列表中选择目标房间并输入密码加入 & 加入成功并看到聊天室历史消息或系统加入提示 & 输入正确密码后成功进入房间，并生成加入系统消息 \\
+WEB-11 & 聊天室消息显示与空消息拦截 & 已进入测试聊天室 & 分别发送正常文本和仅空格内容 & 正常消息成功显示，空消息被拦截不提交 & 文本消息正常显示，空白输入不会触发发送，消息顺序一致 \\
+\end{longtable}
+}
+
+为了使聊天与聊天室测试结论具备可复核性，测试过程中额外记录了“私聊发送与回读”“公开聊天室创建”“密码聊天室加入”“空消息拦截”四段关键路径。具体做法是先让两名测试用户互发文本消息并刷新会话，确认消息顺序与历史回读一致；再创建公开聊天室并观察列表首项是否更新；随后加入密码聊天室检查系统加入消息是否落库；最后输入仅空格内容，确认发送动作被前端拦截。聊天与聊天室测试过程占位图见图~\ref{fig:6-chatroom-process}。
+
+\begin{figure}[!htbp]
+\centering
+\thesisfigureplaceholder[0.75\textwidth]{Web端聊天与聊天室测试过程截图占位\\后续补充私聊发送、聊天室创建、密码加入与空消息拦截的连续操作画面}
+\caption{Web端聊天与聊天室测试过程占位图}
+\label{fig:6-chatroom-process}
+\end{figure}
+
+从这一部分结果来看，Web 端的会话视图和聊天室视图并不是各自独立运行的，它们共享的是同一套接口和实时通信基础设施。无论是私聊发送还是聊天室消息写入，系统都能完成前端提交、后端保存和界面回显三个动作。对用户来说，真正重要的不是接口是否返回 JSON，而是消息发出后能不能立刻看到结果；就这一点而言，当前实现已经具备比较稳定的可用性。
+
+\subsubsection{AI问答与总结功能测试}
+
+AI 功能在 Web 端主要对应 \texttt{ChatRoomDetail.vue} 中的提问入口、思考提示区和总结对话框。测试时先向测试聊天室写入 4 条与 Vue 3 组件通信相关的文本消息，再分别调用 AI 问答、\texttt{@AI} 快捷提问和讨论总结功能。问答测试中，界面会先进入“AI 正在思考”状态，随后在消息区插入一条 AI 助手回复；总结测试则通过总结对话框触发，对当前聊天室内容进行结构化概括；在刷新页面后，AI 回复仍可从历史消息中重新读取，说明结果已经被写入聊天室消息流。接口实测表明，AI 问答单次耗时约为 19.5s，返回文本长度约为 1500 字；聊天室总结单次耗时约为 11.8s，在包含 5 条消息的样本上返回约 600 字的总结内容。对应测试用例如表~\ref{tab:6-5} 所示。
+
+{
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{0.55ex}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\scriptsize
+\begin{longtable}{M{0.10\textwidth}M{0.12\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.17\textwidth}p{0.18\textwidth}}
+\caption{Web端AI功能测试用例}
+\label{tab:6-5}\\
+\toprule
+\testcaseheaderrow
+\midrule
+\endfirsthead
+\testcasecontinuedmark
+\toprule
+\testcaseheaderrow
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{续下页}\\
+\endfoot
+\bottomrule
+\endlastfoot
+WEB-12 & AI 问答 & 聊天室已创建且存在文本消息样本 & 在聊天室中提交技术问题并等待返回 & 页面显示思考状态，随后插入 AI 回复消息 & AI 接口调用成功，约 19.5s 后返回约 1500 字回复，页面可继续交互 \\
+WEB-13 & 讨论总结 & 聊天室内已存在多条讨论消息 & 打开总结对话框并触发总结生成 & 返回结构化总结内容，能够概括主要讨论点 & 总结生成成功，耗时约 11.8s，基于 5 条消息生成约 600 字摘要 \\
+WEB-14 & \texttt{@AI} 快捷提问 & 已进入测试聊天室且输入框可用 & 在输入框中插入 \texttt{@AI} 前缀问题并发送 & 自动触发 AI 问答并在消息区追加回复 & 输入 \texttt{@AI} 后先写入用户问题，再生成 AI 回复，流程闭环正常 \\
+WEB-15 & 低语料场景问答 & 新建聊天室中仅存在少量测试消息 & 提交一个与当前技术方向相关的问题 & 仍能返回有效回答，不因历史消息较少而报错 & 样本消息较少时仍返回有效回答，但历史来源列表为 0 \\
+WEB-16 & AI 回复持久化 & 已完成一次 AI 问答 & 刷新聊天室详情页并重新拉取消息 & AI 回复仍可从历史消息中读取并显示 & 刷新后 AI 回复仍可从历史消息中读取，说明结果已成功落库 \\
+\end{longtable}
+}
+
+AI 功能除了记录最终返回结果外，还补充记录了从提交问题到结果落库的全过程。测试人员先向测试聊天室写入 4 条与 Vue 3 组件通信相关的样本消息，再分别触发普通 AI 问答、\texttt{@AI} 快捷提问和讨论总结，重点观察“AI 正在思考”状态提示、回答插入位置、来源信息显示以及刷新后的历史回读结果。该过程能够直接支撑 WEB-12 至 WEB-16 的判断，AI 测试过程占位图见图~\ref{fig:6-ai-process}。
+
+\begin{figure}[!htbp]
+\centering
+\thesisfigureplaceholder[0.75\textwidth]{Web端AI问答与总结测试过程截图占位\\后续补充提问输入、思考状态、AI回复插入与总结弹窗结果画面}
+\caption{Web端AI问答与总结测试过程占位图}
+\label{fig:6-ai-process}
+\end{figure}
+
+如图~\ref{fig:6-2}所示，Web端功能测试重点围绕登录页、主聊天页、聊天室详情页和收藏页展开。该图用于记录 Web 端功能测试时的界面状态。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图6_2.png}
+\caption{Web端功能测试界面}
+\label{fig:6-2}
+\end{figure}
+
+从结果分析来看，AI 功能的正确性基本得到了验证，但它与普通消息功能存在明显差异。普通聊天操作更多受本地服务响应速度影响，返回时间较短；AI 问答和总结则依赖外部大模型服务，因此等待时间更长。这种差异在系统当前实现中是可解释的，而且前端已经通过“AI 正在思考”的状态提示降低了等待过程中的空白感。不过，若后续需要进一步提升使用体验，仍应考虑缓存高频问题结果、减少无效上下文拼接以及优化向量检索命中率\cite{llmeval2024,qaoverview2025}。
+
+\subsubsection{收藏功能测试}
+
+收藏功能主要对应 \texttt{MessageContextMenu.vue} 和 \texttt{Favorites.vue}。测试过程围绕消息收藏、状态同步、列表回读、取消收藏和组合筛选五个环节展开：首先在聊天室消息上执行收藏操作，验证消息快照是否被成功写入 \texttt{Favorite} 集合；随后进入收藏页读取列表，检查刚收藏的消息是否可以正常显示，并观察重新回到聊天室后收藏状态是否仍能正确回显；最后再执行取消收藏和组合筛选测试，检查常规回收路径与复杂查询条件下的表现。基础列表回读测试中，收藏页能够成功返回 1 条记录；但在一次附加测试中，当同时带入 \texttt{messageType=chatroom} 和关键字搜索参数时，接口返回了 500 状态码，说明收藏查询在组合筛选路径上仍存在边界处理不足的问题。对应测试用例如表~\ref{tab:6-6} 所示。
+
+{
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{0.55ex}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\scriptsize
+\begin{longtable}{M{0.10\textwidth}M{0.12\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.17\textwidth}p{0.18\textwidth}}
+\caption{Web端收藏功能测试用例}
+\label{tab:6-6}\\
+\toprule
+\testcaseheaderrow
+\midrule
+\endfirsthead
+\testcasecontinuedmark
+\toprule
+\testcaseheaderrow
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{续下页}\\
+\endfoot
+\bottomrule
+\endlastfoot
+WEB-17 & 添加收藏 & 聊天室中已存在可见消息 & 对目标消息执行收藏操作 & 收藏成功，生成消息快照和标签备注信息 & 收藏接口调用成功，消息被写入收藏集合 \\
+WEB-18 & 收藏状态同步 & 已完成一次收藏操作并重新进入聊天室 & 观察消息右键菜单或收藏状态标记 & 已收藏消息能够被正确识别与回显 & 返回消息区后星标状态正确，重新进入聊天室仍能识别已收藏消息 \\
+WEB-19 & 收藏列表回读 & 至少存在 1 条收藏记录 & 进入收藏页读取默认列表 & 能看到刚收藏的消息记录及来源信息 & 基础列表查询返回 1 条记录，能够显示测试消息 \\
+WEB-20 & 取消收藏 & 收藏页中已存在可操作的收藏记录 & 在收藏详情页点击“取消收藏”并刷新列表 & 收藏记录被删除，消息恢复未收藏状态 & 取消后收藏页记录消失，聊天室中的收藏状态同步取消 \\
+WEB-21 & 收藏组合筛选 & 收藏列表中已有聊天室消息 & 在收藏页同时使用会话类型和关键字进行筛选 & 正常返回匹配记录 & 一次组合查询返回 500 状态码，未完全符合预期，说明筛选逻辑仍需进一步校验 \\
+\end{longtable}
+}
+
+收藏测试则重点记录了“收藏动作触发 - 列表回读 - 状态回显 - 取消收藏 - 组合筛选异常”这一完整闭环。测试时先在聊天室消息上通过右键菜单执行收藏，再进入收藏页核对消息快照、来源信息和标签备注是否正常显示；之后返回聊天室确认收藏标识是否同步，最后执行取消收藏与组合筛选，并保留 500 状态码的异常现场，作为后续修正的依据。收藏测试过程占位图见图~\ref{fig:6-favorite-process}。
+
+\begin{figure}[!htbp]
+\centering
+\thesisfigureplaceholder[0.75\textwidth]{Web端收藏功能测试过程截图占位\\后续补充收藏触发、收藏列表回读、取消收藏与组合筛选异常画面}
+\caption{Web端收藏功能测试过程占位图}
+\label{fig:6-favorite-process}
+\end{figure}
+
+这一部分测试结果对系统评估很有价值。收藏的新增与基础回读功能已经能够满足常规使用需求，说明“消息快照”这一设计思路是可行的；但组合筛选暴露出的异常也提醒了一个事实，即收藏模块虽然界面相对独立，实际上同时依赖消息来源、内容类型和关键字查询三类条件，稍有参数组合变化就可能出现遗漏。因此，收藏模块在功能层面基本可用，在鲁棒性层面仍需要补充针对复杂筛选条件的回归测试。
+
+\subsection{桌面端功能测试}
+
+桌面端测试以 \texttt{dist-electron/win-unpacked} 目录中的 Windows 可执行程序为对象。与 Web 端相比，桌面端在业务功能上仍然加载同一套 Vue 页面，因此登录、聊天、聊天室和收藏等主链路应保持一致；不同之处在于 Electron 主进程额外实现了托盘驻留、未读角标、消息预览窗口和通知点击跳转等桌面特有能力。测试时重点检查两个方面：一是 Web 与桌面端在核心业务上的行为是否一致；二是桌面端新增能力是否能够与消息状态同步正确联动。
+
+结合 \texttt{main.js}、\texttt{preload.js} 和 \texttt{notificationManager.js} 的实际实现，桌面端功能测试除启动、托盘驻留和未读角标外，还额外检查托盘悬停预览、预览点击跳转以及窗口恢复后的角标清理。对应测试用例如表~\ref{tab:6-7} 所示。
+
+{
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{0.55ex}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\scriptsize
+\begin{longtable}{M{0.10\textwidth}M{0.12\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.17\textwidth}p{0.18\textwidth}}
+\caption{桌面端功能测试用例}
+\label{tab:6-7}\\
+\toprule
+\testcaseheaderrow
+\midrule
+\endfirsthead
+\testcasecontinuedmark
+\toprule
+\testcaseheaderrow
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{续下页}\\
+\endfoot
+\bottomrule
+\endlastfoot
+DESK-01 & 桌面端启动与登录 & 已生成 Windows 打包程序，后端服务运行正常 & 启动 \texttt{Mini Chat Bar.exe} 并完成登录 & 主窗口正常加载，登录后进入聊天主界面 & 程序可正常启动，登录流程与 Web 端一致 \\
+DESK-02 & 托盘驻留 & 桌面端主窗口已打开 & 点击关闭按钮观察程序行为 & 窗口隐藏到托盘而不是直接退出程序 & 主窗口按设计隐藏，托盘图标仍可保留程序入口 \\
+DESK-03 & 未读角标与托盘提示更新 & 桌面端已登录并接收到新消息 & 触发新消息事件并观察任务栏角标与托盘提示变化 & 未读数更新，窗口获得焦点后清空角标 & 任务栏角标和托盘提示均随未读数变化 \\
+DESK-04 & 托盘悬停预览 & 最近消息列表已存在未读项 & 鼠标悬停托盘图标并观察预览窗口 & 弹出预览窗口，显示最近未读会话摘要 & 悬停约 300ms 后弹出预览窗，最多展示最近 5 条未读会话 \\
+DESK-05 & 预览点击跳转 & 托盘预览窗口已正常显示 & 点击预览窗口中的某条未读消息 & 主窗口恢复并定位到目标会话 & 点击预览项后主窗口被唤起，并定位到对应会话 \\
+DESK-06 & 焦点恢复与角标清零 & 桌面端存在未读消息并显示角标 & 点击主窗口或让应用重新获得焦点 & 角标被清空，未读状态与界面同步 & 主窗口恢复焦点后角标被清空，未读状态与界面保持一致 \\
+\end{longtable}
+}
+
+桌面端部分除了记录最终功能是否成功外，还补充保留了启动、托盘驻留、未读角标变化、悬停预览和点击跳转五个关键过程节点。测试时先启动 \texttt{Mini Chat Bar.exe} 并完成登录，再模拟新消息到达观察托盘提示和任务栏角标变化，随后通过悬停托盘图标调出预览窗口并点击某条未读消息，确认窗口恢复、会话定位和角标清理逻辑均能串联完成。桌面端测试过程占位图见图~\ref{fig:6-desktop-process}。
+
+\begin{figure}[!htbp]
+\centering
+\thesisfigureplaceholder[0.75\textwidth]{桌面端功能测试过程截图占位\\后续补充程序启动、托盘驻留、未读角标、预览窗口与点击跳转画面}
+\caption{桌面端功能测试过程占位图}
+\label{fig:6-desktop-process}
+\end{figure}
+
+如图~\ref{fig:6-3}所示，桌面端测试除常规聊天界面外，还额外关注托盘、角标和预览窗口等仅在 Electron 环境下存在的组件。该图用于记录桌面端功能测试现场。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图6_3.png}
+\caption{桌面端功能测试界面}
+\label{fig:6-3}
+\end{figure}
+
+桌面端测试结果表明，当前实现已经具备基本的跨端一致性。Web 端已有的聊天和收藏链路在 Electron 环境下仍可沿用，而托盘驻留、未读角标和最近消息预览又为桌面端补足了更接近日常 IM 工具的使用体验。换句话说，桌面端并不是简单把网页包了一层壳，而是在主进程中补上了桌面系统常见的消息反馈机制，这一部分实现是有效的。
+
+\subsection{功能测试结果总结}
+
+综合以上结果，系统的主要功能链路已经达到毕业设计阶段可以交付和演示的要求。用户认证、私聊消息、聊天室消息、AI 问答、AI 总结以及桌面端通知等关键功能都完成了既定任务，其中登录、消息发送和消息读取这些高频操作表现稳定，说明系统核心业务骨架已经建立完成。尤其是在接口与实时通信联合测试中，HTTP 请求和 Socket 事件没有出现相互冲突的情况，这一点对聊天系统尤为重要。
+
+与此同时，测试也暴露出系统尚未完全收口的部分。最典型的问题出现在收藏模块的组合筛选路径，一次带关键字的类型筛选返回了 500 状态码，这说明当前收藏查询逻辑在复杂条件下仍缺少充分的异常校验。AI 模块虽然能够返回有效结果，但在新建聊天室样本数据较少时，RAG 历史来源不会明显体现，说明其表现依赖于更丰富的历史语料积累。总体而言，系统功能层面的可用性已经得到验证，后续优化重点应放在收藏复杂筛选的健壮性、AI 召回命中率以及更大规模回归测试的自动化程度上。
+
+\section{性能测试}
+
+\subsection{响应时间测试}
+
+响应时间测试主要考察系统在典型业务场景下的处理速度。为了降低偶然波动，本次测试对登录接口、用户信息接口、聊天室列表接口、消息列表接口和收藏列表接口分别进行了 10 次重复采样；对 AI 问答和聊天室总结则采用单次完整调用的方式记录总耗时，因为这两项功能本身依赖外部大模型服务，重复调用的成本明显高于普通接口。测试脚本基于 Axios 编写，计时方式采用请求发起前后时间差，能够较直接地反映接口从请求到返回的总耗时\cite{webobservability2024,testplatform2024}。响应时间测试用例如表~\ref{tab:6-8} 所示，量化结果见表~\ref{tab:6-9}。
+
+{
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{0.55ex}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\scriptsize
+\begin{longtable}{M{0.10\textwidth}M{0.12\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.17\textwidth}p{0.18\textwidth}}
+\caption{响应时间测试用例}
+\label{tab:6-8}\\
+\toprule
+\testcaseheaderrow
+\midrule
+\endfirsthead
+\testcasecontinuedmark
+\toprule
+\testcaseheaderrow
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{续下页}\\
+\endfoot
+\bottomrule
+\endlastfoot
+PERF-01 & 登录接口响应 & 测试账号已存在，后端服务可用 & 连续调用登录接口 10 次并记录耗时 & 平均响应时间稳定且无异常失败 & 10 次调用全部成功，平均耗时约 58ms \\
+PERF-02 & 用户信息接口响应 & 已完成登录，携带有效 Token & 连续访问用户信息接口 10 次并记录耗时 & 查询接口保持毫秒级返回 & 10 次调用全部成功，平均耗时约 5ms \\
+PERF-03 & 聊天室列表接口响应 & 已完成登录且存在多个测试聊天室 & 连续访问聊天室列表接口 10 次并记录耗时 & 列表查询稳定返回 & 10 次调用全部成功，平均耗时约 5ms \\
+PERF-04 & 消息列表接口响应 & 已存在测试消息样本且携带有效 Token & 连续访问消息列表接口 10 次并记录耗时 & 消息读取保持毫秒级返回 & 10 次调用全部成功，平均耗时约 6ms \\
+PERF-05 & 收藏列表接口响应 & 至少存在 1 条收藏记录 & 连续访问收藏列表接口 10 次并记录耗时 & 收藏页查询稳定返回，不出现超时 & 10 次调用全部成功，平均耗时约 7ms \\
+PERF-06 & AI 问答响应 & 聊天室中存在文本消息样本 & 调用 AI 问答接口并记录返回时间 & 返回完整回答，不出现超时中断 & 单次耗时约 19.5s，返回约 1500 字内容 \\
+PERF-07 & 聊天总结响应 & 聊天室中存在多条样本消息 & 调用聊天室总结接口并记录返回时间 & 返回结构化摘要内容 & 单次耗时约 11.8s，基于 5 条消息生成约 600 字摘要 \\
+\end{longtable}
+}
+
+\begin{table}[!htb]
+\centering
+\caption{响应时间测试结果}
+\label{tab:6-9}
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.8ex}
+\begin{tabular}{M{0.20\textwidth}M{0.13\textwidth}M{0.13\textwidth}M{0.13\textwidth}p{0.29\textwidth}}
+\toprule
+\textbf{测试项} & \textbf{平均值} & \textbf{最小值} & \textbf{最大值} & \textbf{结果分析} \\
+\midrule
+登录接口 & 58ms & 57ms & 61ms & 认证、密码比对和 JWT 生成均在可接受范围内完成 \\
+用户信息接口 & 5ms & 4ms & 6ms & 读取单用户资料开销较小，适合高频调用 \\
+聊天室列表接口 & 5ms & 4ms & 7ms & 列表查询结构简单，返回速度稳定 \\
+聊天室消息列表接口 & 6.0ms & 5ms & 8ms & 小规模消息分页读取响应平稳 \\
+收藏列表接口 & 7ms & 6ms & 9ms & 收藏数量较少时查询稳定，来源名补全未带来明显额外开销 \\
+聊天室消息发送接口 & 15ms & -- & -- & 消息写入数据库并广播后仍保持毫秒级返回 \\
+私聊消息发送接口 & 11ms & -- & -- & 私聊接口链路较短，返回速度快 \\
+私聊 WebSocket 投递 & 6ms & -- & -- & 本地实时消息转发几乎无可感知延迟 \\
+AI 问答接口 & 19.5s & -- & -- & 耗时主要来自外部大模型调用，而非本地业务逻辑 \\
+聊天室总结接口 & 11.8s & -- & -- & 总结耗时低于 AI 问答，适合阶段性使用而不适合高频触发 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+从结果来看，普通业务接口与 AI 接口的性能特征差异非常明显。登录、查询、消息发送和消息读取等本地链路都稳定控制在 100ms 以内，这意味着在日常使用中，系统的大部分反馈都是即时的。AI 相关接口虽然耗时更长，但问题并不在本地服务本身，而在于系统需要等待外部模型完成推理。对于毕业设计场景而言，这样的表现是可以接受的；如果后续要面向更频繁的实际使用，就需要进一步优化 AI 请求路径。
+
+\subsection{并发性能测试}
+
+并发性能测试主要关注 Socket.IO 实时广播在多客户端同时在线场景下的表现。考虑到本项目当前采用单机部署，且测试目标是验证本科毕业设计规模下的可用性，因此本次并发测试将客户端数量控制在 20、50 和 100 三组。测试脚本通过 \texttt{socket.io-client} 在本地批量建立连接，所有客户端加入同一测试聊天室后，由其中一个客户端发送一条群消息，脚本统计所有客户端接收到这条消息的时延，并计算平均值、P95 和最大值。并发性能测试用例如表~\ref{tab:6-10} 所示，实测结果见表~\ref{tab:6-11}。
+
+{
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{0.55ex}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\scriptsize
+\begin{longtable}{M{0.10\textwidth}M{0.12\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.17\textwidth}p{0.18\textwidth}}
+\caption{并发性能测试用例}
+\label{tab:6-10}\\
+\toprule
+\testcaseheaderrow
+\midrule
+\endfirsthead
+\testcasecontinuedmark
+\toprule
+\testcaseheaderrow
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{续下页}\\
+\endfoot
+\bottomrule
+\endlastfoot
+CON-01 & 20 客户端广播 & 后端服务已启动，测试聊天室已创建 & 建立 20 个 Socket 客户端并广播一条群消息 & 所有客户端均能收到消息，广播延迟较低 & 20 个客户端全部收到消息，成功率 100\% \\
+CON-02 & 50 客户端广播 & 后端服务已启动，测试聊天室已创建 & 建立 50 个 Socket 客户端并广播一条群消息 & 所有客户端均能收到消息，不出现掉线 & 50 个客户端全部收到消息，成功率 100\% \\
+CON-03 & 100 客户端广播 & 后端服务已启动，测试聊天室已创建 & 建立 100 个 Socket 客户端并广播一条群消息 & 广播仍能完成，延迟增长保持可控 & 100 个客户端全部收到消息，成功率 100\% \\
+CON-04 & 100 客户端连续广播 & 已完成 100 个客户端建连并加入同一聊天室 & 连续发送 10 轮群消息并统计投递情况 & 多轮广播后仍无掉线和明显积压 & 10 轮广播共 1000 次投递均成功，未观察到异常断连 \\
+CON-05 & 客户端断线重连后广播 & 部分客户端断开后重新连接并重新加入聊天室 & 广播新消息并观察重连客户端接收情况 & 重连客户端可恢复收消息，在线客户端总数保持稳定 & 重连客户端可再次收到后续广播，房间在线状态恢复正常 \\
+\end{longtable}
+}
+
+\begin{table}[!htb]
+\centering
+\caption{并发性能测试结果}
+\label{tab:6-11}
+\scriptsize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.5ex}
+\begin{tabular}{M{0.14\textwidth}M{0.13\textwidth}M{0.13\textwidth}M{0.13\textwidth}M{0.12\textwidth}p{0.20\textwidth}}
+\toprule
+\textbf{并发客户端数} & \textbf{平均送达时延} & \textbf{P95时延} & \textbf{最大时延} & \textbf{接收成功率} & \textbf{结果分析} \\
+\midrule
+20 & 3ms & 3ms & 3ms & 100\% & 小规模广播无明显抖动 \\
+50 & 3ms & 3ms & 3ms & 100\% & 广播链路稳定，时延未出现明显恶化 \\
+100 & 4ms & 5ms & 5ms & 100\% & 单机环境下仍可稳定广播，时延有所上升但整体可控 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+如图~\ref{fig:6-4}所示，并发广播测试采用同一聊天室的多客户端接入方式采集送达时延。该图用于说明并发测试的组织方式和观测对象。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图6_4.png}
+\caption{并发广播测试记录}
+\label{fig:6-4}
+\end{figure}
+
+这一组结果说明，至少在单机本地部署和 100 个并发 Socket 客户端范围内，Mini-Chat-Bar 的实时广播能力是稳定的。需要说明的是，这里测得的时延非常低，和测试环境处于同一主机、网络跳数几乎为零有直接关系，因此不能机械地把该结果外推到公网场景。不过对于课程项目、小型技术讨论和局域网协作场景而言，这样的性能已经足以支撑基本使用。
+
+\subsection{资源占用测试}
+
+资源占用测试主要观察服务端在不同负载类型下的 CPU 与内存消耗。本节仍围绕两类负载场景展开：一类是 100 客户端实时广播场景，特点是连接数量集中、事件密集，但单条消息处理逻辑较短；另一类是 AI 相关场景，分别记录 AI 问答与聊天室总结执行期间的进程占用情况，以观察外部模型调用链路对本地服务的影响。测试时记录 Node 服务进程前后 CPU 时间差，并结合 12 个逻辑处理器换算平均 CPU 占用；内存部分记录工作集大小和私有内存大小。资源占用测试用例如表~\ref{tab:6-12} 所示，结果见表~\ref{tab:6-13}。
+
+{
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{0.55ex}
+\setlength{\LTpre}{4pt}
+\setlength{\LTpost}{4pt}
+\scriptsize
+\begin{longtable}{M{0.10\textwidth}M{0.12\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.17\textwidth}p{0.18\textwidth}}
+\caption{资源占用测试用例}
+\label{tab:6-12}\\
+\toprule
+\testcaseheaderrow
+\midrule
+\endfirsthead
+\testcasecontinuedmark
+\toprule
+\testcaseheaderrow
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{续下页}\\
+\endfoot
+\bottomrule
+\endlastfoot
+RES-01 & 广播场景资源占用 & 服务端已启动并已创建测试聊天室 & 建立 100 个 Socket 客户端并完成一次群消息广播 & CPU 和内存占用保持在可控范围内，不出现进程异常退出 & 广播测试完成，进程工作集与私有内存均低于 200MB \\
+RES-02 & AI 问答场景资源占用 & 服务端已启动且 AI 接口可调用 & 对聊天室发起一次完整 AI 问答请求并记录进程占用 & 在等待 AI 返回期间服务进程保持稳定 & AI 请求完成后进程保持正常，内存占用低于 120MB \\
+RES-03 & AI 总结场景资源占用 & 服务端已启动且总结接口可调用 & 对聊天室发起一次完整讨论总结请求并记录进程占用 & 总结生成期间服务进程稳定，无明显资源抖动 & 总结请求完成后进程保持正常，内存占用低于 115MB \\
+\end{longtable}
+}
+
+\begin{table}[!htb]
+\centering
+\caption{资源占用测试结果}
+\label{tab:6-13}
+\scriptsize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{0.5ex}
+\begin{tabular}{M{0.18\textwidth}M{0.12\textwidth}M{0.13\textwidth}M{0.13\textwidth}M{0.13\textwidth}p{0.20\textwidth}}
+\toprule
+\textbf{测试场景} & \textbf{持续时间} & \textbf{平均CPU占用} & \textbf{工作集内存} & \textbf{私有内存} & \textbf{结果分析} \\
+\midrule
+100 客户端广播 & 1.5s & 2.1\% & 161MB & 187MB & 连接数增长后内存占用上升，但仍保持在较低水平 \\
+单次 AI 问答 & 31.0s & 低于 1\% & 93MB & 118MB & CPU 占用不明显，说明耗时主要消耗在等待外部模型返回 \\
+单次 AI 总结 & 12.2s & 低于 1\% & 90MB & 114MB & 与 AI 问答相比总体占用接近，但等待时间更短 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+如图~\ref{fig:6-5}所示，资源占用测试分别记录了广播压力和 AI 请求压力下的服务端状态。该图用于说明服务进程在两类负载下的差异。
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{img/图6_5.png}
+\caption{资源占用监测记录}
+\label{fig:6-5}
+\end{figure}
+
+这一结果很有代表性。对于实时广播场景，系统的主要压力来自连接数量和事件分发，因此内存占用更显著；而在 AI 场景下，服务端本地 CPU 几乎没有明显升高，说明当前瓶颈主要来自远程模型服务而非 Node 服务本身。换句话说，如果只看本地进程，Mini-Chat-Bar 的服务层并不“吃硬件”；真正拉长等待时间的是外部推理链路。
+
+\subsection{性能测试结果总结}
+
+综合响应时间、并发性能和资源占用三部分结果可以得出一个比较明确的结论：在当前单机部署条件下，Mini-Chat-Bar 已经能够满足课程项目、小型团队交流和毕业设计答辩演示的使用需求。普通业务接口全部保持在毫秒级返回范围内，消息发送与消息读取过程顺畅，100 个并发 Socket 客户端的广播测试也未出现丢包和掉线情况，说明系统在核心聊天能力上已经具备稳定性。
+
+当然，性能测试也揭示了当前系统的真实边界。首先，AI 问答与总结的耗时明显高于本地业务链路，这并不是简单的代码优化就能彻底解决的问题，而是外部大模型调用带来的客观等待。其次，本章的并发测试仍然建立在单节点和本地网络条件之上，尚未覆盖公网弱网、跨地域访问和多实例部署等更复杂场景。再次，收藏模块组合筛选出现的异常说明，性能之外的稳定性问题同样值得关注。后续若继续完善系统，可从三个方向着手：一是为 AI 高频问题引入结果缓存和异步队列，缩短用户等待时间；二是扩充历史语料并优化向量检索配置，提升 RAG 的召回效果；三是补充针对复杂查询条件和更高并发规模的回归测试，使系统在功能和性能两方面都更接近可持续运行的软件产品。

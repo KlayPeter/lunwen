@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
+<path d="M 0 0 L 10 5 L 0 10 z" fill="#000000"/>
+</marker>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g stroke="#000000" fill="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" font-family="Microsoft YaHei, SimSun, Arial, sans-serif">
+<circle cx="120" cy="360" r="20"/>
+<line x1="120" y1="380" x2="120" y2="464"/>
+<line x1="86" y1="394" x2="154" y2="394"/>
+<line x1="120" y1="464" x2="90" y2="514"/>
+<line x1="120" y1="464" x2="150" y2="514"/>
+<text x="120" y="559.0" fill="#000000" stroke="none" font-size="26" font-weight="bold" text-anchor="middle"><tspan x="120" dy="0">普通交流用户</tspan></text>
+<rect x="300" y="100" width="1230" height="860" rx="10" ry="10"/>
+<text x="324" y="130.0" fill="#000000" stroke="none" font-size="24" font-weight="bold" text-anchor="start"><tspan x="324" dy="0">智能聊天室系统</tspan></text>
+<ellipse cx="680" cy="220" rx="160" ry="56"/>
+<text x="680" y="220.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="680" dy="0">加入聊天室</tspan></text>
+<ellipse cx="1080" cy="220" rx="220" ry="56"/>
+<text x="1080" y="220.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="1080" dy="0">浏览公告 / 成员 / 历史消息</tspan></text>
+<ellipse cx="680" cy="460" rx="190" ry="56"/>
+<text x="680" y="460.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="680" dy="0">发送文本或共享资料</tspan></text>
+<ellipse cx="1080" cy="460" rx="170" ry="56"/>
+<text x="1080" y="460.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="1080" dy="0">检索历史消息</tspan></text>
+<ellipse cx="680" cy="720" rx="150" ry="56"/>
+<text x="680" y="720.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="680" dy="0">下载共享文件</tspan></text>
+<ellipse cx="1080" cy="720" rx="160" ry="56"/>
+<text x="1080" y="720.0" fill="#000000" stroke="none" font-size="23" font-weight="normal" text-anchor="middle"><tspan x="1080" dy="0">收藏高频结论</tspan></text>
+<line x1="180" y1="220" x2="520" y2="220" marker-end="url(#arrow)"/>
+<line x1="180" y1="460" x2="490" y2="460" marker-end="url(#arrow)"/>
+<line x1="180" y1="720" x2="530" y2="720" marker-end="url(#arrow)"/>
+<line x1="180" y1="590" x2="910" y2="590" marker-end="url(#arrow)"/>
+<line x1="840" y1="220" x2="860" y2="220" marker-end="url(#arrow)"/>
+<line x1="870" y1="460" x2="910" y2="460" marker-end="url(#arrow)"/>
+<line x1="830" y1="720" x2="920" y2="720" marker-end="url(#arrow)"/>
+<polyline points="680,276 680,330 1080,330 1080,164" fill="none" marker-end="url(#arrow)" stroke-dasharray="10 8"/>
+<text x="920" y="320.0" fill="#000000" stroke="none" font-size="18" font-weight="normal" text-anchor="middle"><tspan x="920" dy="0">&lt;&lt;include&gt;&gt;</tspan></text>
+<polyline points="1080,516 1080,590 680,590 680,664" fill="none" marker-end="url(#arrow)" stroke-dasharray="10 8"/>
+<text x="900" y="575.0" fill="#000000" stroke="none" font-size="18" font-weight="normal" text-anchor="middle"><tspan x="900" dy="0">&lt;&lt;include&gt;&gt;</tspan></text>
+</g>
+</svg>

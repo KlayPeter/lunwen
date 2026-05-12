@@ -509,8 +509,8 @@ aboveskip = 8pt,
 \setlength{\intextsep}{15pt}
 
 \renewcommand\theequation{\arabic{chapter}-\arabic{equation}}
-\renewcommand\thefigure{\arabic{chapter}-\arabic{figure}}
-\renewcommand\thetable{\arabic{chapter}-\arabic{table}}
+\renewcommand\thefigure{\arabic{chapter}.\arabic{figure}}
+\renewcommand\thetable{\arabic{chapter}.\arabic{table}}
 
 \renewcommand{\bibsection}{
 	\zihao{5}

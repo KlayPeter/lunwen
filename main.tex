@@ -4,9 +4,12 @@
 % !TeX program = xelatex
 % !Mode:: "TeX:UTF-8"
 
-\documentclass[oneside]{thesis-cls-Miya}
+\documentclass[twoside]{thesis-cls-Miya}
 
 \usepackage{float}
+\usepackage{placeins}
+\usepackage{fancyvrb}
+\usepackage{pdfpages}
 
 \usetikzlibrary{shapes,shapes.geometric,arrows.meta}
 
@@ -25,6 +28,21 @@
   }%
   \endgroup
 }
+\newcommand{\thesisfigportrait}[1]{%
+  \includegraphics[width=0.84\textwidth,height=0.72\textheight,keepaspectratio]{#1}%
+}
+\newcommand{\thesisfigflow}[1]{%
+  \includegraphics[width=0.86\textwidth,height=0.56\textheight,keepaspectratio]{#1}%
+}
+\newcommand{\thesisfigwide}[1]{%
+  \includegraphics[width=0.94\textwidth,height=0.42\textheight,keepaspectratio]{#1}%
+}
+\newcommand{\thesisfigscreen}[1]{%
+  \includegraphics[width=0.92\textwidth,height=0.46\textheight,keepaspectratio]{#1}%
+}
+\newcommand{\thesisfigsmallscreen}[1]{%
+  \includegraphics[width=0.78\textwidth,height=0.38\textheight,keepaspectratio]{#1}%
+}
 
 \renewcommand{\topfraction}{0.95}
 \renewcommand{\bottomfraction}{0.95}
@@ -33,6 +51,35 @@
 \setlength{\textfloatsep}{10pt plus 2pt minus 4pt}
 \setlength{\floatsep}{8pt plus 2pt minus 2pt}
 \setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{10pt plus 1fil}
+\setlength{\@fpbot}{0pt plus 1fil}
+\pretocmd{\section}{\FloatBarrier}{}{}
+\pretocmd{\subsection}{\FloatBarrier}{}{}
+\pretocmd{\subsubsection}{\FloatBarrier}{}{}
+\makeatother
+\newcommand{\appendixspecialcenter}[1]{%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{#1}
+  \markboth{#1}{}
+  \vspace*{-5ex}%
+  \begin{center}
+    {\zihao{1}\bfseries\songti #1}
+  \end{center}
+  \vskip 0em%
+}
+\newcommand{\appendixspecialcenternotoc}[1]{%
+  \clearpage
+  \phantomsection
+  \markboth{#1}{}
+  \vspace*{-5ex}%
+  \begin{center}
+    {\zihao{1}\bfseries\songti #1}
+  \end{center}
+  \vskip 0em%
+}
 \begin{document}
 
 \title{基于技术交流群体的智能聊天室}
@@ -46,30 +93,31 @@
 \kongF{2214100540}
 \kongG{22软件工程1班}
 \kongH{刘利 副教授}
-\kongI{2026年3月}
+\kongI{2026年4月19日}
 
 \maketitle
 
 \frontmatter
 
 \begin{abstract}
-当前软件开发团队的远程协作日益频繁。然而，市面上的通用聊天软件在服务技术人员时暴露出明显短板：代码片段展示效果差，过往讨论难以快速定位，缺少智能化的辅助手段。针对这些实际痛点，本研究构建了一套专门服务于开发者群体的智能化聊天平台，力求提升技术团队的沟通效率。
+面向技术讨论的在线交流，不只是发送普通文本消息，还经常伴随代码片段、报错日志、接口参数、文件附件和阶段性结论。通用聊天工具虽然能够完成基础沟通，但在历史回读、技术内容展示和讨论结果沉淀方面仍然不够贴合开发场景。针对这些问题，设计并实现了一套面向技术交流群体的智能聊天室系统 Mini-Chat-Bar。
 
-在技术路线上，本系统将前端展示层与后端业务层完全解耦。前端选用Vue 3及其Composition API打造动态交互界面，后端依托Node.js配合Express构建API服务体系，持久化层面则组合使用MongoDB文档库与Redis内存库。借助WebSocket协议建立的长连接通道，系统实现了毫秒级的消息推送能力，覆盖一对一私聊、多人群组、文件共享等常规场景。在智能化方面，系统接入了大语言模型接口，不仅能回答技术提问、生成讨论摘要，还通过RAG（检索增强生成）方案将历史对话向量化存储，让AI的回复更贴合团队实际情况。同时配备了语法高亮、Markdown解析、全文检索、状态同步等技术交流专属特性。
+系统采用前后端分离架构。前端使用 Vue 3 构建 Web 界面，并通过 Electron 封装桌面端；后端基于 Node.js、Express 和 Socket.IO 实现接口服务与实时通信；MongoDB 用于保存用户、房间、私聊消息、聊天室消息、收藏和 AI 相关数据。围绕技术交流场景，系统实现了注册登录、私聊、聊天室、文件分享、历史回读、收藏管理、AI 问答和讨论总结等功能。AI 模块采用检索增强生成思路，在聊天室问答时结合历史消息索引结果组织上下文，使返回内容尽量贴近当前讨论。
+在部署方式上，系统也保留了本地私有化部署思路，业务服务与数据库可按 Docker 容器方式部署在个人开发机或团队内网环境中，便于控制消息数据和业务配置的留存位置。
 
-实测数据显示，系统在功能完备度、运行效率、操作体验三个维度均符合设计预期。具体而言，可稳定承载200人同时在线，端到端消息延时控制在150毫秒以内，切实为技术团队打造了一个好用的沟通工具。
+测试结果表明，系统已经跑通主要业务链路。登录、资料读取、消息列表和收藏列表等普通接口保持毫秒级响应；在单机本地环境下，100 个 Socket 客户端广播成功率保持 100\%；AI 问答和讨论总结能够正常返回并写入历史记录，但耗时明显高于本地业务接口，主要受外部模型服务影响。整体来看，完成的系统已经能够满足课程项目和毕业设计演示需求。
 
-\keywords{智能聊天室；实时通信；AI助手；代码协作；Vue 3框架；RAG技术}
+\keywords{智能聊天室；实时通信；AI助手；Vue 3框架；RAG技术}
 \end{abstract}
 
 \begin{englishabstract}
-With the growing demand for remote collaboration and online technical communication, traditional instant messaging tools face challenges in technical discussion scenarios, such as unfriendly code display, difficult historical information retrieval, and lack of intelligent assistance. This paper designs and implements an intelligent chat room system for technical communication groups, aiming to provide developers with a more efficient communication and collaboration platform.
+Technical-oriented online communication involves not only plain text messages but also code snippets, error logs, API parameters, file attachments, and interim conclusions. General-purpose chat tools can support basic communication, but they are less suitable for developer scenarios that require efficient history review, technical content display, and knowledge retention. To address this gap, this paper designs and implements Mini-Chat-Bar, an intelligent chat system for technical communities.
 
-The system adopts a front-end and back-end separation architecture. The front-end is built with Vue 3 framework and Composition API to create a responsive user interface, while the back-end uses Node.js and Express framework to build RESTful API services. Data storage employs MongoDB document database and Redis cache database. Real-time bidirectional communication with low latency is achieved through WebSocket technology, supporting basic functions such as private chat, group chat, and file transfer. The system integrates large language model APIs to provide AI intelligent Q\&A and chat content summarization functions, and adopts RAG (Retrieval-Augmented Generation) technology, utilizing vector databases to store historical conversations, enhancing the accuracy and contextual relevance of AI responses. Additionally, the system implements technical communication-oriented features such as code syntax highlighting, Markdown rendering, message search, and online status management.
+The system adopts a separated front-end and back-end architecture. The front end uses Vue 3 for web interfaces and Electron for desktop packaging, while the back end uses Node.js, Express, and Socket.IO for API services and real-time communication. MongoDB stores users, chat rooms, private messages, group messages, favorites, and AI-related data. For technical communication scenarios, the system supports user authentication, private messaging, group chat, file sharing, message history review, favorite management, AI-based question answering, and discussion summarization. The AI module uses retrieval-augmented generation to incorporate indexed historical messages into the current context. The system also supports local private deployment through Docker containers on personal development machines or internal networks, which helps control data storage and configuration.
 
-Through systematic testing, the system meets expected goals in terms of functional completeness, performance, and user experience. It can stably support 200 concurrent users with message delivery latency below 150ms, providing a practical communication and collaboration tool for technical teams.
+Experimental results show that the system completes the main business workflows. Common interfaces such as login, profile retrieval, message lists, and favorites maintain millisecond-level response times. In single-machine tests, message broadcasting remained stable with 100 Socket clients. AI-based question answering and discussion summarization worked correctly and were recorded in message history, but their latency was significantly higher than local services because they depended on external model services. Overall, the system meets the needs of course projects and graduation project demonstrations.
 
-\englishkeywords{Intelligent Chat Room; Real-time Communication; AI Assistant; Code Collaboration; Vue 3; RAG Technology}
+\englishkeywords{Intelligent Chat Room; Real-time Communication; AI Assistant; Vue 3; RAG Technology}
 \end{englishabstract}
 
 \tableofcontents
@@ -88,6 +136,15 @@ Through systematic testing, the system meets expected goals in terms of function
 \bibliography{bibHzu}
 
 \chapterspecialcenter{致 谢}
-感谢我的指导老师刘利副教授在论文撰写过程中给予的悉心指导和帮助。感谢家人和朋友的支持与鼓励。
+行文至此，这篇论文也接近尾声，大学四年的时光仿佛也在这一页页文字里慢慢落定。回望从选题、设计、实现到反复修改的过程，我并不是独自走到这里。一路上，老师的指引、同学的陪伴与帮助，让许多原本紧张而忙碌的时刻，都多了几分踏实与从容。
+
+衷心感谢我的指导老师刘利副教授，在论文选题、系统设计和写作修改过程中给予我耐心而细致的指导。老师严谨认真的治学态度，也让我明白，完成毕业设计不仅是完成一项任务，更是学着把问题想清楚、把事情做扎实。
+
+同时，也感谢身边的同学和朋友。在系统开发和论文撰写过程中，大家陪我一起讨论思路、排查问题、完善细节。许多看似平常的交流与提醒，都会在回头看时显出分量，它们像夜里一直亮着的灯，让这段毕业时光不只是匆忙，也留下了温度。
+
+在此，向所有曾给予我帮助、鼓励与关心的老师、同学和朋友，致以真诚的谢意。那些一起思考、一起赶进度、一起把问题慢慢解决的日子，也会成为我大学生活中很珍贵的一部分。
+
+\clearpage
+\input{appendix}
 
 \end{document}

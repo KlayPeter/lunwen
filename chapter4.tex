@@ -17,25 +17,27 @@
 
 \subsection{系统架构设计}
 
-Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、Pinia 和 Vue Router 处理渲染与用户状态；后端运行于 Node.js，通过 Express 暴露 RESTful 接口，并由 Socket.IO 维系双向长连。此种分层隔离了界面逻辑与业务处理，便于后续功能迭代\cite{vueguide2026,piniadocs2026,expressdocs2026,socketiodocs2026}。
+Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、Pinia 和 Vue Router 处理界面渲染与状态管理；后端运行于 Node.js，通过 Express 提供 RESTful 接口，并由 Socket.IO 维持实时双向通信。这样的分层把界面逻辑和业务处理拆开了，后续继续加功能时更容易维护\cite{vueguide2026,piniadocs2026,expressdocs2026,socketiodocs2026}。
 
-前端主要由验证页、主聊天区及收藏浏览页构成。其中主窗口为典型的左导航、中列表、右详情三栏设计，移动端针对小屏幕动态切换渲染。状态受 Pinia 接管，HTTP 请求经 Axios 统一拦截封装。
-后端业务被细分为认证、房间调度、记录收藏及智能体调度。数据侧依托 MongoDB 组合 Mongoose 完成实体映射持久化。此外为保障 AI 助手的问答溯源，额外并入了文本向量提取组件异步编排会话语料，支撑后续的语义追踪检索。上述分层详见图~\ref{fig:4-1}。
+前端主要由验证页、主聊天区和收藏浏览页构成，主窗口采用左导航、中列表、右详情的三栏布局，移动端再按小屏重新组织内容。状态由 Pinia 管理，HTTP 请求统一经 Axios 封装；后端则按认证、房间调度、消息收藏和 AI 调度拆分模块，MongoDB 配合 Mongoose 完成数据持久化，AI 问答链路补入文本向量检索以支撑后续语义追踪。整体分层见图~\ref{fig:4-1}。
 
-\begin{figure}[!htbp]
+\enlargethispage{2\baselineskip}
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图4_1.png}
+\includegraphics[width=0.82\textwidth,height=0.30\textheight,keepaspectratio]{img/图4_1.png}
 \caption{系统架构图}
 \label{fig:4-1}
 \end{figure}
+
+\FloatBarrier
 
 \subsection{系统总体流程设计}
 
 系统主运行流经身份校验、空间分发、讯息吞吐、AI辅助及知识沉淀五个阶段。用户通过邮箱密码或 OAuth2 准入并获取 JWT 令牌。授权后步入指定会话室内触发请求或实时互动。
 
-日常的文本与各类超媒体文件依托 Express 校验落盘，并在成功后透过 Socket.IO 立发至涉及受众。若为专题室内产生的问题，用户可上溯呼叫 AI 进行疑难排队，大模型基于语汇执行知识抽提和答案重投。交互结束后，参与者一键锁定摘要或者优质代码集，完成学习循环，如图~ef{fig:4-2}。
+日常的文本与各类超媒体文件依托 Express 校验落盘，并在成功后透过 Socket.IO 立发至涉及受众。若为专题室内产生的问题，用户可上溯呼叫 AI 进行疑难排队，大模型基于语汇执行知识抽提和答案重投。交互结束后，参与者一键锁定摘要或者优质代码集，完成学习循环，如图~\ref{fig:4-2}。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth,height=0.54\textheight,keepaspectratio]{img/图4_2.png}
 \caption{系统总体流程图}
@@ -44,11 +46,11 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 
 \subsection{系统功能结构设计}
 
-依据业务目标，全栈划归五个核心子域：包含用户资料底座的基础管理部、承载常规点对点互动的即时信使部、维系动态短效聚集的技术聊天室群防部、统管 RAG 策略重传的大模型控制核心，以及知识私有化存储的收藏归档仓。
+依据业务目标，系统划分为五个核心子模块，包括用户管理、即时通讯、技术聊天室、AI 问答与总结，以及收藏归档。
 
-这种网块化设计隔离了各司职能。后续增补语音支持抑或调配更优越的 LLM API 时，不至于连带推翻主体链路（结构规划详参图~\ref{fig:4-3}）。
+这种划分用于明确各模块的职责边界，后续增加语音功能或调整大模型接口时，也可以在不影响主体链路的前提下进行扩展（结构规划详见图~\ref{fig:4-3}）。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图4_3.png}
 \caption{系统功能结构图}
@@ -61,9 +63,9 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 
 \subsection{用户管理模块}
 
-负责系统入场通道的门禁职能，由原生密文核对与第三方委托链路拼接。常规通路兼顾新户查重与密匙哈希存放，而外围依赖 Passport.js 对接 GitHub/Google 授信返回以直接过桥下发凭证。这种混合手段确保任何群像都能保持一致的安全身份游历全站\cite{oauthcn2024,oauthbcp2025}。在信息闭环上，其衍生的唯一身份标签（ID）渗透至所有附带操作记录中，模块内部运作序列可见图~\ref{fig:4-4}。
+用户管理模块负责注册、登录、身份校验和基础资料维护。本地登录流程包括邮箱查重、密码哈希存储和凭证校验，第三方登录则通过 Passport.js 对接 GitHub 和 Google 的 OAuth 授权流程，并在认证成功后返回系统凭证\cite{oauthcn2024,oauthbcp2025}。统一的用户标识会继续用于消息、收藏和聊天室等业务记录，模块内部运作序列如图~\ref{fig:4-4}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth,height=0.58\textheight,keepaspectratio]{img/图4_4.png}
 \caption{用户模块流程图}
@@ -72,9 +74,9 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 
 \subsection{即时通讯模块}
 
-作为最强负荷中心，剥离“查询与记录走 HTTP”及“推送防丢赖 WebSocket”的双车道策略是最优解\cite{socketiodocs2026,imsecurity2024}。其涵盖的单播与室内多播通过预先在服务端暂挂内存句柄完成投递定向，且保障所有动作须强制写入私联或通联群表后再响应成功。对各类带参卡片及媒体支持格式在此统一组装格式后交付前端编译展示，如图~\ref{fig:4-5}呈现。
+即时通讯模块负责私聊与群聊消息的收发和同步。系统将历史消息查询与持久化写入放在 HTTP 接口中，将实时推送交由 WebSocket 处理\cite{socketiodocs2026,imsecurity2024}。消息在写入私聊或群聊数据表后，再通过单播或房间广播分发给在线用户；文本、图片、文件等不同类型的消息也在这一层统一组织后返回前端，流程如图~\ref{fig:4-5}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth,height=0.58\textheight,keepaspectratio]{img/图4_5.png}
 \caption{即时通讯流程图}
@@ -83,9 +85,9 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 
 \subsection{聊天室模块}
 
-针对有时间敏感度的议事群落实时闭环。有异于松散群，其准入必须经过密令验证或外发邀请约束，且挂载死亡时效预计算。在超期或解散时冻结接应端并执行归档流。整个存活性机制大幅降解消隐群落给算力带来的长期牵连负担，流程流向展示于图~\ref{fig:4-6}。
+聊天室模块面向需要多人实时讨论的技术交流场景。该模块支持公开进入、口令校验或邀请加入等方式，并根据聊天室配置记录有效期与状态变化；当聊天室超期或被解散时，系统会停止新的交互请求并保留历史记录。整体流程如图~\ref{fig:4-6}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth,height=0.54\textheight,keepaspectratio]{img/图4_6.png}
 \caption{聊天室流程图}
@@ -94,9 +96,9 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 
 \subsection{AI助手智能问答模块}
 
-其定位为系统常驻脑力智囊。为了使其不发生断层错想，采取 RAG 先知模式（获取最近房间热议点以拟合提示文本）再执行长程推断递交请求。更可贵的是通过接入流式管道避免整段应答的黑屏滞后，将零散吐出的词标碎片借调 WebSocket 透明公放，极具联调效能。具体数据组织请看图~\ref{fig:4-7}。
+AI 助手模块用于在现有聊天链路上提供问答、解释和总结能力。系统在请求模型前会先结合最近消息与检索结果组织上下文，再发起生成请求；返回阶段采用流式输出，并通过 WebSocket 将增量内容同步给房间内其他成员，从而降低等待时长。具体数据组织见图~\ref{fig:4-7}。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth,height=0.42\textheight,keepaspectratio]{img/图4_7.png}
 \caption{AI助手智能问答模块时序图}
@@ -107,7 +109,7 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 
 作为学习结果提取仓，剥离简单的指针指向，改用全景深拷贝留存，涵盖附件原件及发信者源信息等。即使对岸清空数据库该资料仍能完好反哺。同时内置二次自拟 Tag 打签机制帮助实现后期回源的绝对指向，交互执行轴如图~\ref{fig:4-8}。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth,height=0.60\textheight,keepaspectratio]{img/图4_8.png}
 \caption{收藏流程图}
@@ -121,7 +123,7 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 \subsection{登录与注册界面}
 化繁为简的双面卡片切换模式，底部分嵌OAuth授信方通道。杜绝周边杂波，在初印中注入高可信任感体验，面板构成见图~\ref{fig:4-9}。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图4_9.png}
 \caption{登录与注册界面结构图}
@@ -129,9 +131,9 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 \end{figure}
 
 \subsection{主聊天业务界面}
-排斥折叠及多余抽屉，贯彻左列菜单及总览条目的稳定三分天下定式布局。使得在应对宽泛的代码及工程级审视上不拘一格，为大区块浏览预留开阔的主体可视面积\cite{vueguide2026,electrondocs2026}，如图~ef{fig:4-10}所示。
+排斥折叠及多余抽屉，贯彻左列菜单及总览条目的稳定三分天下定式布局。使得在应对宽泛的代码及工程级审视上不拘一格，为大区块浏览预留开阔的主体可视面积\cite{vueguide2026,electrondocs2026}，如图~\ref{fig:4-10}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图4_10.png}
 \caption{主聊天界面结构图}
@@ -141,7 +143,7 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 \subsection{沉浸式技术聊天室界面}
 在原本三分体基础上执行结构异化：强制上顶倒数挂钟，主区域附带悬浮控制板以专精聚焦回答等子集处理，输入框挂接代码专用预设，塑造隔绝闲聊的一体化科研级探讨室，见图~\ref{fig:4-11}。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图4_11.png}
 \caption{聊天室界面结构图}
@@ -153,7 +155,7 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 \subsection{E-R图设计}
 由于选用文档级数据库 MongoDB 应对非结构化变动，在逻辑蓝图规划上核心依旧是用户群发源。所有室内收发、点赞附加物均内嵌至信件对象关联里，以此极大节约联合调阅开销（图~\ref{fig:4-12}反映各骨干模型辐射绑定链路）。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图4_12.png}
 \caption{系统数据库E-R图}
@@ -206,8 +208,8 @@ provider & 否 & String & 否 & 账号发源通道标识 \\
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
 \_id & 是 & ObjectId & 否 & 文档主从识别码 \\
-RoomID/RoomName & 否 & String & 否 & 组群明修与名号映射 \\
-Creator/Admins & 否 & String[] & 是 & 首发者和护法席列 \\
+\shortstack{RoomID\\RoomName} & 否 & String & 否 & 组群明修与名号映射 \\
+\shortstack{Creator\\Admins} & 否 & String[] & 是 & 首发者和护法席列 \\
 Members & 否 & Object[] & 是 & 实绩登记簿带加入时序 \\
 type & 否 & String & 否 & 管控是否强制时限判读位 \\
 techDirection & 否 & String & 是 & 会话科研标签 \\
@@ -232,10 +234,10 @@ expiresAt & 否 & Date & 是 & 到时自动封号查验终点时间戳 \\
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
 \_id & 是 & ObjectId & 否 & 序列号 \\
-from/to & 否 & String & 否 & 发付标的及递达对象绑定 \\
+\shortstack{from\\to} & 否 & String & 否 & 发付标的及递达对象绑定 \\
 time & 否 & Date & 否 & 记录打标期号 \\
-content/fileInfo & 否 & Mixed & 是 & 多模态图文数据内容挂载端 \\
-isRead/readTime & 否 & Mixed & 是 & 提供对岸已达核查的回执手段 \\
+\shortstack{content\\fileInfo} & 否 & Mixed & 是 & 多模态图文数据内容挂载端 \\
+\shortstack{isRead\\readTime} & 否 & Mixed & 是 & 提供对岸已达核查的回执手段 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -254,11 +256,11 @@ isRead/readTime & 否 & Mixed & 是 & 提供对岸已达核查的回执手段 \\
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-roomId / fromName & 否 & String & 否 & 高频呈现项数据双重落盘供列表反向快显 \\
-content / messageType& 否 & String & 是 & 各类承载物正本及其判读型号 \\
-codeInfo/fileInfo & 否 & Object & 是 & 对高光代码块解析保留与静态盘体定位 \\
-isQuestion / isSolution& 否 & Boolean & 否 & 专业答题版块挂起的专设探针位标 \\
-reactions / upvotes & 否 & Object[] & 是 & 跟评群众心情刻度线数组与赞数集 \\
+\shortstack{roomId\\fromName} & 否 & String & 否 & 高频呈现项数据双重落盘供列表反向快显 \\
+\shortstack{content\\messageType}& 否 & String & 是 & 各类承载物正本及其判读型号 \\
+\shortstack{codeInfo\\fileInfo} & 否 & Object & 是 & 对高光代码块解析保留与静态盘体定位 \\
+\shortstack{isQuestion\\isSolution}& 否 & Boolean & 否 & 专业答题版块挂起的专设探针位标 \\
+\shortstack{reactions\\upvotes} & 否 & Object[] & 是 & 跟评群众心情刻度线数组与赞数集 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -277,10 +279,10 @@ reactions / upvotes & 否 & Object[] & 是 & 跟评群众心情刻度线数组�
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-userId / messageId & 否 & String & 否 & 组成独有约束锚点保障收纳单向不重复 \\
-chatId/contentType & 否 & String & 否 & 原形场标识和归纳成分品格定调 \\
-content/codeInfo & 否 & Mixed & 是 & 主力载荷和补充属性防失效复制快件 \\
-tags / note & 否 & Mixed & 是 & 方便主人进行搜索查探定制化口头提要 \\
+\shortstack{userId\\messageId} & 否 & String & 否 & 组成独有约束锚点保障收纳单向不重复 \\
+\shortstack{chatId\\contentType} & 否 & String & 否 & 原形场标识和归纳成分品格定调 \\
+\shortstack{content\\codeInfo} & 否 & Mixed & 是 & 主力载荷和补充属性防失效复制快件 \\
+\shortstack{tags\\note} & 否 & Mixed & 是 & 方便主人进行搜索查探定制化口头提要 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -299,7 +301,7 @@ tags / note & 否 & Mixed & 是 & 方便主人进行搜索查探定制化口头�
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-userId / role & 否 & String & 否 & 人物归系与智能代行形象特征装扮 \\
+\shortstack{userId\\role} & 否 & String & 否 & 人物归系与智能代行形象特征装扮 \\
 rolePrompt & 否 & String & 是 & 微调指示提示录像带 \\
 messages & 否 & Object[] & 是 & 控制篇幅的上下文交互接龙集锦历史 \\
 \bottomrule
@@ -320,9 +322,9 @@ messages & 否 & Object[] & 是 & 控制篇幅的上下文交互接龙集锦历�
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-targetId/chatType & 否 & String & 否 & 从何处吸纳提取精华出处的底单指向 \\
+\shortstack{targetId\\chatType} & 否 & String & 否 & 从何处吸纳提取精华出处的底单指向 \\
 summary & 否 & Object & 否 & 高价值结晶，横跨标题及动作执行指示 \\
-statistics / msgCount & 否 & Mixed & 是 & 反馈提取浓缩比例尺参照系数展示 \\
+\shortstack{statistics\\msgCount} & 否 & Mixed & 是 & 反馈提取浓缩比例尺参照系数展示 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -333,7 +335,7 @@ statistics / msgCount & 否 & Mixed & 是 & 反馈提取浓缩比例尺参照系
 
 跳出低延迟泥潭的杀手锏。服务端通过建立双路多线循环机制对各类房间状态广播发话；在客户端提单存盘落妥响应时，方执行分发。保障无乱序失踪事故（详情参考图~\ref{fig:4-13}执行机理）。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth,height=0.42\textheight,keepaspectratio]{img/图4_13.png}
 \caption{Socket即时通信底层时序图}
@@ -342,11 +344,13 @@ statistics / msgCount & 否 & Mixed & 是 & 反馈提取浓缩比例尺参照系
 
 \subsection{系统物理部署与网络拓扑架构}
 
-将前文种种落实在坚实算力平台上不可或缺的一环：Nginx 入口拦截调度转发分配负荷，内装 Express / Socket.IO 中继业务轮盘。外挂独立 Mongo 库镇守长夜储备，兼顾将核心推理算量脱壳调往远端 DeepSeek 基座计算并以异步带回（全视角物理走线观图~\ref{fig:4-14}）。
+在物理部署上，Nginx 负责统一接收外部请求并转发到 Express 与 Socket.IO 服务，MongoDB 用于保存用户、消息和收藏等业务数据，DeepSeek 模型服务负责处理需要生成能力的请求，整体网络拓扑如图~\ref{fig:4-14}所示。
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图4_14.png}
+\includegraphics[width=0.78\textwidth,height=0.24\textheight,keepaspectratio]{img/图4_14.png}
 \caption{系统物理部署与网络拓扑架构图}
 \label{fig:4-14}
 \end{figure}
+
+从部署关系看，Web 端与桌面端共享同一套后端服务入口，实时通信、历史索引与 AI 能力围绕业务服务层统一组织。这样的物理拓扑既方便课程项目演示，也为下一章围绕后端、Web 前端和桌面端展开的具体实现说明提供了清晰落点。

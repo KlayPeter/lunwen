@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1650" height="1120" viewBox="0 0 1650 1120">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111111"/>
+  </marker>
+  <style>
+    .label, .note {
+      font-family: "Microsoft YaHei", "Noto Sans SC", "PingFang SC", sans-serif;
+      fill: #111111;
+    }
+    .box {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .subbox {
+      fill: #f7f7f7;
+      stroke: #111111;
+      stroke-width: 1.6;
+    }
+    .header {
+      fill: #eaeaea;
+      stroke: #111111;
+      stroke-width: 2.1;
+    }
+    .boundary {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.2;
+    }
+    .lane {
+      fill: #ffffff;
+      stroke: #8a8a8a;
+      stroke-width: 1.4;
+      stroke-dasharray: 8 6;
+    }
+    .lane-header {
+      fill: #efefef;
+      stroke: #111111;
+      stroke-width: 1.4;
+    }
+    .usecase {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .decision {
+      fill: #ffffff;
+      stroke: #111111;
+      stroke-width: 2.0;
+    }
+    .line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-line {
+      stroke: #111111;
+      stroke-width: 2.0;
+      fill: none;
+      stroke-linecap: round;
+    }
+  </style>
+</defs>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="60" y="40" width="1530" height="1040" rx="18" class="boundary"/><text x="78" y="70" text-anchor="start" font-size="22" font-weight="700" class="label">后端总体流程（Spring Boot / MySQL / Redis / AI 服务）</text><rect x="620" y="90" width="410" height="70" rx="14" class="header"/><text text-anchor="middle" font-size="24" font-weight="500" class="label"><tspan x="825.0" y="133.4">前端发起 HTTP 请求</tspan></text><rect x="620" y="200" width="410" height="70" rx="14" class="header"/><text text-anchor="middle" font-size="24" font-weight="500" class="label"><tspan x="825.0" y="243.4">Controller 接收请求</tspan></text><rect x="560" y="310" width="530" height="78" rx="14" class="box"/><text text-anchor="middle" font-size="24" font-weight="500" class="label"><tspan x="825.0" y="341.4">Service 业务层校验</tspan><tspan x="825.0" y="373.4">身份、参数与业务规则</tspan></text><polygon points="825,425.0 955.0,485 825,545.0 695.0,485" class="decision"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="825" y="491.65">校验是否通过</tspan></text><rect x="1190" y="450" width="240" height="70" rx="14" class="subbox"/><text text-anchor="middle" font-size="24" font-weight="500" class="label"><tspan x="1310.0" y="493.4">返回错误信息</tspan></text><polygon points="825,590.0 955.0,650 825,710.0 695.0,650" class="decision"/><text text-anchor="middle" font-size="19" font-weight="500" class="label"><tspan x="825" y="656.65">业务类型</tspan></text><rect x="150" y="620" width="220" height="65" rx="14" class="box"/><text text-anchor="middle" font-size="22" font-weight="500" class="label"><tspan x="260.0" y="660.2">MySQL 数据操作</tspan></text><rect x="150" y="715" width="220" height="65" rx="14" class="box"/><text text-anchor="middle" font-size="22" font-weight="500" class="label"><tspan x="260.0" y="755.2">Redis 缓存处理</tspan></text><rect x="1280" y="620" width="220" height="65" rx="14" class="box"/><text text-anchor="middle" font-size="22" font-weight="500" class="label"><tspan x="1390.0" y="660.2">百度 AI 识图接口</tspan></text><rect x="1280" y="715" width="220" height="65" rx="14" class="box"/><text text-anchor="middle" font-size="22" font-weight="500" class="label"><tspan x="1390.0" y="755.2">DeepSeek 大模型接口</tspan></text><rect x="645" y="775" width="360" height="68" rx="14" class="header"/><text text-anchor="middle" font-size="24" font-weight="500" class="label"><tspan x="825.0" y="817.4">组装业务结果</tspan></text><rect x="620" y="860" width="410" height="68" rx="14" class="header"/><text text-anchor="middle" font-size="24" font-weight="500" class="label"><tspan x="825.0" y="902.4">封装 JSON 结果</tspan></text><rect x="650" y="945" width="350" height="68" rx="14" class="header"/><text text-anchor="middle" font-size="24" font-weight="500" class="label"><tspan x="825.0" y="987.4">返回前端渲染</tspan></text><line x1="825.0" y1="160" x2="825.0" y2="200" class="line" marker-end="url(#arrow)"/><line x1="825.0" y1="270" x2="825.0" y2="310" class="line" marker-end="url(#arrow)"/><line x1="825.0" y1="388" x2="825" y2="425" class="line" marker-end="url(#arrow)"/><polyline points="955,485 1070,485 1190,485.0" fill="none" class="line" marker-end="url(#arrow)"/><text x="1015" y="470" text-anchor="middle" font-size="16" font-weight="700" class="label">否</text><line x1="825" y1="545" x2="825" y2="590" class="line" marker-end="url(#arrow)"/><text x="845" y="570" text-anchor="middle" font-size="16" font-weight="700" class="label">是</text><polyline points="695,650 480,650 480,652 370,652.5" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="695,650 480,650 480,747 370,747.5" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="955,650 1170,650 1170,652 1280,652.5" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="955,650 1170,650 1170,747 1280,747.5" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="260.0,685 260,745 735,745 735,775" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="260.0,780 260,775 785,775 785,775" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="1390.0,685 1390,745 915,745 915,775" fill="none" class="line" marker-end="url(#arrow)"/><polyline points="1390.0,780 1390,775 865,775 865,775" fill="none" class="line" marker-end="url(#arrow)"/><line x1="825.0" y1="843" x2="825.0" y2="860" class="line" marker-end="url(#arrow)"/><line x1="825.0" y1="928" x2="825.0" y2="945" class="line" marker-end="url(#arrow)"/><polyline points="1310.0,520 1310,860 930,860 930,945" fill="none" class="line" stroke-dasharray="10 7" marker-end="url(#arrow)"/>
+</svg>

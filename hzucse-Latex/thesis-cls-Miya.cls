@@ -206,6 +206,7 @@ footskip=7.9mm,%
 \newcommand\kongI[1]{\def\Miya@Value@kongI{#1}} 
 \def\Miya@Value@kongJ{}
 \newcommand\kongJ[1]{\def\Miya@Value@kongJ{#1}} 
+\let\MiyaOriginalThisPagestyle\thispagestyle
 
 \newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
 
@@ -394,9 +395,7 @@ footskip=7.9mm,%
 
 \vskip 1em
 
-\hspace{0.5\textwidth}{\hspace{8ex}年 \hspace{4ex}月 \hspace{4ex}日
-
-}
+\hspace{0.5\textwidth}{\hspace{8ex}\MiyaNormalFont{\Miya@Value@kongI}}
 
 }
 
@@ -549,4 +548,3 @@ aboveskip = 8pt,
 }
 
 \endinput
-

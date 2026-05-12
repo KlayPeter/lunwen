@@ -1768,14 +1768,10 @@ FUNCTION {presort}
   set.entry.numbered
   show.url show.doi check.electronic
   calc.label
-  label sortify
-  "    "
-  *
   seq.num #1 + 'seq.num :=
   seq.num  int.to.fix
   'sort.label :=
-  sort.label *
-  #1 entry.max$ substring$
+  sort.label
   'sort.key$ :=
 }
 

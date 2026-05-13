@@ -42,8 +42,6 @@
 \bottomrule
 \endlastfoot
 }
-\setlength{\LTpre}{0pt}
-\setlength{\LTpost}{0pt}
 
 本章基于当前代码、接口、脚本和打包结果，对 Mini-Chat-Bar 的主要功能进行验证。测试对象包括 Web 端、Electron 桌面端、后端接口、Socket.IO 实时链路以及 AI 问答与总结功能。测试结果一方面用于说明系统已经跑通的主链路，另一方面也用于指出当前版本仍存在的边界和问题。
 
@@ -116,7 +114,7 @@ IF-08 & AI 问答接口 & 调用 AI 问答接口提交技术问题 & 返回结�
 
 图~\ref{fig:6-1} 汇总了这一部分的主要测试证据，包括接口返回结果、服务端终端输出、Socket 事件记录和 AI 返回界面，可直接对应表~\ref{tab:6-2} 中的测试项。
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
 \begin{subfigure}[t]{0.48\textwidth}
 \centering
@@ -175,7 +173,7 @@ WEB-06 & 未登录路由拦截 & 直接访问收藏页或聊天室页等受保�
 
 \subsubsection{聊天与聊天室功能测试}
 
-聊天与聊天室测试直接围绕当前前端界面展开，验证对象包括 \texttt{ChatView.vue}、\texttt{Content.vue}、\texttt{ChatRoomListPanel.vue} 和 \texttt{ChatRoomDetail.vue}。这一部分重点检查消息是否写库、历史记录是否能回读、房间是否能正常创建和加入，见表~\ref{tab:6-4}。
+聊天与聊天室测试直接围绕当前前端界面展开，验证对象包括 \texttt{Chat\-View.vue}、\texttt{Con\-tent.vue}、\texttt{ChatRoom\-List\-Panel.vue} 和 \texttt{ChatRoom\-Detail.vue}。这一部分重点检查消息是否写库、历史记录是否能回读、房间是否能正常创建和加入，见表~\ref{tab:6-4}。
 
 \renewcommand{\arraystretch}{1.08}
 \setlength{\tabcolsep}{0.55ex}
@@ -233,7 +231,7 @@ WEB-21 & 收藏组合筛选 & 在收藏页同时使用会话类型和关键字�
 
 收藏测试重点记录了“收藏动作触发 - 列表回读 - 状态回显 - 取消收藏 - 组合筛选异常”这一闭环，代表性画面统一汇总到图~\ref{fig:6-2}。其中，聊天室代码协作测试界面对应前端多消息与代码块混排场景，AI 问答结果和讨论总结结果分别对应本节的 WEB-12 至 WEB-16 测试项，设置与主题切换回显则用于补充说明前端交互状态在功能测试过程中的一致性。常规路径已经可用：消息收藏后能在收藏页读到，也能正确取消。问题出现在组合筛选，带 \texttt{messageType=chatroom} 和关键字的查询仍然返回 500，这部分还需要单独排查。
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
 \begin{subfigure}[t]{0.48\textwidth}
 \centering
@@ -288,7 +286,7 @@ DESK-06 & 焦点恢复与角标清零 & 点击主窗口或让应用重新获得�
 
 桌面端部分重点记录了启动、托盘驻留、未读角标变化、悬停预览和点击跳转五个节点。图~\ref{fig:6-3} 聚焦托盘悬停预览与未读提醒效果，能够直接说明 Electron 侧消息提醒联动正常。
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.46\textwidth]{img/图6-3_桌面端托盘测试.png}
 \caption{桌面端功能测试证据图}
@@ -389,7 +387,7 @@ CON-05 & 客户端断线重连后广播 & 广播新消息并观察重连客户�
 \FloatBarrier
 如图~\ref{fig:6-4}所示，并发广播测试示意图展示了单机环境下 100 客户端广播的主要观测指标。
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.92\textwidth]{img/图6-4_并发广播测试日志示意图.png}
 \caption{并发广播测试日志示意图}
@@ -428,7 +426,7 @@ RES-03 & AI 总结场景资源占用 & 对聊天室发起一次完整讨论总�
 \FloatBarrier
 如图~\ref{fig:6-5}所示，资源占用监测示意图展示了广播压力和 AI 请求压力下的服务端状态差异。
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.92\textwidth]{img/图6-5_资源占用监测示意图.png}
 \caption{资源占用监测示意图}

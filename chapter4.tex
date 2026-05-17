@@ -17,9 +17,9 @@
 
 \subsection{系统架构设计}
 
-Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、Pinia 和 Vue Router 处理界面渲染与状态管理；后端运行于 Node.js，通过 Express 提供 RESTful 接口，并由 Socket.IO 维持实时双向通信。这样的分层把界面逻辑和业务处理拆开了，后续继续加功能时更容易维护\cite{vueguide2026,piniadocs2026,expressdocs2026,socketiodocs2026}。
+本系统采用前后端分离架构。前端基于 Vue 3，结合 Vite、Pinia 和 Vue Router 完成界面渲染与状态管理；后端运行于 Node.js 环境，通过 Express 提供 RESTful 接口，并由 Socket.IO 维持实时双向通信。这样的分层将界面逻辑与业务处理分离，便于后续维护与功能扩展\cite{vueguide2026,piniadocs2026,expressdocs2026,socketiodocs2026}。
 
-前端主要由验证页、主聊天区和收藏浏览页构成，主窗口采用左导航、中列表、右详情的三栏布局，移动端再按小屏重新组织内容。状态由 Pinia 管理，HTTP 请求统一经 Axios 封装；后端则按认证、房间调度、消息收藏和 AI 调度拆分模块，MongoDB 配合 Mongoose 完成数据持久化，AI 问答链路补入文本向量检索以支撑后续语义追踪。整体分层见图~\ref{fig:4-1}。
+前端主要由登录注册页、主聊天区和收藏浏览页构成，主窗口采用左侧导航、中间列表、右侧详情的三栏布局，移动端再根据小屏场景重新组织内容。状态由 Pinia 管理，HTTP 请求统一通过 Axios 封装；后端按认证、房间调度、消息收藏和 AI 服务等职责拆分模块，MongoDB 配合 Mongoose 完成数据持久化，AI 问答链路再结合向量检索组织上下文。整体分层见图~\ref{fig:4-1}。
 
 \enlargethispage{2\baselineskip}
 \begin{figure}[H]
@@ -33,9 +33,9 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 
 \subsection{系统总体流程设计}
 
-系统主运行流经身份校验、空间分发、讯息吞吐、AI辅助及知识沉淀五个阶段。用户通过邮箱密码或 OAuth2 准入并获取 JWT 令牌。授权后步入指定会话室内触发请求或实时互动。
+系统整体运行流程可分为身份认证、会话接入、消息收发、AI 辅助和结果沉淀五个阶段。用户通过邮箱密码或 OAuth2 完成登录后获取 JWT 令牌，再进入指定会话或聊天室发起请求与实时交互。
 
-日常的文本与各类超媒体文件依托 Express 校验落盘，并在成功后透过 Socket.IO 立发至涉及受众。若为专题室内产生的问题，用户可上溯呼叫 AI 进行疑难排队，大模型基于语汇执行知识抽提和答案重投。交互结束后，参与者一键锁定摘要或者优质代码集，完成学习循环，如图~\ref{fig:4-2}。
+文本消息和各类附件先由 Express 完成校验与存储，再通过 Socket.IO 同步给相关在线用户。对于聊天室中的技术问题，用户可以调用 AI 助手生成回答，系统会结合当前上下文和检索结果组织提示信息。讨论结束后，用户还可以将摘要或关键代码收藏保存，形成后续复用的资料积累，如图~\ref{fig:4-2}。
 
 \begin{figure}[H]
 \centering
@@ -48,18 +48,18 @@ Mini-Chat-Bar 采用前后端分离架构。前端基于 Vue 3，结合 Vite、P
 
 依据业务目标，系统划分为五个核心子模块，包括用户管理、即时通讯、技术聊天室、AI 问答与总结，以及收藏归档。
 
-这种划分用于明确各模块的职责边界，后续增加语音功能或调整大模型接口时，也可以在不影响主体链路的前提下进行扩展（结构规划详见图~\ref{fig:4-3}）。
+这种划分便于明确各模块职责，也方便后续在不影响主要业务链路的前提下扩展语音功能或调整大模型接口，系统功能结构见图~\ref{fig:4-3}。
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图4_3.png}
+\includegraphics[width=0.95\textwidth, keepaspectratio]{img/图4_3.png}
 \caption{系统功能结构图}
 \label{fig:4-3}
 \end{figure}
 
 \section{功能模块设计}
 
-本节针对前述架构向下细化逻辑边界。
+在总体架构基础上，各功能模块继续按实际业务流程展开。
 
 \subsection{用户管理模块}
 
@@ -107,7 +107,7 @@ AI 助手模块用于在现有聊天链路上提供问答、解释和总结能�
 
 \subsection{收藏模块}
 
-作为学习结果提取仓，剥离简单的指针指向，改用全景深拷贝留存，涵盖附件原件及发信者源信息等。即使对岸清空数据库该资料仍能完好反哺。同时内置二次自拟 Tag 打签机制帮助实现后期回源的绝对指向，交互执行轴如图~\ref{fig:4-8}。
+收藏模块用于保存讨论过程中的重要内容。系统在收藏时不仅记录消息标识，还会同步保存消息正文、附件信息和发送者等必要上下文，以便后续独立查看和回溯。用户还可以为收藏内容补充标签和备注，便于检索与整理，交互流程如图~\ref{fig:4-8}。
 
 \begin{figure}[H]
 \centering
@@ -118,10 +118,10 @@ AI 助手模块用于在现有聊天链路上提供问答、解释和总结能�
 
 \section{界面设计}
 
-将底层数据外显于符合现代审美的窗体内，保障长效使用的舒适化。
+界面设计围绕消息阅读、输入操作和状态切换展开，重点保证长时间使用时的信息清晰度与操作连续性。
 
 \subsection{登录与注册界面}
-化繁为简的双面卡片切换模式，底部分嵌OAuth授信方通道。杜绝周边杂波，在初印中注入高可信任感体验，面板构成见图~\ref{fig:4-9}。
+登录与注册界面采用卡片式切换结构，在同一页面中完成登录、注册和 OAuth 登录入口的展示。界面保留必要的表单项和状态提示，减少干扰信息，面板构成见图~\ref{fig:4-9}。
 
 \begin{figure}[H]
 \centering
@@ -131,7 +131,7 @@ AI 助手模块用于在现有聊天链路上提供问答、解释和总结能�
 \end{figure}
 
 \subsection{主聊天业务界面}
-排斥折叠及多余抽屉，贯彻左列菜单及总览条目的稳定三分天下定式布局。使得在应对宽泛的代码及工程级审视上不拘一格，为大区块浏览预留开阔的主体可视面积\cite{vueguide2026,electrondocs2026}，如图~\ref{fig:4-10}所示。
+主聊天界面采用左侧导航、中间会话列表、右侧消息详情的三栏布局。该布局能够同时呈现会话切换、消息浏览和当前聊天内容，便于在代码片段、文件和普通文本之间快速切换\cite{vueguide2026,electrondocs2026}，如图~\ref{fig:4-10}所示。
 
 \begin{figure}[H]
 \centering
@@ -141,7 +141,7 @@ AI 助手模块用于在现有聊天链路上提供问答、解释和总结能�
 \end{figure}
 
 \subsection{沉浸式技术聊天室界面}
-在原本三分体基础上执行结构异化：强制上顶倒数挂钟，主区域附带悬浮控制板以专精聚焦回答等子集处理，输入框挂接代码专用预设，塑造隔绝闲聊的一体化科研级探讨室，见图~\ref{fig:4-11}。
+技术聊天室界面在主聊天布局基础上增加了倒计时、问题状态控制和代码输入辅助等元素，用于突出专题讨论场景。这样可以在多人协作时保持讨论主题集中，并方便用户围绕问题、回答和代码片段进行连续交流，见图~\ref{fig:4-11}。
 
 \begin{figure}[H]
 \centering
@@ -153,7 +153,7 @@ AI 助手模块用于在现有聊天链路上提供问答、解释和总结能�
 \section{数据库设计}
 
 \subsection{E-R图设计}
-由于选用文档级数据库 MongoDB 应对非结构化变动，在逻辑蓝图规划上核心依旧是用户群发源。所有室内收发、点赞附加物均内嵌至信件对象关联里，以此极大节约联合调阅开销（图~\ref{fig:4-12}反映各骨干模型辐射绑定链路）。
+系统选用 MongoDB 存储用户、房间、消息、收藏和 AI 相关数据，以适应消息类型多样、字段结构变化较快的业务特点。E-R 图以用户、聊天室和消息记录为核心，反映了收藏、AI 对话和总结等数据之间的关联关系，如图~\ref{fig:4-12}所示。
 
 \begin{figure}[H]
 \centering
@@ -164,11 +164,10 @@ AI 助手模块用于在现有聊天链路上提供问答、解释和总结能�
 
 \subsection{数据库逻辑结构设计}
 
-摒除死板的过度范式追求，推崇根据拉高读写配比执行特长设计策略\cite{mongodbdocs2026}，各重要集合阐释如下列七表归述。
+数据库逻辑结构设计需要同时考虑消息写入频率、历史查询和扩展字段等需求。基于 MongoDB 的文档模型，系统将核心业务数据拆分为 7 个主要集合，其结构说明如下\cite{mongodbdocs2026}。
 
 \subsubsection{用户表设计}
-聚集基本权能与跨平台接入标识记录，为系统的认证校验提供坚实凭据，如表~
-ef{tab:4-1}所示。
+用户表记录系统认证和身份展示所需的基础信息，如表~\ref{tab:4-1}所示。
 
 \begin{table}[!htbp]
 \centering
@@ -184,19 +183,18 @@ ef{tab:4-1}所示。
 \_id & 是 & ObjectId & 否 & MongoDB 主键 \\
 uID & 否 & String & 否 & 业务身份标识编码 \\
 uName & 否 & String & 否 & 用户称呼展示 \\
-uEmail & 否 & String & 否 & 联系列箱地址 \\
-Password & 否 & String & 是 & 三方代理准入可放行空项 \\
-uAvatar & 否 & String & 否 & 头像图形寻址 \\
-Friends & 否 & Object[] & 是 & 知己互联花名册 \\
-googleId / githubId & 否 & String & 是 & 分配给外部通道的唯一凭印 \\
-provider & 否 & String & 否 & 账号发源通道标识 \\
+uEmail & 否 & String & 否 & 登录邮箱地址 \\
+Password & 否 & String & 是 & 密码哈希值，OAuth 用户可为空 \\
+uAvatar & 否 & String & 否 & 用户头像地址 \\
+Friends & 否 & Object[] & 是 & 好友列表 \\
+googleId / githubId & 否 & String & 是 & 第三方平台用户标识 \\
+provider & 否 & String & 否 & 登录来源 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsubsection{聊天室表设计}
-承载动态小群配置与管控时限及准入门规细则储备库，如表~
-ef{tab:4-2}所示。
+聊天室表用于保存房间基本信息、成员配置和加入方式等内容，如表~\ref{tab:4-2}所示。
 
 \begin{table}[!htbp]
 \centering
@@ -209,21 +207,20 @@ ef{tab:4-2}所示。
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-\_id & 是 & ObjectId & 否 & 文档主从识别码 \\
-\shortstack{RoomID\\RoomName} & 否 & String & 否 & 组群明修与名号映射 \\
-\shortstack{Creator\\Admins} & 否 & String[] & 是 & 首发者和护法席列 \\
-Members & 否 & Object[] & 是 & 实绩登记簿带加入时序 \\
-type & 否 & String & 否 & 管控是否强制时限判读位 \\
-techDirection & 否 & String & 是 & 会话科研标签 \\
-joinType / inviteCode & 否 & String & 是 & 加封口诀或者验证屏障手段 \\
-expiresAt & 否 & Date & 是 & 到时自动封号查验终点时间戳 \\
+\_id & 是 & ObjectId & 否 & 文档主键 \\
+\shortstack{RoomID\\RoomName} & 否 & String & 否 & 聊天室编号与名称 \\
+\shortstack{Creator\\Admins} & 否 & String[] & 是 & 创建者与管理员列表 \\
+Members & 否 & Object[] & 是 & 成员列表及加入时间 \\
+type & 否 & String & 否 & 聊天室类型 \\
+techDirection & 否 & String & 是 & 技术方向标签 \\
+joinType / inviteCode & 否 & String & 是 & 加入方式或邀请码 \\
+expiresAt & 否 & Date & 是 & 到期时间 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsubsection{私聊消息表设计}
-供单一好友两方查阅的最简讯息流通表结构设定，如表~
-ef{tab:4-3}所示。
+私聊消息表用于保存一对一聊天记录及其状态信息，如表~\ref{tab:4-3}所示。
 
 \begin{table}[!htbp]
 \centering
@@ -236,18 +233,17 @@ ef{tab:4-3}所示。
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-\_id & 是 & ObjectId & 否 & 序列号 \\
-\shortstack{from\\to} & 否 & String & 否 & 发付标的及递达对象绑定 \\
-time & 否 & Date & 否 & 记录打标期号 \\
-\shortstack{content\\fileInfo} & 否 & Mixed & 是 & 多模态图文数据内容挂载端 \\
-\shortstack{isRead\\readTime} & 否 & Mixed & 是 & 提供对岸已达核查的回执手段 \\
+\_id & 是 & ObjectId & 否 & 文档主键 \\
+\shortstack{from\\to} & 否 & String & 否 & 发送方与接收方 \\
+time & 否 & Date & 否 & 发送时间 \\
+\shortstack{content\\fileInfo} & 否 & Mixed & 是 & 消息内容或附件信息 \\
+\shortstack{isRead\\readTime} & 否 & Mixed & 是 & 已读状态与已读时间 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsubsection{群聊与聊天室消息表设计}
-集成答录、引述甚至多状态流变的全功能大容量记录册，如表~
-ef{tab:4-4}所示。
+群聊与聊天室消息表用于保存多人会话中的消息内容及互动状态，如表~\ref{tab:4-4}所示。
 
 \begin{table}[!htbp]
 \centering
@@ -260,18 +256,17 @@ ef{tab:4-4}所示。
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-\shortstack{roomId\\fromName} & 否 & String & 否 & 高频呈现项数据双重落盘供列表反向快显 \\
-\shortstack{content\\messageType}& 否 & String & 是 & 各类承载物正本及其判读型号 \\
-\shortstack{codeInfo\\fileInfo} & 否 & Object & 是 & 对高光代码块解析保留与静态盘体定位 \\
-\shortstack{isQuestion\\isSolution}& 否 & Boolean & 否 & 专业答题版块挂起的专设探针位标 \\
-\shortstack{reactions\\upvotes} & 否 & Object[] & 是 & 跟评群众心情刻度线数组与赞数集 \\
+\shortstack{roomId\\fromName} & 否 & String & 否 & 房间编号与发送者名称 \\
+\shortstack{content\\messageType}& 否 & String & 是 & 消息内容与消息类型 \\
+\shortstack{codeInfo\\fileInfo} & 否 & Object & 是 & 代码块信息或附件信息 \\
+\shortstack{isQuestion\\isSolution}& 否 & Boolean & 否 & 是否为问题或是否标记为解答 \\
+\shortstack{reactions\\upvotes} & 否 & Object[] & 是 & 表情反馈与点赞信息 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsubsection{收藏表设计}
-构建坚韧的深度原样复写拷贝，确保跨空间复用的持续保真，如表~
-ef{tab:4-5}所示。
+收藏表用于保存用户收藏的消息及其附加说明，如表~\ref{tab:4-5}所示。
 
 \begin{table}[!htbp]
 \centering
@@ -284,17 +279,16 @@ ef{tab:4-5}所示。
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-\shortstack{userId\\messageId} & 否 & String & 否 & 组成独有约束锚点保障收纳单向不重复 \\
-\shortstack{chatId\\contentType} & 否 & String & 否 & 原形场标识和归纳成分品格定调 \\
-\shortstack{content\\codeInfo} & 否 & Mixed & 是 & 主力载荷和补充属性防失效复制快件 \\
-\shortstack{tags\\note} & 否 & Mixed & 是 & 方便主人进行搜索查探定制化口头提要 \\
+\shortstack{userId\\messageId} & 否 & String & 否 & 收藏用户与来源消息 \\
+\shortstack{chatId\\contentType} & 否 & String & 否 & 所属会话与内容类型 \\
+\shortstack{content\\codeInfo} & 否 & Mixed & 是 & 收藏正文与代码信息快照 \\
+\shortstack{tags\\note} & 否 & Mixed & 是 & 自定义标签与备注 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsubsection{AI对话表设计}
-截留并组织连片思维轮次的前瞻储备池，如表~
-ef{tab:4-6}所示。
+AI 对话表用于保存用户与 AI 助手之间的历史对话，如表~\ref{tab:4-6}所示。
 
 \begin{table}[!htbp]
 \centering
@@ -307,16 +301,15 @@ ef{tab:4-6}所示。
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-\shortstack{userId\\role} & 否 & String & 否 & 人物归系与智能代行形象特征装扮 \\
-rolePrompt & 否 & String & 是 & 微调指示提示录像带 \\
-messages & 否 & Object[] & 是 & 控制篇幅的上下文交互接龙集锦历史 \\
+\shortstack{userId\\role} & 否 & String & 否 & 所属用户与角色类型 \\
+rolePrompt & 否 & String & 是 & 角色提示词 \\
+messages & 否 & Object[] & 是 & 对话消息列表 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsubsection{聊天总结表设计}
-经后置解析归纳剥离出可指导后续的议题框架库，如表~
-ef{tab:4-7}所示。
+聊天总结表用于保存会话的阶段总结结果及相关统计信息，如表~\ref{tab:4-7}所示。
 
 \begin{table}[!htbp]
 \centering
@@ -329,9 +322,9 @@ ef{tab:4-7}所示。
 \toprule
 \textbf{字段名} & \textbf{主键} & \textbf{数据类型} & \textbf{是否为空} & \textbf{说明} \\
 \midrule
-\shortstack{targetId\\chatType} & 否 & String & 否 & 从何处吸纳提取精华出处的底单指向 \\
-summary & 否 & Object & 否 & 高价值结晶，横跨标题及动作执行指示 \\
-\shortstack{statistics\\msgCount} & 否 & Mixed & 是 & 反馈提取浓缩比例尺参照系数展示 \\
+\shortstack{targetId\\chatType} & 否 & String & 否 & 总结对象编号与会话类型 \\
+summary & 否 & Object & 否 & 总结结果对象 \\
+\shortstack{statistics\\msgCount} & 否 & Mixed & 是 & 统计信息与消息数量 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -340,7 +333,7 @@ summary & 否 & Object & 否 & 高价值结晶，横跨标题及动作执行指�
 
 \subsection{WebSocket 即时通信协作机理}
 
-跳出低延迟泥潭的杀手锏。服务端通过建立双路多线循环机制对各类房间状态广播发话；在客户端提单存盘落妥响应时，方执行分发。保障无乱序失踪事故（详情参考图~\ref{fig:4-13}执行机理）。
+系统使用 WebSocket 处理消息实时分发和房间状态同步。服务端在消息写入或状态变更后向对应用户或房间广播事件，客户端接收事件后再更新消息列表、未读状态和界面显示，从而保证实时通信与持久化数据保持一致，具体机理如图~\ref{fig:4-13}所示。
 
 \begin{figure}[H]
 \centering
@@ -355,9 +348,9 @@ summary & 否 & Object & 否 & 高价值结晶，横跨标题及动作执行指�
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.78\textwidth,height=0.24\textheight,keepaspectratio]{img/图4_14.png}
+\includegraphics[width=0.90\textwidth, keepaspectratio]{img/图4_14.png}
 \caption{系统物理部署与网络拓扑架构图}
 \label{fig:4-14}
 \end{figure}
 
-从部署关系看，Web 端与桌面端共享同一套后端服务入口，实时通信、历史索引与 AI 能力围绕业务服务层统一组织。这样的物理拓扑既方便课程项目演示，也为下一章围绕后端、Web 前端和桌面端展开的具体实现说明提供了清晰落点。
+从部署关系看，Web 端与桌面端共享同一套后端服务入口，实时通信、历史索引与 AI 能力围绕业务服务层统一组织。

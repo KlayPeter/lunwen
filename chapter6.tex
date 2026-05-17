@@ -43,13 +43,13 @@
 \endlastfoot
 }
 
-本章基于当前代码、接口、脚本和打包结果，对 Mini-Chat-Bar 的主要功能进行验证。测试对象包括 Web 端、Electron 桌面端、后端接口、Socket.IO 实时链路以及 AI 问答与总结功能。测试结果一方面用于说明系统已经跑通的主链路，另一方面也用于指出当前版本仍存在的边界和问题。
+本章基于当前代码、接口、脚本和打包结果，对本项目的主要功能进行验证。测试对象包括 Web 端、Electron 桌面端、后端接口、Socket.IO 实时链路以及 AI 问答与总结功能。测试结果一方面用于说明系统已经跑通的主链路，另一方面也用于指出当前版本仍存在的边界和问题。
 
 \section{测试环境与测试方法}
 
 \subsection{测试环境配置}
 
-测试在 Windows 11 64 位单机环境完成。后端通过 \texttt{node server.js} 运行在 \texttt{3000} 端口，Web 端通过 Vite 运行在 \texttt{http://localhost:5173}，数据库采用本地 MongoDB，桌面端测试对象为 \texttt{ccb/dist-electron/win-unpacked/Mini Chat Bar.exe}。为减少历史数据干扰，测试账号、聊天室和消息样本均以 \texttt{ch6} 前缀重新创建，主要环境配置见表~\ref{tab:6-1}。
+测试在 Windows 11 64 位单机环境完成。后端通过 \texttt{node server.js} 运行在 \texttt{3000} 端口，Web 端通过 Vite 运行在本地5173端口，数据库采用本地 MongoDB，桌面端测试对象为 \texttt{桌面端.eve应用}。为减少历史数据干扰，测试账号、聊天室和消息样本均以 \texttt{ch6} 前缀重新创建，主要环境配置见表~\ref{tab:6-1}。
 
 \begin{table}[!htbp]
 \centering
@@ -73,7 +73,7 @@
 软件 & Redis 环境 & Redis 5.0.14.1，本机已安装，用于辅助验证运行环境完整性 \\
 软件 & 桌面端封装 & Electron 36.8.1，打包产物为 \texttt{Mini Chat Bar.exe} \\
 软件 & 浏览器 & Chrome 146.0.7680.165 \\
-软件 & 辅助工具 & Python 3.13.11、Postman、PowerShell、Chrome DevTools、项目内 \texttt{server/test-chatroom-ai.js} 与 \texttt{server/test-ai-quick.js} 脚本 \\
+软件 & 辅助工具 & Python 3.13.11、Postman、PowerShell、Chrome DevTools、项目内ai流式测试脚本与快速ai聊天脚本脚本 \\
 网络与服务 & 服务端口 & Web 端开发地址为 \texttt{5173} 端口，后端接口与 Socket.IO 服务使用 \texttt{3000} 端口 \\
 网络与服务 & 向量检索模式 & \texttt{MessageIndexer} 启动成功，采用本地 hash embedding 模式 \\
 \bottomrule
@@ -173,7 +173,7 @@ WEB-06 & 未登录路由拦截 & 直接访问收藏页或聊天室页等受保�
 
 \subsubsection{聊天与聊天室功能测试}
 
-聊天与聊天室测试直接围绕当前前端界面展开，验证对象包括 \texttt{Chat\-View.vue}、\texttt{Con\-tent.vue}、\texttt{ChatRoom\-List\-Panel.vue} 和 \texttt{ChatRoom\-Detail.vue}。这一部分重点检查消息是否写库、历史记录是否能回读、房间是否能正常创建和加入，见表~\ref{tab:6-4}。
+聊天与聊天室测试直接围绕当前前端界面展开，验证对象包括群聊、私聊页面、聊天室页面以及ai对话页。这一部分重点检查消息是否写库、历史记录是否能回读、房间是否能正常创建和加入，见表~\ref{tab:6-4}。
 
 \renewcommand{\arraystretch}{1.08}
 \setlength{\tabcolsep}{0.55ex}

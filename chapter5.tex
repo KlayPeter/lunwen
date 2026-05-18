@@ -1,3 +1,13 @@
+% ===== 图表固定位置补充 =====
+% 本版不再使用 figure/table 浮动环境，改为非浮动图表块：
+% - 图表会严格出现在代码所在位置；
+% - 可以放在 usecaselist 等列表环境内部；
+% - 不会出现图表跑到上一页、文字被插到图表前面的问题。
+% 需要主文档导言区已有：\usepackage{caption}，你的编译日志中已经加载了 caption。
+\makeatletter
+\@ifundefined{Needspace}{\newcommand{\Needspace}[1]{}}{}
+\makeatother
+
 \chapter{系统实现}
 
 \newcommand{\chapterfiveplaceholder}[1]{%
@@ -50,85 +60,179 @@
 
 \subsubsection{用户模块}
 
-本系统的用户模块支持邮箱密码登录、邮箱验证码登录、邮箱注册，以及 Google、GitHub 的 OAuth 登录。实现上，用户认证、路由分发和第三方登录配置分别落在对应模块中。登录成功以后，系统返回 JWT，前端再把 token 和用户信息保存到本地，并继续初始化 Socket 连接和在线状态\cite{oauthcn2024,oauthbcp2025}。
+本系统的用户模块主要负责身份认证、登录状态维护以及第三方登录，为聊天室与实时通信功能提供统一的用户身份基础\cite{oauthcn2024,oauthbcp2025}。
 
-用户登录成功后，系统会统一生成带有效期的 JWT，并在响应中同时返回用户标识、昵称、邮箱与头像等基础资料，方便前端一次完成身份保持、用户信息回填和 Socket 初始化。
+\begin{usecaselist}
 
-用户认证模块围绕统一身份体系展开。普通注册时，后端会先校验邮箱格式和密码强度，再使用 \texttt{bcrypt} 对密码进行哈希；普通登录时，则根据邮箱查询用户并比对哈希结果，验证通过后再生成 token。验证码登录流程先通过邮件服务生成并暂存验证码，用户提交后再完成核验。OAuth 登录需要先从第三方平台获取用户资料，再根据第三方 ID 或邮箱匹配本地账户，未匹配到时自动创建新账户。该设计使不同登录方式可以共用同一套用户数据。
+\item 邮箱密码登录与注册流程
 
-后端在 \texttt{/api/user/info} 用户信息接口中统一返回当前用户的基础信息。前端在登录完成后通过该接口补齐头像和邮箱，设置页修改资料后也会再次请求该接口；OAuth 回调完成后，前端同样会先读取当前用户信息，再决定后续页面跳转。因此，用户模块不仅承担登录和注册功能，也为其他页面提供统一的身份基础。
+系统支持邮箱密码登录与邮箱注册。普通注册时，后端会先校验邮箱格式和密码强度，再使用 \texttt{bcrypt} 对密码进行哈希；普通登录时，则根据邮箱查询用户并比对哈希结果，验证通过后再生成 JWT。
+
+\item 邮箱验证码登录流程
+
+验证码登录流程先通过邮件服务生成并暂存验证码，用户提交验证码后，后端完成核验并生成登录状态。该方式能够减少用户重复输入密码的操作。
+
+\item OAuth 第三方登录流程
+
+系统同时支持 Google 与 GitHub 的 OAuth 登录。后端会先从第三方平台获取用户资料，再根据第三方 ID 或邮箱匹配本地账户；若未匹配到用户，则自动创建新账户，从而实现不同登录方式共用同一套用户数据。
+
+\item JWT 与用户信息初始化机制
+
+用户登录成功后，系统会统一生成带有效期的 JWT，并返回用户标识、昵称、邮箱与头像等基础资料。前端会将 token 和用户信息保存到本地，并继续初始化 Socket 连接与在线状态；后端还通过 \texttt{/api/user/info} 接口统一返回当前用户信息，用于页面刷新与资料同步。
+
+\end{usecaselist}
 
 邮箱密码登录与 JWT 下发的相关实现见附录A。
 
 \subsubsection{聊天模块}
 
-本系统的聊天模块分成私聊和群聊两条主线。私聊围绕一对一消息收发与历史查询展开，群聊和技术聊天室则同时支持多人讨论、问题标记和协作交流。除最基础的文本消息外，系统还支持图片、文件、语音、代码片段、引用回复和问题标记。
+本系统的聊天模块主要负责私聊、群聊以及技术聊天室中的消息交互，并支持图片、文件、语音、代码片段、引用回复和问题标记等扩展功能。
 
-群聊消息在进入数据库前会先补齐发送者昵称、头像、消息类型和引用信息等字段，写库完成后再更新房间活跃时间，并通过房间广播把完整消息对象同步给在线成员。
+\begin{usecaselist}
 
-群聊消息发送时，后端会先确认房间是否存在以及当前用户是否为成员，再补齐发送者昵称和头像，最后将消息写入群消息集合。其中，群消息文档会冗余保存 \texttt{fromName} 和 \texttt{fromAvatar}，从而避免前端在加载历史消息时逐条查询用户表。私聊部分采用相近思路，但数据结构相对更简洁，核心字段主要包括 \texttt{from}、\texttt{to}、\texttt{content} 和 \texttt{isRead}。
+\item 私聊与群聊消息通信机制
 
-从数据模型设计看，群聊并不等同于简单的多人私聊。群消息模型中额外定义了 \texttt{quotedMessage}、\texttt{isQuestion}、\texttt{questionStatus}、\texttt{isSolution}、\texttt{reactions} 等字段，用于对应前端的技术讨论功能。例如，用户在聊天室中标记问题、设置最佳答案或添加表情反应时，相关状态都会写入消息文档，而不是仅停留在界面层。这样一来，聊天室中的问题追踪与讨论辅助功能就有了明确的数据模型支撑。
+系统将聊天功能分成私聊和群聊两条主线。私聊主要围绕一对一消息收发与历史查询展开；群聊和技术聊天室则支持多人讨论、协作交流以及实时消息广播。
+
+\item 群聊消息写入与广播流程
+
+群聊消息发送时，后端会先确认聊天室是否存在以及当前用户是否为成员，再补齐发送者昵称、头像、消息类型和引用信息等字段。消息写入数据库后，系统会更新房间活跃时间，并通过房间广播把完整消息对象同步给在线成员。
+
+\item 聊天消息数据模型设计
+
+群消息文档中会冗余保存 \texttt{fromName} 和 \texttt{fromAvatar} 字段，从而避免前端在加载历史消息时逐条查询用户表。私聊部分采用相近思路，但数据结构相对更简洁，核心字段主要包括 \texttt{from}、\texttt{to}、\texttt{content} 和 \texttt{isRead}。
+
+\item 技术聊天室扩展功能实现
+
+群消息模型中额外定义了 \texttt{quotedMessage}、\texttt{isQuestion}、\texttt{questionStatus}、\texttt{isSolution} 和 \texttt{reactions} 等字段，用于支持问题标记、最佳答案、引用回复与表情反应等技术讨论功能。相关状态会直接写入消息文档，从而为问题追踪与历史回看提供统一的数据支撑。
+
+\end{usecaselist}
 
 私聊消息查询与发送、技术聊天室创建等相关实现分别见附录B与附录C。
 
 \subsubsection{AI智能检索与流式交互（RAG \& SSE）}
 
-本系统的 AI 模块将ai流式对话接口设计为结合 RAG 向量检索与 Server-Sent Events (SSE) 的流式处理接口。当用户在聊天室中发送带有 \texttt{@AI} 的问题时，系统不会直接把请求转发给模型，而是先整理当前房间的上下文，再调用模型生成回答\cite{qaoverview2025,ragllmsurvey2024,ragsurveycn2025}。
+本系统的 AI 模块将 AI 流式对话接口设计为结合 RAG 向量检索与 Server-Sent Events（SSE）的流式处理接口，用于实现聊天室中的智能问答与上下文辅助生成\cite{qaoverview2025,ragllmsurvey2024,ragsurveycn2025}。
 
-\begin{figure}[H]
+
+\begin{usecaselist}
+
+\item AI 问题识别与上下文整理流程
+
+当用户在聊天室中发送带有 \texttt{@AI} 的问题时，系统不会直接把请求转发给模型，而是先整理当前房间中的历史上下文，再进入后续的向量检索与模型生成流程。
+
+\item RAG 向量检索流程
+
+如图~\ref{fig:5-20}所示，系统会先通过向量检索工具在 MongoDB 历史集合中检索 Top-5 相关聊天记录，并将结果整理进 Prompt，再向模型发起流式请求。
+
+
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.94\textwidth,height=0.58\textheight,keepaspectratio]{img/图5_1.png}
-\caption{RAG智能流式问答核心处理流}
+\captionof{figure}{RAG智能流式问答核心处理流}
 \label{fig:5-20}
-\end{figure}
+\end{minipage}
+\end{center}
+\item SSE 流式回复生成机制
 
-如图~\ref{fig:5-20}所示，系统先通过向量检索工具在 MongoDB 历史集合中检索 Top-5 相关聊天记录，并将结果整理进 Prompt，再向模型发起流式请求。
+在拼装好检索上下文后，后端会发起流式模型请求，并把增量内容持续写回 SSE 响应流。前端能够逐段接收并动态渲染 AI 回复内容，从而降低长文本生成时的等待感。
 
-在拼装好检索上下文后，后端会发起流式模型请求，并把增量内容同时写回 SSE 响应和ai流式广播事件。这样一来，提问者和同房间成员都能实时看到回答逐段生成。
+\item WebSocket 房间广播协同机制
 
-该接口把 HTTP 的 SSE 响应和 WebSocket 房间广播结合在一起。提问者通过长连接逐步接收生成内容，同一房间内的其他成员则通过监听ai流式事件获取增量结果。对于响应耗时较长的大语言模型请求，这种分块返回机制能够缩短首字节等待时间（TTFB），也更适合多人协作场景\cite{deepseekrag2026}。
+系统将 HTTP 的 SSE 响应与 WebSocket 房间广播结合在一起。提问者通过 SSE 长连接逐步接收生成内容，同一房间内的其他成员则通过监听 AI 流式事件获取增量结果，从而实现聊天室中的实时共享问答。
+
+\end{usecaselist}
 
 聊天室 AI 流式回复与结果落库的相关实现见附录D。
 
 \subsubsection{WebSocket模块}
 
-本系统通过 WebSocket 承载私聊通知、房间广播、在线状态同步以及协作类实时事件。实现上，私聊事件和房间级事件分开组织，语音交流和代码协作也单独拆分，从而避免所有实时逻辑堆叠在同一处\cite{socketiodocs2026,imsecurity2024}。
+本系统通过 WebSocket 承载私聊通知、房间广播、在线状态同步以及协作类实时事件\cite{socketiodocs2026,imsecurity2024}。
 
-WebSocket 层分别维护“用户到 socket 集合”和“房间到在线用户集合”的映射关系，在广播消息前先完成连接归属和用户去重，再回推在线人数与消息增量。
+\begin{usecaselist}
 
-WebSocket 层没有直接使用 \texttt{socket.id} 作为用户标识，而是建立了两层映射关系。私聊部分的用户表维护一个用户对应一组 socket 连接，从而支持同一账号在多个窗口同时登录；群聊部分的 \texttt{roomUsers} 记录“某个房间内在线的 userId 集合”，因此在线人数统计会按用户去重，避免同一用户的多窗口连接被重复计算。
+\item 实时消息通信机制
 
-此外，本系统没有将所有实时事件集中在同一个入口处理。私聊消息、群消息、语音连麦和代码协作分别独立实现，这样既便于后续按模块维护，也有助于在出现问题时快速定位具体事件链路。
+系统通过 WebSocket 实现私聊通知与群消息广播。用户发送消息后，后端会将消息实时推送给目标用户或对应聊天室中的在线成员。
+
+\item 用户与房间连接映射机制
+
+WebSocket 层分别维护“用户到 socket 集合”和“房间到在线用户集合”的映射关系。在广播消息前，系统会先完成连接归属判断和用户去重，再同步在线人数与消息增量。
+
+\item 多窗口登录与在线状态维护
+
+系统没有直接使用 \texttt{socket.id} 作为用户标识，而是维护一个用户对应多个 socket 连接的结构，从而支持同一账号在多个窗口同时登录。聊天室中的在线人数统计则按用户维度完成去重，避免重复计算。
+
+\item 实时事件拆分设计
+
+系统没有将所有实时逻辑集中在同一个入口处理。私聊消息、群消息、语音连麦和代码协作分别独立实现，这样既便于后续维护，也有助于在出现问题时快速定位具体事件链路。
+
+\end{usecaselist}
 
 房间在线状态维护与群消息广播的相关实现见附录E。
 
 \subsubsection{数据模型与辅助模块}
 
-后端在核心聊天主链路之外，还提供了上传、收藏、问题追踪、代码片段保存、消息索引和链接预览等辅助能力。这些模块共同支撑了技术交流场景下的信息保存、检索和回看需求。
+后端在核心聊天主链路之外，还提供了上传、收藏、问题追踪、代码片段保存、消息索引和链接预览等辅助能力，用于支撑技术交流场景下的信息保存、检索和回看需求。
 
-群消息模型除了发送者、内容和时间等基础字段外，还扩展了引用回复、问题标记、表情反应和附件信息等结构，为收藏、历史检索和 AI 分析提供了统一的数据基础。
+\begin{usecaselist}
 
-这一部分不仅补充了前端可见的功能入口，也补充了对应的数据结构。例如，引用回复、问题标记和表情反应都直接定义在消息模型中；收藏模块会保存消息快照，因此即使原消息被删除，收藏内容仍可回读；上传模块先保存文件，再将文件地址写回消息记录，使图片、语音和文件能够在历史消息中继续访问。此外，系统还通过消息向量化索引和RAG服务对文本消息进行向量化索引，为后续 AI 检索提供支持\cite{mongodbdocs2026,llmplatform2024}。
+\item 聊天消息统一数据模型
+
+群消息模型除了发送者、内容和时间等基础字段外，还扩展了引用回复、问题标记、表情反应和附件信息等结构，为收藏、历史检索和 AI 分析提供统一的数据基础。
+
+\item 收藏与历史回读机制
+
+收藏模块会保存消息快照，因此即使原消息被删除，收藏内容仍可正常回读。用户能够通过收藏记录重新查看对应消息与上下文内容。
+
+\item 文件上传与资源保存流程
+
+上传模块会先保存图片、语音和文件等资源，再将文件地址写回消息记录，从而保证相关资源能够在历史消息中持续访问。
+
+\item 消息向量化与 AI 检索支持
+
+系统还通过消息向量化索引和 RAG 服务对文本消息进行向量化处理，为后续 AI 检索与上下文问答能力提供支持\cite{mongodbdocs2026,llmplatform2024}。
+
+\end{usecaselist}
 
 收藏数据写入与来源回读的相关实现见附录F。
 
 \subsubsection{聊天室洞察与智能话题聚类分析}
 
-对于一个活跃的技术交流平台，仅靠被动等待用户输入还不够，系统还需要具备整理房间讨论情况的能力。为此，本系统设计了 \texttt{getRoomInsights} 接口，用来汇总房间消息的整体状态。
+为了帮助用户快速了解聊天室中的讨论情况，系统设计了 \texttt{getRoomInsights} 接口，用于汇总房间消息状态并生成阶段性讨论分析结果。
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.94\textwidth,height=0.54\textheight,keepaspectratio]{img/图5_2.png}
-\caption{聊天室实时洞察与状态分析流}
-\label{fig:5-21}
-\end{figure}
+
+\begin{usecaselist}
+
+\item 聊天室消息聚合统计流程
 
 如图~\ref{fig:5-21}所示，该功能主要依靠 MongoDB 文档数据库的聚合能力完成统计，并未额外引入复杂的机器学习流程。
 
-洞察模块先筛出未解决问题，再基于最近消息构建话题映射，统计讨论热度与参与者范围，最后把聚合结果整理成结构化的 \texttt{insights} 报告供前端展示。
 
-系统先按时间窗口整理最近 30 分钟的数据，再利用 Map/Set 结构完成遍历和去重，最后把结果整理成扁平化的 \texttt{insights} 评估报告，并生成 \texttt{aiSpeech} 回传给前端展示。这样一来，用户可以直接看到哪些问题还没有解决、哪些话题仍在持续讨论，而不必完全依赖手动翻看消息记录。
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
+\centering
+\includegraphics[width=0.94\textwidth,height=0.54\textheight,keepaspectratio]{img/图5_2.png}
+\captionof{figure}{聊天室实时洞察与状态分析流}
+\label{fig:5-21}
+\end{minipage}
+\end{center}
+\item 未解决问题筛选机制
+
+系统会先筛选聊天室中的未解决问题，再结合消息状态与时间窗口统计当前仍待处理的问题内容。
+
+\item 热点话题聚类分析流程
+
+系统基于最近消息构建话题映射关系，并利用 Map/Set 结构完成遍历与去重，从而统计聊天室中的讨论热度与参与者范围。
+
+\item 洞察结果生成与前端展示
+
+后端最终会将聚合结果整理成结构化的 \texttt{insights} 报告，并生成 \texttt{aiSpeech} 回传给前端展示。用户可以直接查看当前热点问题与持续讨论的话题，而不必完全依赖手动翻阅历史消息记录。
+
+\end{usecaselist}
 
 
 \subsection{接口设计}
@@ -206,8 +310,6 @@ AI 增量输出 &ai流式& server emit & \texttt{roomId}、\texttt{content}、\t
 
 \noindent 表~\ref{tab:5-3}反映出系统实时通信层的核心职责，即把“谁上线了”“谁加入了房间”“哪条消息需要立即同步给谁”这些高频事件从普通 HTTP 请求中拆出来单独处理。尤其是 \texttt{group-message} 与ai流式这类事件，直接决定了聊天室消息和 AI 回答能否在界面上即时呈现。
 
-\FloatBarrier
-
 \subsection{示例数据}
 
 为了说明接口返回内容，下面给出两个更贴近实际格式的示例。字段名与系统实际返回结构保持一致，只对 token 和部分 ID 做了简化。
@@ -234,18 +336,19 @@ AI 请求比普通接口多了一层上下文和检索处理。侧边栏 AI 助�
 
 为了保证接口文档与系统实现保持一致，本系统在联调阶段使用 Swagger 页面逐项核对主要 REST 接口，包括用户认证、聊天室消息、收藏和 AI 相关请求。接口文档界面如图~\ref{fig:5-1}所示，它能够直接展示请求方法、路径、参数结构和调试入口，对后续接口联调和答辩演示都比较直观。
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_3.png}
-\caption{Swagger 接口文档}
+\captionof{figure}{Swagger 接口文档}
 \label{fig:5-1}
-\end{figure}
+\end{minipage}
+\end{center}
 
 后端运行日志能够反映接口进入、Socket 连接和 AI 请求发起等关键状态。将这一部分保留在论文中，有助于更直观地说明系统运行过程中的联调与验证依据。
 
 例如登录接口返回、聊天室消息拉取、Socket 建连和 AI 接口调用，都会在控制台留下时间戳、访问路径和耗时信息，便于联调阶段快速定位问题。
-
-\FloatBarrier
 
 \section{Web前端实现}
 
@@ -263,21 +366,25 @@ AI 请求比普通接口多了一层上下文和检索处理。侧边栏 AI 助�
 
 \thesisparenitem{4}{操作流程}{用户先进入登录页，选择密码登录、验证码登录或第三方登录；若采用本地登录，则输入表单并提交；后端验证通过后返回 token 和用户资料；前端随后保存登录信息、初始化在线状态和 Socket 连接，最后跳转到聊天主界面。}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_4.png}
-\caption{登录页面展示}
+\captionof{figure}{登录页面展示}
 \label{fig:5-2}
-\end{figure}
+\end{minipage}
+\end{center}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_5.png}
-\caption{注册页面与表单交互展示}
+\captionof{figure}{注册页面与表单交互展示}
 \label{fig:5-3}
-\end{figure}
-
-\FloatBarrier
+\end{minipage}
+\end{center}
 
 \subsection{聊天主界面}
 
@@ -291,28 +398,35 @@ AI 请求比普通接口多了一层上下文和检索处理。侧边栏 AI 助�
 
 \thesisparenitem{4}{操作流程}{用户登录进入主界面后，前端先加载基础资料和列表数据；再根据当前需求切到聊天、联系人或聊天室；选择具体会话后，前端写入当前会话上下文并跳转详情页；详情页继续拉取消息记录并建立需要的 Socket 监听。}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_7.png}
-\caption{聊天主界面总览}
+\captionof{figure}{聊天主界面总览}
 \label{fig:5-5}
-\end{figure}
+\end{minipage}
+\end{center}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_8.png}
-\caption{通讯录列表界面展示}
+\captionof{figure}{通讯录列表界面展示}
 \label{fig:5-6}
-\end{figure}
+\end{minipage}
+\end{center}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_9.png}
-\caption{聊天室列表界面展示}
+\captionof{figure}{聊天室列表界面展示}
 \label{fig:5-7}
-\end{figure}
-
-\FloatBarrier
+\end{minipage}
+\end{center}
 
 \subsection{AI对话界面}
 
@@ -324,21 +438,25 @@ AI 请求比普通接口多了一层上下文和检索处理。侧边栏 AI 助�
 
 \thesisparenitem{4}{操作流程}{AI 模块的操作流程可以概括为：用户打开 AI 面板或在聊天室中输入 \texttt{@AI}；前端提交问题并附带当前上下文；后端结合最近消息和历史检索结果生成回答；回答返回后，前端再按普通消息或流式消息渲染出来。}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_11.png}
-\caption{侧边栏 AI 助手界面}
+\captionof{figure}{侧边栏 AI 助手界面}
 \label{fig:5-9}
-\end{figure}
+\end{minipage}
+\end{center}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_12.png}
-\caption{AI 根据历史记录检索后的回答展示}
+\captionof{figure}{AI 根据历史记录检索后的回答展示}
 \label{fig:5-10}
-\end{figure}
-
-\FloatBarrier
+\end{minipage}
+\end{center}
 
 \subsection{消息列表与会话管理}
 
@@ -350,28 +468,35 @@ AI 请求比普通接口多了一层上下文和检索处理。侧边栏 AI 助�
 
 \thesisparenitem{4}{操作流程}{消息列表与会话管理的基本流程是：先加载会话摘要信息，再根据用户选择打开具体会话；进入会话后加载完整历史消息；如果用户执行搜索、收藏或删除等操作，再分别调用对应接口更新状态，并同步刷新列表（相关实现见附录H）。}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_14.png}
-\caption{会话列表与私聊界面展示}
+\captionof{figure}{会话列表与私聊界面展示}
 \label{fig:5-12}
-\end{figure}
+\end{minipage}
+\end{center}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_15.png}
-\caption{历史消息搜索界面展示}
+\captionof{figure}{历史消息搜索界面展示}
 \label{fig:5-13}
-\end{figure}
+\end{minipage}
+\end{center}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_16.png}
-\caption{收藏页面展示}
+\captionof{figure}{收藏页面展示}
 \label{fig:5-14}
-\end{figure}
-
-\FloatBarrier
+\end{minipage}
+\end{center}
 
 \subsection{设置与个人中心}
 
@@ -383,14 +508,15 @@ AI 请求比普通接口多了一层上下文和检索处理。侧边栏 AI 助�
 
 \thesisparenitem{4}{操作流程}{设置模块的基本流程为：用户打开设置弹窗，修改头像、用户名或主题；前端调用对应接口并保存结果；保存成功后，同步刷新本地资料和相关组件；如果修改内容会影响其他在线用户的显示结果，还会继续通过 Socket 广播更新。}
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_18.png}
-\caption{设置与个人中心界面展示}
+\captionof{figure}{设置与个人中心界面展示}
 \label{fig:5-16}
-\end{figure}
-
-\FloatBarrier
+\end{minipage}
+\end{center}
 
 \subsection{Web端消息流转与状态管理}
 
@@ -399,8 +525,6 @@ AI 请求比普通接口多了一层上下文和检索处理。侧边栏 AI 助�
 WebSocket 的使用也做了分层处理。普通聊天页主要依赖socket提供的全局连接，这一层包含自动重连、断线提示和心跳包；聊天室详情页则额外维护房间级事件，包括 \texttt{join-group}、\texttt{online-count}、\texttt{ai-stream-chunk}、\texttt{join-voice-room} 等。这样一来，普通会话页和聊天室页就能分别承载不同复杂度的实时交互。
 
 状态管理方面，系统虽然使用了 Pinia，但并没有把所有状态都集中到全局 store。全局配置文件只保留 \texttt{currentChatUser} 和按用户区分的消息列表；会话列表、未读数、当前房间详情、搜索结果和收藏状态等内容，仍由各组件内部的 \texttt{ref} 与自定义事件配合维护。比如群聊消息发送后，前端会发出 \texttt{group-message-sent} 事件通知列表刷新；聊天室打开后，再通过 \texttt{group-chat-opened} 事件清除未读数。这样的组织方式和当前项目规模基本匹配。
-
-\FloatBarrier
 
 \section{桌面端实现}
 
@@ -414,14 +538,15 @@ WebSocket 的使用也做了分层处理。普通聊天页主要依赖socket提�
 
 桌面端在收到新消息后的未读提醒和任务栏反馈效果如图~\ref{fig:5-18}所示。这个设计是在复用网页界面的基础上，补充桌面环境下的消息提醒机制。
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_20.png}
-\caption{桌面端未读提醒展示}
+\captionof{figure}{桌面端未读提醒展示}
 \label{fig:5-18}
-\end{figure}
-
-\FloatBarrier
+\end{minipage}
+\end{center}
 
 \subsection{本地通知}
 
@@ -431,14 +556,15 @@ WebSocket 的使用也做了分层处理。普通聊天页主要依赖socket提�
 
 系统托盘的图标、菜单入口与后台驻留形态如图~\ref{fig:5-19}所示。托盘机制使桌面端在关闭主窗口后仍能继续接收消息，并保留快速唤起入口。
 
-\begin{figure}[H]
+\par\Needspace{0.48\textheight}
+\begin{center}
+\begin{minipage}{0.96\textwidth}
 \centering
 \includegraphics[width=0.88\textwidth,height=0.36\textheight,keepaspectratio]{img/图5_21.png}
-\caption{系统托盘展示}
+\captionof{figure}{系统托盘展示}
 \label{fig:5-19}
-\end{figure}
-
-\FloatBarrier
+\end{minipage}
+\end{center}
 
 \subsection{与后端和WebSocket通信}
 
